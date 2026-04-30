@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://tempuri.org/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="GetTrailerKey">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="tmdbId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTrailerKeyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTrailerKeyResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetTrailerKeySoapIn">
+    <wsdl:part name="parameters" element="tns:GetTrailerKey" />
+  </wsdl:message>
+  <wsdl:message name="GetTrailerKeySoapOut">
+    <wsdl:part name="parameters" element="tns:GetTrailerKeyResponse" />
+  </wsdl:message>
+  <wsdl:portType name="TrailersSoap">
+    <wsdl:operation name="GetTrailerKey">
+      <wsdl:input message="tns:GetTrailerKeySoapIn" />
+      <wsdl:output message="tns:GetTrailerKeySoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TrailersSoap" type="tns:TrailersSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetTrailerKey">
+      <soap:operation soapAction="http://tempuri.org/GetTrailerKey" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TrailersSoap12" type="tns:TrailersSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetTrailerKey">
+      <soap12:operation soapAction="http://tempuri.org/GetTrailerKey" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Trailers">
+    <wsdl:port name="TrailersSoap" binding="tns:TrailersSoap">
+      <soap:address location="http://localhost:51730/Trailers.asmx" />
+    </wsdl:port>
+    <wsdl:port name="TrailersSoap12" binding="tns:TrailersSoap12">
+      <soap12:address location="http://localhost:51730/Trailers.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

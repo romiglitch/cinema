@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+# NuGet packages
+packages/
+*.nupkg
+# Publish output
+publish/
+PublishScripts/
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+# macOS
+.DS_Store
+# Logs & temp
+*.log
+*.tmp
+

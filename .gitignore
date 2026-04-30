@@ -1,0 +1,7 @@
+*.docx
+packages/
+.vs/
+[Bb]in/
+[Oo]bj/
+.env
+App_Data/

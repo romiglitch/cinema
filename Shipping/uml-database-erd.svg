@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="985" height="790" viewBox="0 0 985 790">
+  <title>Database Schema ERD — Shipping Cinema System</title>
+  <rect width="985" height="790" fill="#181818"/>
+<text x="30" y="36" font-size="14" font-weight="600" fill="#E4E4E4" font-family="sans-serif">Database Schema (ERD) — Shipping Cinema System</text>
+<text x="30" y="54" font-size="10" fill="#5E5E5E" font-family="sans-serif">SQL Server LocalDB · 8 tables · inferred from application SQL queries</text>
+
+<!-- Movie -->
+<text x="172.5" y="83" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="30" y="88" width="285" height="32" fill="#2A2A2A"/>
+<text x="172.5" y="109" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Movie</text>
+<line x1="30" y1="120" x2="315" y2="120" stroke="#333333" stroke-width="1"/>
+<text x="38" y="142" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">Id: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="38" y="161" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Title: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="38" y="180" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Description: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="38" y="199" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Duration: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="38" y="218" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Age: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="38" y="237" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Poster: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="38" y="256" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">TmdbId: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<rect x="30" y="70" width="285" height="198" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- MovieGenres -->
+<text x="147.5" y="361" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="30" y="366" width="235" height="32" fill="#2A2A2A"/>
+<text x="147.5" y="387" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">MovieGenres</text>
+<line x1="30" y1="398" x2="265" y2="398" stroke="#333333" stroke-width="1"/>
+<text x="38" y="420" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">IdMovie: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="38" y="439" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">IdGenre: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<rect x="30" y="348" width="235" height="103" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- Screening -->
+<text x="510.0" y="83" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="380" y="88" width="260" height="32" fill="#2A2A2A"/>
+<text x="510.0" y="109" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Screening</text>
+<line x1="380" y1="120" x2="640" y2="120" stroke="#333333" stroke-width="1"/>
+<text x="388" y="142" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">ScreeningId: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="388" y="161" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">MovieId: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="180" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">Hall: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="199" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">StartTime: </tspan><tspan fill="#A0A0A0" font-style="italic">datetime</tspan></text>
+<text x="388" y="218" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">EndTime: </tspan><tspan fill="#A0A0A0" font-style="italic">datetime</tspan></text>
+<text x="388" y="237" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">SeatesBought: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<rect x="380" y="70" width="260" height="179" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- Tickets -->
+<text x="505.0" y="341" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="380" y="346" width="250" height="32" fill="#2A2A2A"/>
+<text x="505.0" y="367" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Tickets</text>
+<line x1="380" y1="378" x2="630" y2="378" stroke="#333333" stroke-width="1"/>
+<text x="388" y="400" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">User: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="419" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">Screening: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="438" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Row: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="457" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Seat: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="388" y="476" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Price: </tspan><tspan fill="#A0A0A0" font-style="italic">decimal</tspan></text>
+<text x="388" y="495" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">Type: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<rect x="380" y="328" width="250" height="179" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- Users -->
+<text x="507.5" y="591" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="380" y="596" width="255" height="32" fill="#2A2A2A"/>
+<text x="507.5" y="617" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Users</text>
+<line x1="380" y1="628" x2="635" y2="628" stroke="#333333" stroke-width="1"/>
+<text x="388" y="650" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">UserId: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="388" y="669" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">FullName: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="388" y="688" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Password: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="388" y="707" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Phone: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="388" y="726" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Email: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="388" y="745" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">IsAdmin: </tspan><tspan fill="#A0A0A0" font-style="italic">bit</tspan></text>
+<rect x="380" y="578" width="255" height="179" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- Halls -->
+<text x="820.0" y="83" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="710" y="88" width="220" height="32" fill="#2A2A2A"/>
+<text x="820.0" y="109" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Halls</text>
+<line x1="710" y1="120" x2="930" y2="120" stroke="#333333" stroke-width="1"/>
+<text x="718" y="142" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">HallId: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="718" y="161" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Rows: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="718" y="180" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">SeatsPerRow: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<rect x="710" y="70" width="220" height="122" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- Seats -->
+<text x="832.5" y="288" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="710" y="293" width="245" height="32" fill="#2A2A2A"/>
+<text x="832.5" y="314" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">Seats</text>
+<line x1="710" y1="325" x2="955" y2="325" stroke="#333333" stroke-width="1"/>
+<text x="718" y="347" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">SeatId: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="718" y="366" font-size="11" font-family="monospace"><tspan fill="#5E5E5E" font-size="9" font-weight="600">FK </tspan><tspan fill="#A0A0A0">HallId: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="718" y="385" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">RowNumber: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="718" y="404" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">SeatNumber: </tspan><tspan fill="#A0A0A0" font-style="italic">int</tspan></text>
+<text x="718" y="423" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">IsAccessible: </tspan><tspan fill="#A0A0A0" font-style="italic">bit</tspan></text>
+<rect x="710" y="275" width="245" height="160" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+
+<!-- TicketsPricing -->
+<text x="832.5" y="535" text-anchor="middle" font-size="10" fill="#5E5E5E" font-style="italic" font-family="sans-serif">«table»</text>
+<rect x="710" y="540" width="245" height="32" fill="#2A2A2A"/>
+<text x="832.5" y="561" text-anchor="middle" font-size="12" font-weight="600" fill="#E4E4E4" font-family="monospace">TicketsPricing</text>
+<line x1="710" y1="572" x2="955" y2="572" stroke="#333333" stroke-width="1"/>
+<text x="718" y="594" font-size="11" font-family="monospace"><tspan fill="#599CE7" font-size="9" font-weight="700">PK </tspan><tspan fill="#A0A0A0">Id: </tspan><tspan fill="#A0A0A0" font-style="italic">int IDENTITY</tspan></text>
+<text x="718" y="613" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">PersonType: </tspan><tspan fill="#A0A0A0" font-style="italic">nvarchar</tspan></text>
+<text x="718" y="632" font-size="11" font-family="monospace"><tspan fill="#5E5E5E">+ </tspan><tspan fill="#A0A0A0">Price: </tspan><tspan fill="#A0A0A0" font-style="italic">decimal</tspan></text>
+<rect x="710" y="522" width="245" height="122" fill="none" stroke="#484848" stroke-width="1.5" rx="2"/>
+<line x1="380.0" y1="159.5" x2="315.0" y2="169.0" stroke="#484848" stroke-width="1.2"/>
+<line x1="315.0" y1="169.0" x2="323.1" y2="162.4" stroke="#484848" stroke-width="1.2"/>
+<line x1="315.0" y1="169.0" x2="324.7" y2="173.0" stroke="#484848" stroke-width="1.2"/>
+<text x="364" y="157" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="331" y="162" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+
+<polyline points="147.5,348.0 147.5,268.0 172.5,268.0" fill="none" stroke="#484848" stroke-width="1.2"/>
+<line x1="172.5" y1="268.0" x2="163.5" y2="273.4" stroke="#484848" stroke-width="1.2"/>
+<line x1="172.5" y1="268.0" x2="163.5" y2="262.6" stroke="#484848" stroke-width="1.2"/>
+
+<text x="152.5" y="342" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="177.5" y="281" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+<line x1="640.0" y1="159.5" x2="710.0" y2="131.0" stroke="#484848" stroke-width="1.2"/>
+<line x1="710.0" y1="131.0" x2="703.7" y2="139.4" stroke="#484848" stroke-width="1.2"/>
+<line x1="710.0" y1="131.0" x2="699.6" y2="129.4" stroke="#484848" stroke-width="1.2"/>
+<text x="658" y="147" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="692" y="133" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+
+<line x1="832.5" y1="275.0" x2="820.0" y2="192.0" stroke="#484848" stroke-width="1.2"/>
+<line x1="820.0" y1="192.0" x2="826.7" y2="200.1" stroke="#484848" stroke-width="1.2"/>
+<line x1="820.0" y1="192.0" x2="816.0" y2="201.7" stroke="#484848" stroke-width="1.2"/>
+<text x="829" y="249" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="823" y="208" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+
+<line x1="505.0" y1="328.0" x2="510.0" y2="249.0" stroke="#484848" stroke-width="1.2"/>
+<line x1="510.0" y1="249.0" x2="514.8" y2="258.3" stroke="#484848" stroke-width="1.2"/>
+<line x1="510.0" y1="249.0" x2="504.0" y2="257.6" stroke="#484848" stroke-width="1.2"/>
+<text x="506" y="303" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="509" y="264" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+
+<line x1="505.0" y1="507.0" x2="507.5" y2="578.0" stroke="#484848" stroke-width="1.2"/>
+<line x1="507.5" y1="578.0" x2="501.8" y2="569.2" stroke="#484848" stroke-width="1.2"/>
+<line x1="507.5" y1="578.0" x2="512.6" y2="568.8" stroke="#484848" stroke-width="1.2"/>
+<text x="506" y="520" font-size="9" fill="#5E5E5E" font-family="sans-serif">N</text>
+<text x="507" y="555" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+
+<polyline points="630.0,417.5 670.0,417.5 670.0,583.0 710.0,583.0" fill="none" stroke="#484848" stroke-width="1.2"/>
+<line x1="710.0" y1="583.0" x2="701.0" y2="588.4" stroke="#484848" stroke-width="1.2"/>
+<line x1="710.0" y1="583.0" x2="701.0" y2="577.6" stroke="#484848" stroke-width="1.2"/>
+
+<text x="635" y="412.5" font-size="9" fill="#5E5E5E" font-family="sans-serif">N · Type</text>
+<text x="692" y="578.0" font-size="9" fill="#5E5E5E" font-family="sans-serif">1</text>
+<text x="30" y="772" font-size="9" fill="#5E5E5E" font-family="sans-serif"><tspan fill="#599CE7" font-weight="700">PK</tspan> = primary key    FK = foreign key    ──▶ arrow: FK table → PK table    N/1 = cardinality    MovieGenres.IdGenre = external TMDb IDs (no local Genre table)    Tickets.Type references TicketsPricing (PersonType string match or Id)</text>
+</svg>

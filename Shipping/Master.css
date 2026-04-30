@@ -1,0 +1,2976 @@
+﻿
+
+
+
+/*}
+
+h1 {
+    margin-top: 40px;
+}
+h2 {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;*//*  כמו h1 */
+    /*font-size: 28px;*/ /* קטן יותר מ-h1 */
+    /*color: #222;*/ /* אותו צבע */
+    /*text-align: center;*/  /*גם ממורכז */
+    /*margin: 30px 0 20px 0;*/ /* ח מעל ומתחתרוו*/ 
+/*}
+
+
+footer {
+    padding: 100px 0;
+}*/
+
+
+
+/* ====== שורות מושבים ====== 
+*//*.seats-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.row-label {
+    width: 30px;
+    line-height: 40px;
+    font-weight: bold;
+    color: #444;
+}*/
+
+/* ====== מושבים ====== 
+*//*.seat {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid #ccc;
+}
+
+    .seat.available {
+        background-color: #81d4fa;
+    }
+
+    .seat.taken {
+        background-color: #9e9e9e;
+        cursor: not-allowed;
+    }
+
+    .seat.selected {
+        background-color: #4caf50 !important;
+        color: white !important;
+    }
+
+    .seat.accessible {
+        background-color: #3f51b5;
+        color: white;
+        cursor: pointer;*/  /*👈 חשוב 
+*/    /*}*/
+
+/* ====== אגדה ====== 
+*//*.legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+    .legend-box.available {
+        background-color: #81d4fa;
+    }
+
+    .legend-box.taken {
+        background-color: #9e9e9e;
+    }
+
+    .legend-box.selected {
+        background-color: #4caf50;
+    }
+
+    .legend-box.accessible {
+        background-color: #3f51b5;
+    }*/
+
+/* ====== כפתור הזמנה ====== 
+*//*.reserve-button {
+    background: #0078D4;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+    .reserve-button:hover {
+        background: #005fa3;
+    }*/
+
+/* ====== מסכים קטנים ====== 
+*//*@media (max-width: 480px) {
+    .seat {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+    }
+
+    .row-label {
+        width: 20px;
+        font-size: 12px;
+    }
+
+}*/
+/*
+
+ ========================== 
+
+/*
+ ========================== 
+ 🎬 עיצוב רשימת סרטים */
+/*.date-picker-container {
+    margin-bottom: 20px;
+}
+
+.date-picker {
+    padding: 5px;
+    width: 150px;
+}
+
+.date-dropdown {
+    font-size: 16px;
+    padding: 5px;
+    margin-bottom: 20px;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.movies-list .movie-block {
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.movie-title {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+
+.movie {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+    .movie h3 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+
+
+
+
+/* 🧾 עיצוב עמוד סיכום הזמנה*/ 
+/*.summary-container {
+    max-width: 700px;
+    margin: 60px auto;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+    direction: rtl;
+}
+
+    .summary-container h1 {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 25px;
+    }
+
+.summary-box {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px 40px;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    text-align: center;
+}
+
+.summary-info p {
+    font-size: 21px;
+    margin: 5px 0;
+    color: #333;
+}
+
+.summary-info strong {
+    color: #000;
+    font-weight: 700;
+}
+
+.summary-box hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.summary-box h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #d63384;
+    margin-bottom: 15px;
+}
+
+
+.seat-list {
+    font-weight: bold;
+    color: #ffeb3b;
+}*/
+
+
+/* מכולת האולם 
+*//*.hall-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;*/  /*מרכז הכל*/ 
+    /*justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+
+}*/
+/* רשת של כל השורות 
+*//*.seats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;*/ /* רווח בין שורות*/ 
+    /*align-items: center;
+}*/
+
+/* כל שורה באולם 
+*//*.seat-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}*/
+
+/* תווית של מספר השורה 
+*//*.row-label {
+    width: 60px;
+    font-weight: bold;
+    text-align: center;
+}*/
+
+/* מושבים בשורה 
+*//*.row-seats {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;*/  /*רווח בין מושבים */
+/*}*/
+
+/* סגנונות בסיסיים של מושבים 
+*//*.seat {
+    width: 35px;
+    height: 35px;
+    border-radius: 6px;
+    text-align: center;
+    line-height: 35px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}*/
+
+/*     מצבים שונים של מושבים 
+*/    /*.seat.available {
+        background-color: #81d4fa;
+    }
+
+    .seat.taken {
+        background-color: #9e9e9e;
+        cursor: not-allowed;
+    }
+
+    .seat.selected {
+        background-color: #4caf50 !important;
+        color: white !important;
+    }
+
+    .seat.accessible {
+        background-color: #3f51b5;
+        color: white;
+        cursor: pointer;*/  /*👈 חשוב */
+    /*}
+
+.divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 30px 0;
+}
+
+.tickets-header {
+    text-align: center;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.ticket-item {
+    font-size: 18px;
+    background: #f2f6fc;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #dce3f0;
+}
+
+    .ticket-item span {
+        font-weight: bold;
+        color: #000;
+    }
+
+.actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.confirm-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .confirm-btn:hover {
+        background-color: #1976D2;
+    }*/
+
+
+/* קרוסלה - עיצוב ההורה 
+*//*.movies-section {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.carousel-wrapper {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.4s ease-in-out;
+    will-change: transform;
+    padding: 0 40px;*/  /*קצוות גדולים */
+/*}
+
+.poster-card {
+    flex: 0 0 auto;
+    aspect-ratio: 2 / 3;*/ /* יחס אחיד רוחב:גובה */
+    /*max-width: 200px;*/ /* גודל אחיד */
+    /*margin-right: 20px;*//*  רווח בין פוסטרים */
+    /*cursor: pointer;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+    .poster-card:last-child {
+        margin-right: 0;*/ /* אין רווח אחרי האחרון */
+    /*}
+
+    .poster-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;*//*  תמונה ממלאת את הפוסטר בלי לעוות */
+        /*display: block;
+        border-radius: 10px;
+        transition: transform 0.2s ease;
+    }
+
+    .poster-card:hover img {
+        transform: scale(1.05);
+    }*/
+
+/* חיצי ניווט 
+*//*.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 40px;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+    .arrow:hover {
+        background-color: rgba(0,0,0,0.7);
+    }
+
+    .arrow.left {
+        left: 10px;
+    }
+
+    .arrow.right {
+        right: 10px;
+    }*/
+
+
+/* 🎞️ Master Cinema Theme */
+/* פונט בסיסי */
+/* הוספת פונט קולנועי לתפריט */
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+html, body {
+    font-family: 'Rubik', sans-serif; /* פונט */
+    display: flex; /* לצורך פוטר מודבק */
+    flex-direction: column; /* סדר עמוד מהראש למטה */
+    height: 100%; /* כדי ש-main יתפוס את השטח */
+    margin: 0; /* איפוס מרווח */
+    padding: 0; /* איפוס פנימי */
+    background-color: black; /* צבע רקע */
+    color: white; /* צבע טקסט */
+    text-align: center; /* יישור טקסט */
+}
+h1 {
+    font-size: 2.2em !important;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #8e2de2;
+    text-align: center;
+    font-weight: bold !important;
+    font-family: 'Segoe UI', sans-serif !important;
+}
+.error-text-simple {
+    color: #ff5e5e !important;
+    font-size: 0.8rem;
+    display: block;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: right;
+
+}
+/* לוודא שגם אזורים ריקים מקבלים רקע */
+ .content, .movies-section {
+    background-color: transparent;
+    color: #fff;
+}
+
+
+/* קונטיינר סטטיסטיקות */
+.stats-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: #1a1a1a;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(142, 45, 226, 0.3);
+    text-align: center;
+    color: #fff;
+    min-width: 150px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .stat-box h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: #ffb347;
+    }
+
+    .stat-box p {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .stat-box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(142, 45, 226, 0.5);
+    }
+
+    /*בעמוד מאסטר AI עוזר*/
+
+#ai-chat-launcher {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    cursor: pointer;
+    /* סגול בהיר שקפקף (20% אטימות) */
+    background: rgba(162, 155, 254, 0.2) !important;
+    /* אפקט הטשטוש למראה זכוכית */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    /* מסגרת בסגול בהיר עדין מאוד */
+    border: 1px solid rgba(162, 155, 254, 0.3) !important;
+    /* זוהר רך מסביב */
+    box-shadow: 0 8px 32px rgba(162, 155, 254, 0.2);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: floating 3s ease-in-out infinite;
+}
+
+    /* אפקט Hover - הסגול הבהיר מתחזק */
+    #ai-chat-launcher:hover {
+        transform: scale(1.15) rotate(15deg);
+        background: rgba(162, 155, 254, 0.4) !important;
+        border-color: rgba(162, 155, 254, 0.6) !important;
+        box-shadow: 0 0 25px rgba(162, 155, 254, 0.5);
+    }
+
+    #ai-chat-launcher span {
+        font-size: 24px;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        line-height: 1;
+        display: block;
+        margin-top: -2px;
+        animation: sparkle 1s infinite alternate;
+    }
+
+/* אנימציית הציפה */
+@keyframes floating {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+#ai-chat-launcher:hover span {
+    animation: sparkle 1s infinite alternate;
+}
+
+@keyframes sparkle {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.3);
+        opacity: 1;
+        text-shadow: 0 0 15px white;
+    }
+}
+
+/* חלון הצ'אט המרכזי */
+#ai-chat-window {
+    position: fixed;
+    bottom: 85px;
+    left: 20px;
+    width: 360px;
+    height: 520px;
+    max-height: 520px;
+    background: #1a1d23; /* צבע רקע כהה ויוקרתי */
+    border-radius: 20px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.7);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #343a40;
+    direction: rtl !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* תוכן הצ'אט עם רקע קולנועי */
+.chat-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: #0f1115;
+    /* רקע של פטרן נקודות עדין במקום הוואטסאפ */
+    background-image: radial-gradient(#2d3436 0.5px, transparent 0.5px);
+    background-size: 15px 15px;
+}
+
+#upChat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+/* מבטיח שהטעינה תמיד תהיה האחרונה ברשימה */
+#loading {
+    order: 999;
+    display: none;
+}
+
+/* כותרת מעוצבת */
+.chat-header {
+    background: #252a34;
+    color: #ffffff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #343a40;
+}
+
+/* עיצוב הסקרולר */
+.chat-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.chat-content::-webkit-scrollbar-thumb {
+    background: #4b4b4b;
+    border-radius: 10px;
+}
+
+/* בועות הודעה */
+.message-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+    .message-row.user {
+        justify-content: flex-start;
+    }
+    /* המשתמש שלך (סגול) */
+    .message-row.ai {
+        justify-content: flex-end;
+    }
+/* הבוט */
+
+.bubble {
+    max-width: 85%;
+    padding: 10px 16px;
+    font-size: 14.5px;
+    position: relative;
+    line-height: 1.5;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    border-radius: 18px;
+}
+
+/* בועת משתמש - סגול יוקרתי */
+.user .bubble {
+    background: #6c5ce7;
+    color: white;
+    border-bottom-right-radius: 4px;
+    margin-right: 5px;
+}
+
+/* בועת AI - אפור פחם כהה */
+.ai .bubble {
+    background: #2d3436;
+    color: #dfe6e9;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #3d4446;
+    margin-left: 5px;
+}
+
+/* כפתורי מצב רוח */
+.mood-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 20px 0;
+    justify-content: center;
+}
+
+.mood-btn {
+    background: rgba(108, 92, 231, 0.1);
+    color: #a29bfe !important;
+    border: 1px solid #6c5ce7;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    direction: rtl;
+}
+
+    .mood-btn:hover {
+        background: #6c5ce7;
+        color: white !important;
+        transform: translateY(-2px);
+    }
+
+/* פוטר - תיבת הכתיבה */
+.chat-footer {
+    background: #252a34;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid #343a40;
+}
+
+.chat-input {
+    flex: 1;
+    background: #1a1d23;
+    border: 1px solid #3d4446;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+    .chat-input:focus {
+        border-color: #6c5ce7;
+    }
+
+.chat-send-btn {
+    background: #6c5ce7;
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.3s;
+    text-decoration: none;
+}
+
+    .chat-send-btn:hover {
+        background: #5849c4;
+    }
+
+/* אנימציית נקודות */
+.typing-indicator span {
+    animation: blink 1.5s infinite;
+    opacity: 0;
+    margin: 0 1px;
+    color: #a29bfe;
+    font-weight: bold;
+}
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+@keyframes blink {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* קישורים וכפתורים */
+button /*a:hover, button:hover, .btn:hover, input[type=button]:hover, input[type=submit]:hover היה לפני *//*שינויים*/ {
+    background-color: #1e90ff;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+ button:hover{
+        background-color: #3aa0ff;
+        box-shadow: 0 0 15px rgba(30,144,255,0.6);
+        transform: scale(1.03);
+    }
+
+/* ניווט עליון */
+/* שלב 1: פונט כפתורים */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap');
+
+/* 🎬 עיצוב שורת התפריט עצמה - כהה עם כפתורים סגול-זהב */
+.topnav {
+    background: #111; /* רקע כהה */
+    border-bottom: 2px solid #8e2de2; /* קו תחתון סגול כהה */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    padding: 15px 40px;
+}
+
+    /* 🎬 כפתורי התפריט - סגול-זהב */
+    .topnav a {
+        font-family: 'Oswald', sans-serif; /* פונט קולנועי */
+        font-size: 18px; /* גדולים יותר */
+        font-weight: 600;
+        background: linear-gradient(45deg, #8e2de2, #ffb347); /* סגול + זהב */
+        color: #fff;
+        padding: 12px 28px;
+        border-radius: 8px;
+        text-decoration: none;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+        .topnav a:hover {
+            background: linear-gradient(45deg, #7a21c9, #ffa200);
+            box-shadow: 0 6px 15px rgba(255,179,71,0.6);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .topnav a.active {
+            background: linear-gradient(45deg, #5c149d, #ff8c00);
+            box-shadow: 0 6px 18px rgba(255,140,0,0.6);
+        }
+.admin-link {
+    border: 1px solid #ffb347 !important; /* מסגרת זהובה */
+    color: #ffb347 !important;
+    background: rgba(255, 179, 71, 0.1) !important;
+}
+
+    .admin-link:hover {
+        background: #ffb347 !important;
+        color: #000 !important;
+        box-shadow: 0 0 15px rgba(255, 179, 71, 0.5);
+    }
+/* איזון הצדדים כדי שהמרכז יישאר באמצע */
+.nav-left, .nav-right {
+    width: 250px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-left {
+    justify-content: flex-start;
+}
+
+.nav-right {
+    justify-content: flex-end;
+    padding-right: 70px; /* דוחף את השם עוד קצת פנימה מהקצה */
+}
+
+/* המרכז - עכשיו יש לו מקום לנשום */
+.nav-center {
+    display: flex;
+    gap: 30px; /* המרווח הנעים בין דף הבית לסרטים */
+    justify-content: center;
+}
+
+/* עיצוב התג של השם - גודל אחיד לכפתור */
+.user-welcome {
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+
+/* עיצוב אחיד לשניהם - כפתור ותג */
+.logout-btn, .user-welcome {
+    color: #fff;
+    border: 1px solid #8e2de2;
+    background-color: transparent;
+    font-family: 'Oswald', sans-serif;
+    font-size: 17px; /* גודל אחיד */
+    height: 40px; /* גובה קבוע לשניהם */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    border-radius: 50px;
+    box-sizing: border-box;
+}
+/* עיצוב ספציפי לכפתור ההתנתקות */
+.logout-btn {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .logout-btn:hover {
+        background: #8e2de2;
+        box-shadow: 0 0 15px rgba(142, 45, 226, 0.5);
+    }
+
+/* עיצוב האייקון */
+.user-icon {
+    font-style: normal;
+    font-size: 16px;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 80px;
+}
+
+form {
+    flex: 1; /* גורם ל-main לגדול ולהשאיר את הפוטר בתחתית */
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    flex: 1; /* ל-main למלא את השטח הזמין */
+    background-color: transparent;
+    color: #fff;
+}
+
+footer {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    background: linear-gradient(90deg, #8e2de2, #ffb347);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200px;
+    background-position: center;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 14px;
+    width: 100%;
+}
+/* -------- LOGIN -------- */
+.login-container {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.login-form {
+    background-color: #1a1a1a;
+    padding: 40px 50px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 0 25px rgba(142, 45, 226, 0.5);
+    text-align: right;
+}
+
+.input-box {
+    width: 220px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background-color: #0f0f0f;
+    color: #e5e5e5;
+    transition: all 0.3s ease;
+}
+
+    .input-box:focus {
+        border-color: #ffb347;
+        box-shadow: 0 0 10px rgba(255, 179, 71, 0.6);
+        outline: none;
+    }
+
+.login-form label {
+    color: #ddd;
+    padding-left: 10px;
+}
+
+.login-btn {
+    background: linear-gradient(45deg, #8e2de2, #ffb347);
+    border: none;
+    color: #fff;
+    padding: 10px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(142, 45, 226, 0.4);
+}
+
+    .login-btn:hover {
+        background: linear-gradient(45deg, #ffb347, #8e2de2);
+        transform: scale(1.05);
+        box-shadow: 0 0 18px rgba(255, 179, 71, 0.7);
+    }
+.msg-label {
+    /* התאמה מושלמת לפונט של כפתור שכחת סיסמא */
+    font-family: 'Rubik', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400;
+    /* מבנה ומיקום */
+    display: block;
+    margin: 0px auto 0 auto;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: fit-content;
+    /* עיצוב Glassmorphism */
+    background: rgba(255, 107, 107, 0.1); /* רקע אדמדם שקוף מאוד */
+    color: #ff8e8e !important; /* גוון אדום-ורדרד רך יותר */
+    border: 1px solid rgba(255, 107, 107, 0.2); /* מסגרת עדינה */
+    backdrop-filter: blur(8px); /* טשטוש של מה שמתחת להודעה */
+    /* אפקט של הארה עדינה (Glow) */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 107, 107, 0.1);
+    /* אנימציה חלקה */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(-5px); /* מתחיל טיפה מעל המיקום שלו */
+}
+
+    /* כשהודעה מופיעה */
+    .msg-label:not(:empty) {
+        opacity: 1;
+        transform: translateY(0); /* יורד למקום בצורה חלקה */
+    }
+
+    /* הסתרה מוחלטת כשאין הודעה */
+    .msg-label:empty {
+        display: none;
+    }
+/* אנימציית הופעה */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* הודעת הצלחה (לא חובה, אם תרצי גם צבע חיובי) */
+.msg-label.success {
+    background: rgba(255, 179, 71, 0.12);
+    color: #ffb347;
+    box-shadow: 0 0 15px rgba(255, 179, 71, 0.25);
+}
+
+/* כפתורי אדמין – עיצוב בסגנון קולנועי כמו הניווט */
+.admin-buttons,
+.admin-buttons input,
+.admin-buttons button,
+input.admin-buttons,
+button.admin-buttons {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(45deg, #8e2de2, #ffb347);
+    color: #fff;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin: 0 10px;
+}
+
+    /* אפקט hover */
+    .admin-buttons:hover,
+    .admin-buttons input:hover,
+    .admin-buttons button:hover,
+    input.admin-buttons:hover,
+    button.admin-buttons:hover {
+        background: linear-gradient(45deg, #7a21c9, #ffa200);
+        box-shadow: 0 6px 15px rgba(255,179,71,0.6);
+        transform: translateY(-3px) scale(1.05);
+    }
+
+    /* לחצן פעיל (אם תרצי להשתמש) */
+    .admin-buttons.active {
+        background: linear-gradient(45deg, #5c149d, #ff8c00);
+        box-shadow: 0 6px 18px rgba(255,140,0,0.6);
+    }
+.poster-img {
+    height: auto; /* לדוגמה */
+    width: auto;
+}
+
+.poster-img-edit {
+    height: 300px; /* קטנה יותר לעריכה */
+    width: auto; /* יחס גובה-רוחב נשמר */
+}
+
+/* כפתורי Edit / Update / Cancel בעיצוב קולנועי */
+.movie-btn {
+    font-family: 'Oswald', sans-serif;
+    background: linear-gradient(45deg, #8e2de2, #ffb347);
+    color: white !important;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none !important;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    margin: 10px 8px;
+    transition: 0.3s ease;
+}
+
+    .movie-btn:hover {
+        background: linear-gradient(45deg, #7a21c9, #ffa200);
+        box-shadow: 0 6px 15px rgba(255,179,71,0.5);
+        transform: translateY(-3px);
+    }
+.clean-black-btn,
+.clean-black-btn:focus,
+.clean-black-btn:active,
+.clean-black-btn:hover {
+    background: none;
+    border: none;
+    color: black;
+    outline: none !important;
+    box-shadow: none !important;
+    text-decoration: none;
+    cursor: pointer;
+    /* פונט שונה */
+
+    font-family: 'Montserrat', sans-serif; /* פונט מודרני */
+
+    font-weight: 500;
+    font-size: 16px;
+}
+
+    .clean-black-btn:hover {
+        color: gray;
+    }
+/* כפתורי מעבר בין עמודים – מינימליסטי ונקי */
+.page-btn {
+    position: relative;
+    z-index: 10; /* לוודא שהם מעל כל מה שבתוך ההורה */
+    background-color: #1a1a1a !important;
+    color: white; /* צבע טקסט כהה לקריאה */
+    font-size: 26px; /* קצת יותר גדול מהטקסט הקיים */
+    cursor: pointer;
+    padding: 10px 16px; /* מרווח פנימי נוח */
+    margin: 0 5px;
+    border-radius: 8px; /* פינות עגלגלות למראה מודרני */
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease; /* אנימציה חלקה */
+    border: none !important; /* מסיר מסגרת */
+    outline: none !important; /* מסיר מסגרת focus */
+    box-shadow: none !important;
+}
+
+    /* אפקט hover בולט אך לא מוגזם */
+    .page-btn:hover {
+        color: azure; /* צבע טקסט לבן */
+        transform: translateY(-1px) scale(1.03);
+    }
+
+    /* מצב לחיצה */
+    .page-btn:active {
+        transform: translateY(0) scale(1); /* מחזיר לגודל המקורי */
+      
+        background-color: #0056b3; /* כחול כהה יותר */
+        color: #fff;
+    }
+
+    /* מונע מסביבת הדפדפן להוסיף קו או הצללה */
+    .page-btn:focus {
+        outline: none;
+    }
+.weekSchedule {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    direction: rtl;
+}
+
+    .weekSchedule th {
+        background: #2c3e50;
+        color: white;
+        padding: 10px;
+    }
+
+    .weekSchedule td, .weekSchedule th {
+        border: 1px solid #aaa;
+        padding: 10px;
+    }
+/* עיצוב של ה-checkbox שיהפוך אותו לדמוי רדיו */
+input[type="checkbox"] {
+    -webkit-appearance: none; /* מסתיר את עיצוב ה-checkBox ב-Chrome ו-Safari */
+    -moz-appearance: none; /* מסתיר את עיצוב ה-checkBox ב-Firefox */
+    appearance: none; /* מסתיר את עיצוב ה-checkBox ב-Edge ו-DLL אחרים */
+    width: 20px;
+    height: 20px;
+    border: 2px solid #555; /* גבול לעיגול */
+    border-radius: 50%; /* הופך אותו לעיגול */
+    background-color: white; /* רקע לבן */
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+    /* כשכפתור צ'קבוקס נבחר */
+    input[type="checkbox"]:checked::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        background-color: #3f8ded; /* הצבע של הנקודה הפנימית */
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* שיפור המראה בזמן hover */
+    input[type="checkbox"]:hover {
+        border-color: #000;
+    }
+input.btnAddS {
+    display: block; /* הופך אותו לאלמנט בלוק */
+    margin: 15px auto 0 auto; /* מרכז אופקית ומוסיף רווח למעלה */
+    text-align: center !important; /* מרכז */
+    background-color: #e6e6e6 !important;
+    color: #1c1c1c !important;
+    border: 1px solid #cfcfcf !important;
+    padding: 8px 18px !important; /* קטן יותר */
+    border-radius: 6px !important;
+    font-size: 14px !important; /* טקסט קטן יותר */
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+}
+    input.btnAddS:hover {
+        background-color: inherit !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+.hiddenBtn {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    margin-top: 0 !important;
+}
+
+.showBtn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    margin-top: 25px !important;
+}
+.editorMsg {
+    margin-top:-20px;
+    text-align: center;
+    font-size: 15px;
+    color: #6dff6d; /* או הצבע שבחרת */
+    letter-spacing: 0.4px;
+    display: block;
+}
+/* -------- SIGN UP -------- */
+.signup-container {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.signup-form {
+    background-color: #1a1a1a;
+    padding: 40px 50px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 0 25px rgba(142, 45, 226, 0.5);
+    text-align: right;
+}
+
+    .signup-form label {
+        color: #ddd;
+        padding-left: 10px;
+    }
+   
+.signup-btn {
+    background: linear-gradient(45deg, #8e2de2, #ffb347);
+    border: none;
+    color: #fff;
+    padding: 10px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(142, 45, 226, 0.4);
+}
+
+    .signup-btn:hover {
+        background: linear-gradient(45deg, #ffb347, #8e2de2);
+        transform: scale(1.05);
+        box-shadow: 0 0 18px rgba(255, 179, 71, 0.7);
+    }
+/* מסיר גבולות רק מהשורה של ההודעה */
+.no-border-row,
+.no-border-row td {
+    border: none !important;
+    background: transparent;
+}
+.forgot-link {
+    font-family: 'Rubik', sans-serif !important;
+    font-size: 14px !important;
+    color: #bbb !important;
+    text-decoration: none !important;
+    position: relative !important;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+
+}
+
+    /* 🎨 הקו המעוצב שלך */
+    .forgot-link::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -3px;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #8e2de2, #ffb347);
+        transition: width 0.3s ease;
+    }
+
+    /* ✨ אפקטים במעבר עכבר */
+    .forgot-link:hover {
+        color: #fff !important;
+    }
+
+        .forgot-link:hover::after {
+            width: 100% !important;
+        }
+/* כרטיסי סרטים */
+/*.movie-block, .DataList-item, .movie-card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    padding: 15px;
+    margin: 15px;
+    transition: all 0.3s ease;
+}
+
+    .movie-block:hover, .movie-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 25px rgba(30,144,255,0.3);
+    }*/
+
+/* תמונות פוסטרים */
+img {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+    img:hover {
+        filter: brightness(1.15);
+    }
+
+
+/* --- 🎟️ אזור בהיר לעמודים מסוימים --- */
+body.ticketing-page,
+body.cart-page,
+body.seats-page {
+    background: #f9f9f9;
+    color: #222;
+}
+
+
+/* קופסאות בהירות */
+.summary-container,
+.container,
+.seats-container,
+.summary-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    padding: 25px;
+    margin: 30px auto;
+    max-width: 800px;
+}
+
+/* כפתורים בעמודים בהירים */
+body.ticketing-page button,
+body.cart-page button,
+body.seats-page button,
+body.ticketing-page input[type=button],
+body.cart-page input[type=button],
+body.seats-page input[type=button],
+body.ticketing-page input[type=submit],
+body.cart-page input[type=submit],
+body.seats-page input[type=submit] {
+    background-color: #0055ff;
+    color: white;
+}
+
+    body.ticketing-page button:hover,
+    body.cart-page button:hover,
+    body.seats-page button:hover {
+        background-color: #1e90ff;
+        box-shadow: 0 0 10px rgba(0,85,255,0.4);
+    }
+
+/* מושבים */
+.seat {
+    width: 35px;
+    height: 35px;
+    margin: 5px;
+    border-radius: 6px;
+    border: none;
+    background-color: #ddd;
+    transition: all 0.3s ease;
+}
+
+    .seat.selected {
+        background-color: #1e90ff;
+    }
+
+    .seat.taken {
+        background-color: #555;
+    }
+
+    .seat.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+/* טבלאות */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 15px;
+}
+
+td, th {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+/* התאמה למסכים קטנים */
+@media (max-width: 768px) {
+    .signup-form, .summary-box, .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .movie-block {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 בשורה */
+    gap: 25px;
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
+}
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+    background: #111;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+    .movie-card:hover {
+        transform: scale(1.05);
+    }
+
+    .movie-card img {
+        width: 100%;
+        aspect-ratio: 2 / 3; /* ⭐ יחס קבוע */
+        object-fit: cover; /* ⭐ חיתוך יפה */
+        display: block;
+    }
+
+.movie-title {
+    direction:rtl;
+    text-align: center;
+    padding: 5px 10px; /* אפשר לצמצם */
+    margin: 0; /* ⭐ מחיקת מרג׳ין ברירת מחדל */
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center; /* מרכז אנכי */
+    justify-content: center;
+    height: 65px;
+    text-decoration: none !important;
+}
+
+.movie-link {
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    display: inline-block;
+    outline: none;
+}
+
+    .movie-link:focus,
+    .movie-link:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .movie-link:hover,
+    .movie-link:active,
+    .movie-link:visited {
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+.movie-details-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 900px;
+    width: 90%;
+    padding: 30px 40px;
+    background-color: #2f2f2f;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: row; /* אופציה או column לפי הצורך */
+    /* אל תגדירי height כאן */
+    align-items: flex-start; /* מיישר למעלה לפי תוכן */
+}
+
+.movie-header {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start; /* מיישר למעלה */
+}
+.movie-poster {
+    width: 250px; /* רוחב קבוע */
+    height: 375px; /* גובה קבוע */
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.8);
+    object-fit: cover;
+}
+
+.movie-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* גובה אוטומטי לפי תוכן */
+}
+
+.movie-meta {
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-weight: bold;
+    color: #ddd;
+}
+.actions-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* בסיס הכפתור - מראה מינימליסטי ושקוע */
+.btn-action {
+    flex: 1;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-in-out;
+    /* צבע הבסיס שביקשת */
+    background-color: #303030;
+    /* מסגרת דקה מאוד וכהה למראה שקוע */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -1px -1px 3px rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+    /* אפקט Hover - הכפתור "יוצא" החוצה בעדינות */
+    .btn-action:hover {
+        background-color: #383838; /* הבהרה קלה מאוד */
+        color: #fff;
+        /* המסגרת נצבעת בגרדיאנט רק ב-Hover */
+        border: 1px solid transparent;
+        background-image: linear-gradient(#383838, #383838), linear-gradient(45deg, #8e2de2, #f09819);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        /* ביטול הצל השקוע ב-Hover */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+/* אייקונים */
+.play-icon, .buy-icon {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+/* שינוי צבע האייקון ב-Hover */
+.btn-action:hover .play-icon,
+.btn-action:hover .buy-icon {
+    color: #8e2de2;
+}
+
+/* אייקון ה-Play והכרטיס */
+/*.play-icon, .buy-icon {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.3s ease;
+}*/
+
+/* ב-Hover רק האייקון מקבל את הצבע הסגול שביקשת */
+/*.btn-action:hover .play-icon,
+.btn-action:hover .buy-icon {
+    color: #8e2de2;
+}*/
+
+/* התאמה למובייל */
+@media (max-width: 600px) {
+    .actions-container {
+        flex-direction: column;
+    }
+}
+/* קונטיינר ראשי - רקע כהה עם אפקט זכוכית */
+.screenings-container {
+    background: rgba(30, 30, 30, 0.85); /* צבע הרקע הכהה של האתר */
+    backdrop-filter: blur(15px); /* אפקט טשטוש זכוכית */
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 900px;
+    margin: 50px auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    direction: rtl;
+    text-align: center;
+}
+
+/* כותרת הסרט */
+.movie-title-header {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a855f7, #f97316); /* סגול לכתום */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    text-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+}
+
+/* גריד ההקרנות */
+.screenings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* כרטיס הקרנה בודד (הכפתור) */
+.screening-item {
+    background: #252525;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 18px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+    /* אפקט Hover - תאורת קולנוע */
+    .screening-item:hover {
+        background: linear-gradient(145deg, #353535, #2a2a2a);
+        transform: translateY(-8px);
+        border-color: #a855f7;
+        box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+    }
+
+/* השעה בגדול */
+.screening-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+/* התאריך בקטן */
+.screening-date {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+/* הוספת פס זוהר קטן בתחתית כל כפתור */
+.screening-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #f97316);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.screening-item:hover::after {
+    transform: scaleX(1);
+}
+
+/* הודעת "אין הקרנות" */
+.no-screenings-msg {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+    padding: 20px;
+}
+/*.buy-button {
+    align-self: flex-start !important;
+    margin-top: 90px !important;
+    padding: 12px 25px !important;
+    font-size: 1.1em !important;
+    background-color: #3399ff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+    box-shadow: 0 4px 12px rgba(51, 153, 255, 0.6) !important;
+}
+
+    .buy-button:hover {
+        background-color: #287acc;
+    }*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+}
+
+.modal-content {
+    position: relative;
+    margin: 5% auto;
+    width: 70%;
+}
+
+.modal iframe {
+    width: 100%;
+    height: 500px;
+    border-radius: 15px;
+}
+
+.close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+/*.movie-details-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 900px;
+    width: 90%;
+    padding: 30px 40px;
+    background-color: #2f2f2f;*/ /* אפור כהה */
+    /*border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;*/ /* טקסט בהיר */
+/*}
+
+.movie-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.movie-poster {
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.8);
+}
+.movie-info-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;*/ /* שומר על פיזור אנכי עם הרווח בין הטקסט לכפתור */
+    /*height: 100%;*/ /* חשוב כדי שהגובה יתפרס על כל הגובה של ההורה */
+   
+/*}
+.movie-title1 {
+    padding: 5px 10px;*/ /* אפשר לצמצם */
+    /*margin: 0;*/ /* ⭐ מחיקת מרג׳ין ברירת מחדל */
+    /*font-size: 2em;
+    color: #fff;*/ /* לבן */
+     /*direction:rtl;
+}
+
+.movie-description {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+
+
+.movie-meta {
+    margin-top: 190px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-weight: bold;
+    color: #ddd;
+}
+
+.buy-button {
+    align-self: flex-start;*/ /* או flex-end אם תרצי אותו מצד ימין */
+    /*margin-top: 0;*/ /* הסרת מרווח עליון כי כבר יש space-between */
+    /*padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: #3399ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 4px 12px rgba(51, 153, 255, 0.6);
+}
+
+    .buy-button:hover {
+        background-color: #287acc;
+    }*/
+
+
+
+/* ====== עיצוב המסך ====== 
+/* עיצוב המודאל (החלון הצף) */
+.my-glass-popup {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    background-color: #1a1a1a !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 2px solid transparent !important;
+    border-radius: 25px !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), 0 0 40px rgba(142, 68, 173, 0.4) !important;
+    background-image: linear-gradient(#1a1a1a, #1a1a1a), linear-gradient(135deg, #8e44ad, #f39c12) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+}
+
+.glass-title {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 15px rgba(187, 134, 252, 0.7);
+    font-size: 1.8rem;
+}
+
+.glass-content {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.glass-link {
+    color: #f39c12 !important;
+    text-decoration: underline !important;
+    transition: all 0.3s ease;
+}
+
+    .glass-link:hover {
+        color: #ffffff !important;
+        text-shadow: 0 0 10px #8e44ad;
+    }
+
+/* Gradient button */
+.my-glass-button {
+    background: linear-gradient(135deg, #8e44ad, #f39c12) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 35px !important;
+    font-weight: 200 !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(142, 68, 173, 0.5) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif !important;
+}
+
+    .my-glass-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6) !important;
+    }
+
+.swal2-icon.swal2-warning {
+    background: #303030 !important;
+    border: 3px solid transparent !important;
+    background-image: linear-gradient(#1a1a1a,#1a1a1a), linear-gradient(135deg, #8e44ad, #f39c12) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+    font-family: 'Noto Sans JP', sans-serif !important;
+}
+
+    .swal2-icon.swal2-warning .swal2-icon-content {
+        background: linear-gradient(135deg, #8e44ad, #f39c12);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent !important;
+    }
+
+
+
+
+.screen {
+
+    width: 70%;
+    height: 15px;
+    background: #fff; /* צבע לבן בוהק */
+    margin: 0 auto 50px;
+    border-radius: 50% / 100% 100% 0 0; /* קימור */
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4); /* אפקט הילה של אור על המושבים */
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ====== שורות מושבים ====== 
+*/ .seats-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05); /* רקע שקוף עדין למכולה */
+    border-radius: 15px;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.row-label {
+    width: 60px;
+    text-align: right;
+    margin-left: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* ====== מושבים ====== 
+
+*/
+.seat {
+    width: 32px;
+    height: 32px;
+    margin: 4px;
+    background-color: #3d3d3d;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    /* הסתרת המספר כברירת מחדל */
+    color: transparent;
+    user-select: none; /* מונע בחירה של הטקסט השקוף */
+}
+
+    .seat.selected {
+        background-color: #a29bfe !important;
+        /* הצגת המספר רק במושב שנבחר */
+        color: white;
+        box-shadow: 0 0 10px rgba(162, 155, 254, 0.8);
+        font-weight: bold;
+    }
+
+    /* אופציונלי: להציג את המספר כשעוברים עם העכבר (Hover) */
+    .seat:hover:not(.taken):not(.disabled) {
+        color: rgba(255, 255, 255, 0.5); /* מספר חלש בריחוף */
+        background-color: #4b4b4b;
+    }
+
+    /* מושב פנוי - אפור כהה עדין */
+    .seat.available {
+        background-color: #3d3d3d;
+        border: 1px solid #555;
+    }
+
+
+    /* מושב תפוס - אפור כמעט שחור */
+    .seat.taken {
+        background-color: #1a1a1a !important;
+        opacity: 0.3;
+    }
+
+    /* עיצוב בסיסי למושב נגיש */
+    /* מושב נגיש במצב רגיל */
+    .seat.accessible {
+        background-color: #6c5ce7; /* סגול כהה לזיהוי נגישות */
+        position: relative;
+        color: transparent; /* מחביא את המספר כברירת מחדל */
+    }
+
+        /* הצגת האייקון */
+        .seat.accessible::before {
+            content: "\267F"; /* סמל כיסא גלגלים */
+            position: absolute;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* מצב בחירה (Selected) או ריחוף (Hover) */
+        .seat.accessible.selected,
+        .seat.accessible:hover:not(.taken):not(.disabled) {
+            background-color: #a29bfe !important;
+            color: white !important; /* הצגת המספר */
+        }
+
+            /* הסתרת האייקון בזמן שהמספר מוצג */
+            .seat.accessible.selected::before,
+            .seat.accessible:hover:not(.taken):not(.disabled)::before {
+                display: none;
+            }
+.legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    color: #fff;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* רווח בין הריבוע לטקסט */
+    font-size: 14px;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+    /* התאמת צבעי המקרא לצבעי המושבים בפועל */
+    .legend-box.available {
+        background-color: #3d3d3d;
+        border: 1px solid #555;
+    }
+
+    .legend-box.selected {
+        background-color: #a29bfe;
+    }
+
+    .legend-box.taken {
+        background-color: #1a1a1a;
+        opacity: 0.3;
+    }
+
+    .legend-box.accessible {
+        background-color: #6c5ce7;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+        .legend-box.accessible::before {
+            content: "\267F";
+            font-size: 10px;
+        }
+
+ /* מיכל עמוד הסרטים עם רקע צבעוני */
+.movies-page-container {
+    max-width: 700px; /* צמצמתי רוחב מ-900 ל-700 */
+    margin: 40px auto;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    padding: 20px;
+    background: linear-gradient(135deg, #0d1117, #161b22); /* רקע כהה תואם לאתר שלך */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+    color: #c9d1d9; /* צבע טקסט בהיר להתאמה לרקע הכהה */
+}
+
+/* מיכל הבחירה של התאריך */
+.movies-date-container {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #c9d1d9; /* טקסט בהיר */
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* תיבת הבחירה של תאריך */
+.movies-date-dropdown {
+    padding: 10px 15px;
+    width: 180px; /* רוחב קצת מצומצם */
+    font-size: 16px;
+    border: 2px solid #8b5cf6; /* סגול בהיר */
+    border-radius: 8px;
+    background-color: #161b22; /* רקע כהה */
+    color: #c9d1d9; /* טקסט בהיר */
+    transition: all 0.3s ease;
+}
+
+    .movies-date-dropdown:focus {
+        border-color: #a78bfa; /* סגול בהיר יותר */
+        box-shadow: 0 0 8px #a78bfa;
+        outline: none;
+    }
+
+/* רשימת סרטים */
+.movies-list .movie-block {
+    background-color: #0d1117; /* רקע כהה עם קונטראסט */
+    border: 1px solid #30363d; /* גבול עדין כהה */
+    margin-bottom: 15px;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); /* הילה סגולה */
+    max-width: 650px; /* רוחב מצומצם יותר */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.movie-title {
+    margin: 0;
+    font-size: 22px;
+    color: #8b5cf6; /* סגול בהיר */
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.screening-times {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #c9d1d9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.screening-time {
+    display: inline-block;
+    background-color: #8b5cf6; /* סגול */
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-right: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+    .screening-time:hover {
+        background-color: #a78bfa; /* סגול בהיר יותר */
+        transform: scale(1.1);
+    }
+.movies-page {
+    max-width: 900px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', sans-serif;
+    direction: rtl;
+}
+
+/* כותרת */
+.page-title {
+    text-align: center;
+    font-size: 34px;
+    margin-bottom: 30px;
+}
+
+/* בחירת תאריך */
+.date-dropdown {
+    display: block;
+    margin: 0 auto 40px;
+    padding: 10px 18px;
+    font-size: 16px;
+    border-radius: 25px;
+}
+
+/* רשימה */
+.movies-vertical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* שורה של סרט */
+.movie-row {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* שם הסרט */
+.movie-name {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* הקרנות */
+.movie-showtimes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+/* עיצוב כללי לכפתור השעה */
+.time-slot {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1); /* שקיפות עדינה */
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.date-dropdown {
+    border: 2px solid #333;
+    transition: all 0.3s ease;
+    width: 250px;
+    padding: 12px 20px;
+    font-family: 'Montserrat', sans-serif; /* שימוש בפונט שבחרת */
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #1a1a1a; /* רקע כהה תואם */
+    border: 2px solid #333;
+    border-radius: 50px; /* פינות מעוגלות כמו הכפתורים */
+    cursor: pointer;
+    outline: none;
+    appearance: none; /* ביטול עיצוב ברירת מחדל */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 15px center; /* חץ מצד שמאל בגלל העברית */
+    background-size: 18px;
+    transition: all 0.3s ease;
+    text-align-last: center; /* מרכוז הטקסט בתוך ה-Select */
+    margin-bottom: 30px;
+}
+
+    /* שינוי הצבע שמופיע כשלוחצים על התיבה */
+    .date-dropdown:focus, .date-dropdown:hover {
+        border-color: #a29bfe; /* צבע סגול בהיר עדין */
+        box-shadow: 0 0 10px rgba(162, 155, 254, 0.3);
+        outline: none; /* מסיר את המסגרת המקורית של הדפדפן */
+    }
+    /* עיצוב האופציות שנפתחות (עובד חלקית בדפדפנים מסוימים) */
+    .date-dropdown option {
+        background-color: #1a1a1a;
+        color: white;
+        padding: 10px;
+    }
+
+/* מיכל השעות לסידור נקי */
+.movie-showtimes {
+    margin-top: 15px;
+    display: block;
+    text-align: center;
+}
+    /* אפקט מעבר עכבר - Hover */
+    .time-slot:hover {
+        background: linear-gradient(45deg, #8a2be2, #ff00ff); /* צבעי הניאון מהתפריט שלך */
+        box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+        transform: translateY(-3px); /* קפיצה קלה למעלה */
+        border-color: transparent;
+    }
+
+    /* סגנון לסרט שנבחר או הקרנה קרובה במיוחד */
+    .time-slot.hot {
+        background: #ff4757;
+        border-color: #ff4757;
+        animation: pulse 2s infinite;
+    }
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 71, 87, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+    }
+}
+.movie {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+    .movie h3 {
+        margin: 0;
+        font-size: 20px;
+    }
+
+.screenings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.screening {
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+    .container { 
+        color:black;
+    width: 600px; 
+    margin: 120px auto; 
+    padding: 30px; 
+    background-color: #fff; 
+    border-radius: 15px; 
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
+    direction: rtl; /* יישור לימין של כל הקופסה */
+}
+
+    .container .ticket-type {
+        flex: 1;
+        text-align: right;
+    }
+
+    .container .ticket-price {
+        flex: 2;
+        text-align: center;
+        width: auto !important; /* מבטל את ה-100px מה-Master */
+    }
+
+    .container .qty-controls {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+.qty-display { 
+    width: 40px; 
+    text-align: center; 
+    border: 1px solid #ccc; 
+    margin: 0 10px; 
+    height: 30px;
+}
+.btn-qty {
+    width: 35px; /* גודל קבוע למניעת שינוי גודל */
+    height: 35px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: dimgrey;
+    cursor: pointer;
+    transition: background-color 0.2s; /* מעבר חלק רק של צבע */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+    /* מניעת שינוי גודל וצבע כחול במעבר עכבר (Hover) */
+    .btn-qty:hover {
+        transform: none !important; /* מבטל כל הגדלה אם הייתה */
+        background-color: #f0f0f0; /* צבע אפור עדין במקום כחול */
+        border-color: #ccc;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* ביטול המסגרת הכחולה של הדפדפן בלחיצה */
+    .btn-qty:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* אם את רוצה צבע סגול עדין במקום כחול כשלוחצים */
+    .btn-qty:active {
+        background-color: #e8dbf0;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+/* כפתורי הפלוס והמינוס */
+.qty-controls .btn-minus,
+.qty-controls .btn-plus {
+    display: inline-flex; /* מאפשר שימוש בנכסי מרכוז */
+    align-items: center; /* מרכוז אנכי */
+    justify-content: center; /* מרכוז אופקי */
+    width: 35px;
+    height: 35px;
+    padding: 0; /* מבטל פדינג שמסיט את הטקסט */
+    font-size: 18px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+/* התאמת התיבה של המספר באמצע */
+.qty-controls .qty-input {
+    height: 35px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0 5px;
+    width: 40px;
+}
+.ticket-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    flex-direction: column !important;
+    border-bottom: 1px solid #eee; /* הקו המפריד העדין שביקשת */
+}
+
+    /* מסיר את הקו מהשורה האחרונה כדי שיהיה נקי */
+    .ticket-row:last-child {
+        border-bottom: none;
+    }
+/* השורה הראשונה שכוללת סוג, מחיר וכפתורים */
+.ticket-main-details {
+    display: flex;
+    justify-content: space-between; /* שומר על רווחים בין האלמנטים */
+    align-items: center;
+    width: 100%;
+}
+
+/* התיבה שצריכה להופיע מתחת (השורה השנייה) */
+.verification-box {
+    display: none; /* מוסתר בהתחלה */
+    width: 100%; /* תופס את כל רוחב השורה החדשה */
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* חשוב כדי שה-padding לא ינפח את התיבה */
+}
+
+/* עיצוב התווית בתוך תיבת האימות */
+.verification-label {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 8px;
+    display: block; /* מבטיח שהלייבל יהיה מעל ה-input */
+}
+
+/* עיצוב תיבת הטקסט */
+.id-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* תיבת הטקסט עצמה */
+.id-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+    /* עיצוב נוסף כשהשדה במיקוד (Focus) */
+    .id-input:focus {
+        border-color: #a164e8; /* צבע סגול תואם למותג */
+        outline: none;
+        box-shadow: 0 0 5px rgba(161, 100, 232, 0.2);
+    }
+
+/* הכרחת שורת הסיכום להיות גלויה */
+main.main .container .summary-line {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: 40px !important; /* רווח ברור מהכרטיסים */
+    padding: 20px !important;
+    border-top: 3px solid #333 !important; /* קו הפרדה עבה ובולט */
+    background-color: #f9f9f9 !important; /* רקע אפרפר קל כדי להבליט */
+    border-radius: 0 0 15px 15px !important;
+}
+
+main.main .container .total-label {
+    color: #000 !important; /* שחור מוחלט */
+    font-size: 1.6em !important;
+    display: block !important;
+}
+
+#grand-total {
+    color: #d9534f !important; /* צבע אדום/בורדו למחיר כדי שיבלוט */
+
+}
+
+.btn-continue {
+    background: linear-gradient(135deg, #8e44ad, #f39c12);
+    color: white;
+    padding: 8px 20px; /* הקטנת הלחצן */
+    border: none;
+    border-radius: 25px; /* רדיוס קטן יותר להתאמה לגודל */
+    font-size: 14px; /* פונט קטן יותר */
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(142, 68, 173, 0.3);
+    transition: all 0.3s ease;
+}
+
+    .btn-continue:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+    }
+
+/* 🧾 עיצוב עמוד סיכום הזמנה*/
+.summary-container {
+    max-width: 700px;
+    margin: 60px auto;
+    text-align: center;
+    font-family: 'Assistant', sans-serif;
+    direction: rtl;
+}
+
+    .summary-container h1 {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 25px;
+    }
+
+/* מבנה הקונטיינר הלבן שרואים בתמונה שלך */
+.summary-box {
+    background-color: white; /* הרקע הלבן מהתמונה */
+    color: #333; /* טקסט כהה כדי שיראו אותו! */
+    padding: 30px;
+    border-radius: 15px;
+    direction: rtl;
+    text-align: right;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.tickets-list {
+    list-style-type: disc;
+    padding-right: 25px;  /*חשוב מאוד ליישור הנקודה */
+    margin: 20px 0;
+    color: #333;  /*מוודא שהטקסט לא נעלם */
+}
+
+    /*.tickets-list {
+    list-style: disc;
+    text-align: right;
+    margin-right: 10px;
+    color: #222;
+}*/
+
+    .tickets-list li {
+        font-size: 16px;
+        margin-bottom: 8px;
+        line-height: 1.6;
+        font-size: 21px;
+    }
+
+    .tickets-list strong {
+        color: #000;
+        font-weight: bold;
+    }
+
+.movie-details {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-right: 5px solid #8e44ad; /* פס סגול בצד ליופי */
+}
+.movie-details-box strong {
+    font-weight: 500; /* עובי בינוני במקום מודגש מאוד (Bold) */
+    color: #222; /* הטקסט של השם עצמו יהיה מעט כהה יותר מהשאר */
+}
+    .summary-info p {
+    font-size: 21px;
+    margin: 5px 0;
+    color: #333;
+}
+
+.summary-info strong {
+    color: #000;
+    font-weight: 700;
+}
+
+.summary-box hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.summary-box h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #d63384;
+    margin-bottom: 15px;
+}
+
+.reserve-button {
+    background: linear-gradient(135deg, #8e44ad, #f39c12);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    width: 100%; /* כפתור רחב ובולט בסוף */
+}
+.seat-list {
+    font-weight: bold;
+    color: #ffeb3b;
+}
+
+ /*מכולת האולם */
+ .hall-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;/* מרכז הכל*/
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+}
+/* רשת של כל השורות */
+ .seats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* רווח בין שורות*/
+    align-items: center;
+}
+
+/* כל שורה באולם */
+ .seat-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+/* תווית של מספר השורה */
+ .row-label {
+    width: 60px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* מושבים בשורה */
+ .row-seats {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;/* רווח בין מושבים */
+}
+
+/* סגנונות בסיסיים של מושבים */
+ .seat {
+    width: 35px;
+    height: 35px;
+    border-radius: 6px;
+    text-align: center;
+    line-height: 35px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+/* קונטיינר ראשי - מרכוז מלא על המסך */
+.success-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 40px 20px;
+}
+
+/* כרטיס הזכוכית היוקרתי */
+.premium-success-card {
+    background: rgba(255, 255, 255, 0.03); /* שקיפות עדינה מאוד */
+    backdrop-filter: blur(10px); /* אפקט זכוכית */
+    border: 1px solid rgba(142, 45, 226, 0.2); /* גבול סגול דקיק */
+    border-radius: 24px;
+    padding: 60px 40px;
+    max-width: 550px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(142, 45, 226, 0.1);
+}
+
+/* עיצוב ה-V עם הילה */
+.sparkle-v {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+.main-v {
+    font-size: 80px;
+    color: #8e2de2;
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 0 15px rgba(142, 45, 226, 0.8));
+}
+
+.glow-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(142, 45, 226, 0.2) 0%, transparent 70%);
+    z-index: 1;
+}
+
+/* כותרת בלבן נקי עם פונט Montserrat */
+.main-title {
+    font-family: 'Montserrat', sans-serif;
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+
+/* קו הפרדה מעוצב */
+.divider-gradient {
+    height: 2px;
+    width: 60px;
+    background: linear-gradient(to right, #8e2de2, #f09819);
+    margin: 0 auto 25px;
+}
+
+/* טקסט הסבר */
+.description-text {
+    color: #b0b0b0;
+    font-size: 18px;
+    line-height: 1.6;
+    font-family: 'Rubik', sans-serif;
+}
+
+
+/* כפתור ה-Premium */
+.premium-button {
+    margin-top: 40px;
+    background: linear-gradient(45deg, #8e2de2, #f09819);
+    color: white;
+    border: none;
+    padding: 18px 50px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+    .premium-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(142, 45, 226, 0.4);
+        letter-spacing: 1px;
+    }/* קונטיינר ה-V החדש */
+.icon-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ה-V עצמו צבוע בגרדיאנט */
+.gradient-v {
+    font-size: 70px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #8e2de2, #f09819);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 2;
+    filter: drop-shadow(0 0 10px rgba(142, 45, 226, 0.3));
+}
+
+/* טבעת עדינה מסביב ל-V */
+.icon-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: #8e2de2; /* נגיעת סגול בטבעת */
+    animation: rotateRing 4s linear infinite;
+}
+
+@keyframes rotateRing {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* כותרת משולבת לבן וסגול */
+.main-title-styled {
+    font-family: 'Montserrat', sans-serif;
+    color: #ffffff;
+    font-size: 38px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.main-title-styled span {
+    background: linear-gradient(to right, #8e2de2, #f09819);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* בלוק מלל אחיד ומעוצב */
+.success-info-text {
+    color: #d1d1d1;
+    font-family: 'Rubik', sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(142, 45, 226, 0.05); /* רקע סגול שקוף מאוד */
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* כפתור ה-Premium (נשאר דומה אך עם שיפור קטן) */
+.premium-button {
+    margin-top: 45px;
+    background: linear-gradient(45deg, #8e2de2, #f09819);
+    color: white;
+    border: none;
+    padding: 18px 55px;
+    border-radius: 50px; /* יותר עגול */
+    font-size: 19px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.premium-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(142, 45, 226, 0.5);
+}
+
+
+
+
+
+
+
+
+
+
