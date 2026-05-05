@@ -25,7 +25,7 @@
             ID="DLMoviesByDate"
             runat="server"
             CssClass="movies-vertical-list"
-            OnItemDataBound="DLMoviesByDate_ItemDataBound"
+            OnItemDataBound="DLMoviesByDate_ItemDataBound" 
             RepeatLayout="Flow">
 
             <ItemTemplate>

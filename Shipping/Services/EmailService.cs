@@ -58,19 +58,19 @@ namespace Shipping
 
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
-        // שליחת אישור הזמנה - נשלח למשתמש לאחר רכישת כרטיסים מוצלחת
+        
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string userName)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה
             string formattedSeats = seats.Replace("|", ", ");
 
-            // עיצוב התאריך והשעה לתצוגה ידידותית
+            // עיצוב התאריך והשעה
             string displayDate = screeningTime.ToString("dd/MM/yyyy");
             string displayTime = screeningTime.ToString("HH:mm");
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));
-            message.To.Add(new MailboxAddress("", toEmail));
+            var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג
+            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));//הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
+            message.To.Add(new MailboxAddress("", toEmail));//כתובת מייל הלקוח
             message.Subject = "אישור הזמנה 🎟️";
 
             var bodyBuilder = new BodyBuilder
@@ -117,7 +117,7 @@ namespace Shipping
             {
                 try
                 {
-                    // התחברות לשרת Gmail באמצעות פרוטוקול TLS על פורט 587
+                    //יצירת קשר עם השרת של גוגל
                     await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(senderEmail, appPassword); // אימות מול Gmail
                     await client.SendAsync(message); // שליחת ההודעה

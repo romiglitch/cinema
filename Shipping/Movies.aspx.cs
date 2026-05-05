@@ -15,14 +15,14 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // בטעינה ראשונה בלבד - ממלאים את רשימת התאריכים הקרובים
+            // בטעינה ראשונה
             if (!IsPostBack)
             {
                 LoadNext7Days();
             }
         }
 
-        // ממלא את הרשימה הנפתחת עם 7 הימים הקרובים לבחירת תאריך הקרנה
+        // עם 7 הימים הקרובים לבחירת תאריך הקרנה ddlמילוי ה
         private void LoadNext7Days()
         {
             ddlDates.Items.Clear();
@@ -41,7 +41,7 @@ namespace Shipping
             if (!string.IsNullOrEmpty(ddlDates.SelectedValue))
             {
                 DateTime selectedDate = DateTime.Parse(ddlDates.SelectedValue);
-                LoadMoviesByDate(selectedDate); // קריאה סינכרונית לשליפת הסרטים
+                LoadMoviesByDate(selectedDate); // שליפת הסרטים
             }
             else
             {
@@ -60,7 +60,6 @@ namespace Shipping
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                // שאילתה המאחדת את טבלאות Screening ו-Movie ומסננת לפי התאריך הנבחר
                 string query = @"
     SELECT m.Title, s.StartTime, s.ScreeningID
     FROM Screening s
@@ -72,28 +71,25 @@ namespace Shipping
                 {
                     cmd.Parameters.AddWithValue("@SelectedDate", date);
                     conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    SqlDataReader reader = cmd.ExecuteReader();//שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
 
                     while (reader.Read())
                     {
                        string title = reader.GetString(0);
                        DateTime showTime = reader.GetDateTime(1);
-
-                       // ודאי שהאינדקס (2) מתאים למיקום של ה-ID בשאילתה שלך
                        int screeningId = reader.GetInt32(2);
 
                         // קיבוץ ההקרנות לפי שם הסרט - אם הסרט כבר קיים ברשימה, מוסיפים לו שעת הקרנה
-                        var film = films.Find(f => f.film_name == title);
+                        var film = films.Find(f => f.film_name == title);//חיפוש ברשימה שיצרנו אם הסרט עליו כרגע עוברים קיים בה
                         if (film == null)
                         {
-                            film = new Film { film_name = title, showtimes = new List<Showtime>() };
+                            film = new Film { film_name = title, showtimes = new List<Showtime>() };//מוסיפים אותו לרשימה אם לא
                             films.Add(film);
                         }
 
-                        film.showtimes.Add(new Showtime
+                        film.showtimes.Add(new Showtime//אם כן מוסיפים לו את הקרנה
                         {
-                            Id = screeningId, // שמירת ה-ID להפניה בעת בחירת הקרנה
-                            cinema_name = "Cinema Name",
+                            Id = screeningId,
                             start_time = showTime
                         });
                     }
@@ -106,11 +102,12 @@ namespace Shipping
 
 
         // אירוע שנקרא לכל פריט ברשימה - מקשר את שעות ההקרנה לריפיטר הפנימי של כל סרט
+        //DataBindמופעל אוטומטית עבור כל סרט לאחר ה
         protected void DLMoviesByDate_ItemDataBound(object sender, DataListItemEventArgs e)
         {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)//בדיקה שהקוד ירוץ על השורות בדאטהליסט שמייצגות סטרים אמיתיים
             {
-                var film = (Film)e.Item.DataItem;
+                var film = (Film)e.Item.DataItem; // שליפת אובייקט הסרט הנוכחי
                 var rpt = (Repeater)e.Item.FindControl("RptShowtimes"); // מציאת הריפיטר הפנימי של שעות ההקרנה
                 if (film.showtimes != null && film.showtimes.Count > 0)
                 {
@@ -166,7 +163,6 @@ namespace Shipping
         public class Showtime
         {
             public int Id { get; set; } // מזהה ייחודי של ההקרנה לצורך בחירת מושבים
-            public string cinema_name { get; set; }
             public DateTime start_time { get; set; }
         }
     }

@@ -179,7 +179,7 @@ window.location.href = 'HomePage.aspx';
                 using (SqlCommand cmd = new SqlCommand("SELECT [Row], [Seat] FROM Tickets WHERE Screening = @screening", con))
                 {
                     cmd.Parameters.AddWithValue("@screening", screeningId);
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    using (SqlDataReader rdr = cmd.ExecuteReader())//שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
                     {
                         while (rdr.Read())
                         {

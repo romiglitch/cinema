@@ -57,7 +57,7 @@ namespace Shipping
                 try
                 {
                     conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    SqlDataReader reader = cmd.ExecuteReader();//שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
                     if (reader.Read())
                     {
                         string movieTitle = reader["Title"].ToString();

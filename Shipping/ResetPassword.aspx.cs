@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SqlClient; // או מה שאת משתמשת בו ל-DB
+using System.Data.SqlClient; 
 using System.Configuration;
 
 namespace Shipping
@@ -9,7 +9,7 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // בדיקה אם הגיע טוקן בכתובת - ללא טוקן הדף לא יתפקד
+            // ForgotPasswordבדיקה אם הגיע טוקן בכתובת - כלומר שלהקוח הגיע מ
             if (string.IsNullOrEmpty(Request.QueryString["token"]))
             {
                 lblMessage.Text = "קישור לא תקין.";
@@ -20,14 +20,14 @@ namespace Shipping
         // לחיצה על כפתור עדכון הסיסמה - מבצעת את עדכון הסיסמה בבסיס הנתונים
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
-            string token = Request.QueryString["token"]; // שליפת הטוקן מה-URL
+            string token = Request.QueryString["token"]; // שליפת הטוקן מהקישור
             string newPass = txtNewPassword.Text; // הסיסמה החדשה שהמשתמש הזין
 
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 // מעדכנים את הסיסמה רק אם הטוקן קיים ועדיין בתוקף (לא פג)
-                // לאחר העדכון, הטוקן ותאריך התפוגה מתאפסים ל-NULL כדי למנוע שימוש חוזר
+                // לאחר העדכון הטוקן והתפוגה מתעדכנים לנאל למניעת שימוש חוזר
                 string query = "UPDATE Users SET Password = @pass, ResetToken = NULL, TokenExpiry = NULL " +
                                "WHERE ResetToken = @token AND TokenExpiry > @now";
 
@@ -41,7 +41,6 @@ namespace Shipping
 
                 if (rows > 0)
                 {
-                    // עדכון הצליח - הסיסמה שונתה בהצלחה
                     lblMessage.Text = "הסיסמה עודכנה! את יכולה להתחבר.";
                     lblMessage.ForeColor = System.Drawing.Color.Green;
                 }
@@ -52,35 +51,6 @@ namespace Shipping
                     lblMessage.ForeColor = System.Drawing.Color.Red;
                 }
             }
-        }
-
-        // פונקציית עזר לדוגמה - מציגה כיצד ניתן לעדכן סיסמה לפי טוקן
-        private void UpdatePasswordInDb(string token, string newPassword)
-        {
-            // הערה: זהו קוד כללי, את צריכה להתאים אותו לטבלה שלך (Users)
-            // את צריכה למצוא את המשתמש שהטוקן שלו שווה לטוקן שקיבלנו
-
-            /* דוגמה קטנה ב-SQL:
-            string connString = ConfigurationManager.ConnectionStrings["MyDbConn"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                string query = "UPDATE Users SET Password = @pass WHERE ResetToken = @token";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@pass", newPassword); // מומלץ להצפין סיסמה!
-                cmd.Parameters.AddWithValue("@token", token);
-
-                conn.Open();
-                int rows = cmd.ExecuteNonQuery();
-                if (rows > 0) {
-                    lblMessage.Text = "הסיסמה עודכנה בהצלחה! אפשר להתחבר.";
-                } else {
-                    lblMessage.Text = "הטוקן פג תוקף או לא קיים.";
-                }
-            }
-            */
-
-            lblMessage.Text = "סיסמה עודכנה בהצלחה (כאן יבוא הקוד של ה-DB שלך)";
-            lblMessage.ForeColor = System.Drawing.Color.Green;
         }
     }
 }
