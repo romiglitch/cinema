@@ -11,7 +11,8 @@ using DALLlilbrary;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Web.Script.Serialization;
-using Newtonsoft.Json.Linq; // ודאי שיש לך את הספרייה הזו מותקנת (Json.NET)
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace Shipping
 {
@@ -42,26 +43,25 @@ namespace Shipping
             Response.Redirect("ScreeningsEditor.aspx");
         }
 
-        protected void btnGenerateSchedule_Click(object sender, EventArgs e)
+        //מילוי לוח הקרנות לפי סדר : בחירת יום,בחירת שעה, מילוי כל האולמות, מילוי כל השעות,מילוי כל הימים
+        protected void BtnGenerateSchedule_Click(object sender, EventArgs e)
         {
-            try
+            try //בשביל להגן על האתר מקריסה catchו try
             {
-                // שלב 1: מנקים את הטבלה לחלוטין
-                ClearScreenings();
+                ClearScreenings();//ניקוי הטבלה כולה ללא סרטים שכבר נקנו אליהם כרטיסים
 
                 List<int> movieIds = GetAllMovieIds();
                 Random rnd = new Random();
                 int numberOfHalls = 10;
 
-                // שלב 2: רצים על 7 הימים הקרובים
                 for (int day = 0; day < 7; day++)
                 {
-                    DateTime currentDate = DateTime.Today.AddDays(day).Date;
+                    DateTime currentDate = DateTime.Today.AddDays(day).Date;// (חישוב היום עליו עובדים כרגע (אליו מוסיפים הקרנות
                     DateTime globalTime = currentDate.AddHours(10); // מתחילים ב-10:00 בבוקר
 
                     while (globalTime < currentDate.AddDays(1).AddHours(1)) // רץ עד 1 בלילה
                     {
-                        // רשימה זמנית לשעה הספציפית הזו כדי למנוע כפילויות בין אולמות
+                        // רשימה זמנית לשעה הספציפית הזו כדי למנוע הקרנה של אותו סרט בכמה אולמות בו זמנית
                         List<int> moviesUsedInThisSlot = new List<int>();
 
                         for (int hall = 1; hall <= numberOfHalls; hall++)
@@ -69,24 +69,24 @@ namespace Shipping
                             // האם האולם פנוי? (בודק אם הסרט הקודם באולם הזה נגמר)
                             if (IsHallEmptyNow(hall, globalTime))
                             {
-                                var shuffledMovies = movieIds.OrderBy(x => rnd.Next()).ToList();
+                                var shuffledMovies = movieIds.OrderBy(x => rnd.Next()).ToList();//ערבוב רשימת הסרטים 
 
                                 foreach (int movieId in shuffledMovies)
                                 {
-                                    // בדיקה: האם הסרט כבר שובץ בשעה הזו באולם אחר?
+                                    // בדיקה האם הסרט כבר שובץ בשעה הזו באולם אחר
                                     if (!moviesUsedInThisSlot.Contains(movieId))
                                     {
-                                        // בדיקת ז'אנר (ילדים/אימה)
-                                        if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))
+                                        //(בדיקת שאין חוסר התאמה בין סוג הסרט לשעה (ילדים/אימה
+                                        if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))//globalTimeהשעה בלבד מ :TimeOfDay
                                         {
                                             int duration = GetMovieDuration(movieId);
-                                            DateTime endTime = globalTime.AddMinutes(duration + 40); // זמן סיום + ניקיון
+                                            DateTime endTime = globalTime.AddMinutes(duration + 40); // זמן הסרט + ניקיון
 
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
 
                                             // מסמנים שהסרט תפוס לשעה הזו בשאר האולמות
                                             moviesUsedInThisSlot.Add(movieId);
-                                            break;
+                                            break;//יציאה מהלולאה כי מילאנו הקרנה לשעה עליה עבדנו, עוברים לאולם הבא
                                         }
                                     }
                                 }
@@ -98,9 +98,17 @@ namespace Shipping
                 }
                 lblAdminStatus.Text = "הלוח נוצר בהצלחה ובצורה נקייה!";
             }
+            // catchברגע שיש שגיאה כלשהי עוברים אוטומטית ל
             catch (Exception ex)
             {
-                lblAdminStatus.Text = "שגיאה: " + ex.Message;
+                // הצגת הודעת שגיאה באתר
+                lblAdminStatus.Text = ".חלה שגיאה בביצוע הפעולה. אנא נסה שוב מאוחר";
+                lblAdminStatus.ForeColor = System.Drawing.Color.Red;
+
+                //שמכיל את כל המידע על התקלה Exception הצגת השגיאה המלאה בצד שרת בלבד עם אובייקט מסוג
+                Debug.WriteLine("Admin Error Details: " + ex.Message);
+                //שורת השגיאה
+                Debug.WriteLine("Stack Trace: " + ex.StackTrace);
             }
         }
         private bool IsHallEmptyNow(int hall, DateTime time)
@@ -121,68 +129,33 @@ namespace Shipping
         private void InsertScreeningToDB(int movieId, DateTime start, DateTime end, int hall)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                string query = @"INSERT INTO Screening (MovieId, Hall, SeatesBought, StartTime, EndTime) 
+            string query = @"INSERT INTO Screening (MovieId, Hall, SeatesBought, StartTime, EndTime) 
                  VALUES (@mid, @hall, 0, @start, @end)";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@mid", movieId);
-                cmd.Parameters.AddWithValue("@start", start);
-                cmd.Parameters.AddWithValue("@end", end);
-                cmd.Parameters.AddWithValue("@hall", hall);
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
+            List<SqlParameter> Params = new List<SqlParameter>();
+
+            Params.Add(new SqlParameter("@mid", movieId));
+            Params.Add(new SqlParameter("@start", start));
+            Params.Add(new SqlParameter("@end", end));
+            Params.Add(new SqlParameter("@hall", hall));
+            DAL d1 = new DAL(cs, query, "Screening", Params);
+            d1.ExecuteNonQueryDalPar();//ביצוע שאילתא שלא מחזירה טבלה
         }
-        private bool IsHallAvailable(int hall, DateTime start, DateTime end)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                string query = @"SELECT COUNT(*) FROM Screening 
-                         WHERE Hall = @hall 
-                         AND (
-                            (@start >= StartTime AND @start < EndTime) OR 
-                            (@end > StartTime AND @end <= EndTime) OR
-                            (StartTime >= @start AND StartTime < @end)
-                         )";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@hall", hall);
-                cmd.Parameters.AddWithValue("@start", start);
-                cmd.Parameters.AddWithValue("@end", end);
-
-                conn.Open();
-                return (int)cmd.ExecuteScalar() == 0;
-            }
-        }
-
-        // פונקציית עזר לבדיקת ז'אנר מול שעה
-        private bool IsTimeMismatch(List<int> genreIds, TimeSpan slot)
+        private bool IsTimeMismatch(List<int> genreIds, TimeSpan slot)//בדיקה האם יש חוסר התאמה בין הסרט לשעת הקרנה
         {
             bool isKids = genreIds.Contains(16) || genreIds.Contains(10751);
             bool isHorror = genreIds.Contains(27);
 
             if (isKids && slot.Hours >= 19) return true; // ילדים לא בלילה
             if (isHorror && slot.Hours < 19) return true; // אימה לא בבוקר/צהריים
-            return false;
+            return false;//יש התאמה
         }
 
         private void ClearScreenings()
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                // מוחקים רק את מה שעדיין לא קרה ואין לו מכירות
-                // אם משהו כבר נקנה (SeatesBought > 0), הוא יישאר בטבלה.
-                string query = "DELETE FROM Screening WHERE StartTime > GETDATE() AND SeatesBought = 0";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            string query = "DELETE FROM Screening WHERE StartTime > GETDATE() AND SeatesBought = 0";
+            DAL d1 = new DAL(cs,query,"Screening");
+           d1.ExecuteNonQueryDal();
         }
         private List<int> GetAllMovieIds()
         {
@@ -193,9 +166,9 @@ namespace Shipping
                 string query = "SELECT Id FROM Movie";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
-                using (SqlDataReader rdr = cmd.ExecuteReader())
+                using (SqlDataReader rdr = cmd.ExecuteReader())//שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
                 {
-                    while (rdr.Read()) ids.Add((int)rdr["Id"]);
+                    while (rdr.Read()) ids.Add((int)rdr["Id"]);//אם שורה נמצאה תואמת (כל עוד יש סרט בטבלה) לרשימת כל הסרטים
                 }
             }
             return ids;
@@ -211,7 +184,7 @@ namespace Shipping
                 cmd.Parameters.AddWithValue("@id", movieId);
                 conn.Open();
                 object result = cmd.ExecuteScalar();
-                return (result != DBNull.Value) ? (int)result : 120;
+                return (result != DBNull.Value) ? (int)result : 120;//הגדרת אורך סרט 120 דק במידה ולא הוגדר לו אורך
             }
         }
 
@@ -233,102 +206,6 @@ namespace Shipping
             return genres;
         }
 
-        //private void BindMoviesToDatalist()
-        //{
-        //    Paging();
-        //}
-        //    protected void DLMovies_EditCommand(object source, DataListCommandEventArgs e)
-        //    {
-        //        DLMovies.EditItemIndex = e.Item.ItemIndex;
-        //        BindMoviesToDatalist();
-        //    }
-        //    protected void DLMovies_UpdateCommand(object source, DataListCommandEventArgs e)
-        //    {
-        //        DataListItem changedItem = e.Item;
-        //        string id = ((Label)changedItem.FindControl("LblId")).Text;
-        //        string title = ((TextBox)changedItem.FindControl("TxtTitle")).Text;
-        //        string description = ((TextBox)changedItem.FindControl("TxtDesc")).Text;
-        //        string duration = ((TextBox)changedItem.FindControl("TxtDur")).Text;
-        //        string age = ((TextBox)changedItem.FindControl("TxtAge")).Text;
-        //        //command string and a connection string
-        //        string cmdString = "UPDATE Movie SET title=@Title, description=@Description, duration=@Duration,age=@Age WHERE Id=@Id ";
-        //        string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        //        //create the connection
-        //        using (SqlConnection connection = new SqlConnection(connectionString))
-        //        {
-        //            connection.Open();
-        //            SqlCommand command = new SqlCommand(cmdString, connection);
-        //            command.Parameters.AddWithValue("Title", title);
-        //            command.Parameters.AddWithValue("Description", description);
-        //            command.Parameters.AddWithValue("Duration", duration);
-        //            command.Parameters.AddWithValue("Age", age);
-        //            command.Parameters.AddWithValue("Id", id);
-        //            command.ExecuteNonQuery();
-        //        }
-        //        DLMovies.EditItemIndex = -1;
-        //        BindMoviesToDatalist();
-        //    }
-        //    protected void DLMovies_CancelCommand(object source, DataListCommandEventArgs e)
-        //    {
-        //        DLMovies.EditItemIndex = -1;
-        //        BindMoviesToDatalist();
-
-        //    }
-
-        //    public int CurrentPage
-        //    {
-        //        get
-        //        {
-        //            object obj = ViewState["CurrentPage"];
-        //            return (obj == null) ? 0 : (int)obj;
-        //        }
-        //        set
-        //        {
-        //            ViewState["CurrentPage"] = value;
-        //        }
-        //    }
-
-
-        //    private DataTable GetMovies()
-        //    {
-        //        string query = "SELECT Id, Title, Description, Duration, Age, Poster FROM Movie";
-        //        string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        //        DAL dt = new DAL(connectionString, query, "Movie");
-        //        return dt.GetTable();
-
-        //    }
-
-        //    //private void Paging()
-        //    //{
-        //    //    DataTable dt = GetMovies();
-
-        //    //    PagedDataSource paged = new PagedDataSource();
-        //    //    paged.DataSource = dt.DefaultView;
-        //    //    paged.AllowPaging = true;
-        //    //    paged.PageSize = 4;
-        //    //    paged.CurrentPageIndex = CurrentPage;
-
-        //    //    btnPrev.Enabled = !paged.IsFirstPage;
-        //    //    btnNext.Enabled = !paged.IsLastPage;
-
-        //    //    lblPageNumber.Text = $"Page {CurrentPage + 1} of {paged.PageCount}";
-
-        //    //    DLMovies.DataSource = paged;
-        //    //    DLMovies.DataBind();
-        //    //}
-
-        //    //protected void btnNext_Click(object sender, EventArgs e)
-        //    //{
-        //    //    CurrentPage++;
-        //    //    Paging();
-        //    //}
-
-        //    //protected void btnPrev_Click(object sender, EventArgs e)
-        //    //{
-        //    //    CurrentPage--;
-        //    //    Paging();
-        //    //}
-
-        //}
+      
     } 
 }

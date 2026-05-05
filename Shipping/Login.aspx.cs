@@ -49,7 +49,8 @@ namespace Shipping
                 cmd.Parameters.AddWithValue("@pass", password);
 
                 con.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();//יצירת אובייקט קורא שמכיל את התוצאות שחזרו מהטבלה לאחר הקומנד
+                SqlDataReader rdr = cmd.ExecuteReader();//יצירת אובייקט קורא שמכיל את התוצאות שחזרו מהטבלה
+                                                        //לאחר הקומנד ומאפשר מעבר עליהן של שורה אחר שורה
 
                 if (rdr.Read())//אם נמצאה שורה תואמת - כלומר אם נמצא משתמש שתואם את השם והסיסמא
                 {
@@ -59,7 +60,7 @@ namespace Shipping
                     Session["username"] = rdr["FullName"];//שמירת השם המלא לצורך הצגה
                     Session["category"] = "user";// הבדלה בין מנהל למשתמש
 
-                    // --- כאן הלוגיקה של ה-Return URL ---
+                    // QueryStringשמירה של ה
                     string returnUrl = Request.QueryString["returnUrl"];
 
                     if (!string.IsNullOrEmpty(returnUrl))

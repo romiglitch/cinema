@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Web.UI;
+using System.Diagnostics;
 
 namespace Shipping
 {
@@ -11,13 +12,11 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // קוד שירוץ בטעינת העמוד (אם צריך)
-        }
 
-        // הוספנו async כדי לאפשר שליחת מייל בלי לתקוע את הדף
+        }
         protected void btnSend_Click(object sender, EventArgs e)
         {
-            // אנחנו רושמים משימה אסינכרונית שהדף צריך לבצע
+            // כדי לאפשר שליחת מייל בלי לתקוע את הדף async
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
                 string userEmail = txtEmail.Text.Trim();
@@ -31,17 +30,19 @@ namespace Shipping
 
                 try
                 {
-                    string token = Guid.NewGuid().ToString();
-                    // הקוד הזה בונה את הכתובת לפי השרת המקומי שרץ אצלך כרגע
+                    string token = Guid.NewGuid().ToString();//(טיפוס נתונים שמייצר מזהה ייחודי) Guid יצירת קוד בעזרת
+                                                             //הקוד משמש כמפתח זמני וחד-פעמי שמאפשר למשתמש לשנות את הסיסמה שלו.
+                                                             //כשהדף יבדוק שיש התאמה בין הקוד שבלינק לקוד שנשמר במסד נתונים ResetPassword הוא ישמש לבדיקה בעמוד 
+                    // בניית הקישור לפי השרת המקומי שרץ כרגע
                     string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
                     string resetLink = baseUrl + "/ResetPassword.aspx?token=" + token;
 
-                    // חיבור ל-DB ושמירת הטוקן (החליפי את מחרוזת החיבור לשלך)
+
                     string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
                     using (SqlConnection conn = new SqlConnection(connString))
                     {
-                        // אנחנו מעדכנים את המשתמש לפי המייל שלו
+                        //שמירת הקוד במוסד נתונים
                         string query = "UPDATE Users SET ResetToken = @token, TokenExpiry = @expiry WHERE Email = @email";
                         SqlCommand cmd = new SqlCommand(query, conn);
                         cmd.Parameters.AddWithValue("@token", token);
@@ -49,26 +50,28 @@ namespace Shipping
                         cmd.Parameters.AddWithValue("@email", userEmail);
 
                         conn.Open();
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = cmd.ExecuteNonQuery();//הרצת השאילתא ושמירה של מספר השורות שעודכנו
 
-                        if (rowsAffected > 0)
+                        if (rowsAffected > 0)//בדיקה שאכן נמצא משתמש רשום עם האימייל
                         {
                             EmailService mailService = new EmailService();
-                            await mailService.SendResetPasswordEmail(userEmail, resetLink);
-                            lblStatus.Text = "מייל שחזור נשלח בהצלחה!";
-                            lblStatus.ForeColor = System.Drawing.Color.Green;
+                            await mailService.SendResetPasswordEmail(userEmail, resetLink);//בזמן שהמייל נשלח השרת מטפל במשתמשים אחרים
+                            lblStatus.Text = "מייל שחזור נשלח בהצלחה!"; 
+                            lblStatus.CssClass = "no-screenings-msg";
+
                         }
                         else
                         {
                             lblStatus.Text = "המייל לא נמצא במערכת.";
-                            lblStatus.ForeColor = System.Drawing.Color.Red;
+                            lblStatus.CssClass = "msg-label";
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    lblStatus.Text = "שגיאה: " + ex.Message;
+                    lblStatus.Text = "חלה שגיאה זמנית במערכת, אנא נסו שוב מאוחר יותר.";
                     lblStatus.ForeColor = System.Drawing.Color.Red;
+                    Debug.WriteLine("Error: " + ex.ToString());
                 }
             }));
         }

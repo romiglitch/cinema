@@ -8,12 +8,13 @@ using MailKit.Net.Smtp;
 using MimeKit;
 using System.Web;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Shipping
 {
     public partial class Cart : Page
     {
-        public class TicketDetail
+        public class TicketDetail//מחלקה שמשמשת לשמירת פרטי הכרטיסים והצגתם
         {
             public int HallId { get; set; }
             public int Row { get; set; }
@@ -24,9 +25,9 @@ namespace Shipping
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            if (!IsPostBack)//ביצוע הקוד רק אם זאת טעינה ראשונה של הדף
             {
-                // 1. שליפת נתונים מה-Session
+               //שמירת נתונים מהסשן
                 string selectedSeatsData = Session["SelectedSeats"] as string;
                 object sIdObj = Session["ScreeningId"];
                 int screeningId = (sIdObj != null) ? Convert.ToInt32(sIdObj) : 0;
@@ -38,16 +39,16 @@ namespace Shipping
                     return;
                 }
 
-                // 2. שליפת פרטי סרט - עם טיפול בשגיאת שם הטבלה
+                //הצגת הנתונים (פרטי הסרט) בסל
                 if (screeningId > 0)
                 {
                     try
                     {
-                        // --- חלק 1 המעודכן: שליפת פרטי סרט ושעה ---
+                       
                         string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                         using (SqlConnection con = new SqlConnection(connStr))
                         {
-                            // שימוש בשמות הטבלאות והעמודות המדויקים שלך: Movie, Title, Screening
+                            
                             string sql = @"SELECT M.Title, S.StartTime 
                FROM [dbo].[Screening] S 
                JOIN [dbo].[Movie] M ON S.MovieId = M.Id 
@@ -55,10 +56,11 @@ namespace Shipping
 
                             using (SqlCommand cmd = new SqlCommand(sql, con))
                             {
-                                // בדיקה חשובה: ודאי ש-screeningId הוא אכן ה-ID של ההקרנה ולא של הסרט
+                               
                                 cmd.Parameters.AddWithValue("@id", screeningId);
                                 con.Open();
-                                using (SqlDataReader rdr = cmd.ExecuteReader())
+                                using (SqlDataReader rdr = cmd.ExecuteReader())//שמירת התוצאות באובייקט קורא
+                                                                               //שמאפשר לעבור עליהן שורה אחר שורה - פרטי ההקרנה
                                 {
                                     if (rdr.Read())
                                     {
@@ -75,53 +77,55 @@ namespace Shipping
                     }
                     catch (Exception ex)
                     {
-                        // אם עדיין יש שגיאה, נציג אותה בצורה ברורה על המסך
-                        litMovieName.Text = "שגיאת SQL: " + ex.Message; //יש להתחבר עם כתובת דואל למערכת לפני ביצוע רכישה
+                        // הצגת שגיאה מלאה בצד שרת
+                        Debug.WriteLine("SQL Error: " + ex.Message);
+
+                        // הצגת הודעת שגיאה ללקוח
+                        litMovieName.Text = "חלה שגיאה בטעינת פרטי ההקרנה. אנא נסה שוב מאוחר יותר.";
+                        litScreeningTime.Text = "";
                     }
                 }
 
-                // 3. קריאה לפונקציית העיבוד שהצמדתי למטה
+                //הצגת פרטי המושבים
                 ProcessTicketsDisplay(selectedSeatsData, hallId);
             }
         }
-
-        // זו הפונקציה ששאלת עליה - היא מעבדת את רשימת הכרטיסים ומציגה אותם
         private void ProcessTicketsDisplay(string selectedSeatsData, int hallId)
         {
-            string ticketTypesStr = Session["TicketTypes"] as string ?? "";
-            string ticketPricesStr = Session["TicketPrices"] as string ?? "";
-            var ticketTypes = ticketTypesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            var ticketPrices = ticketPricesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string ticketTypesStr = Session["TicketTypes"] as string ?? "";//שמירת סוג הכרטסים מהסשן
+            string ticketPricesStr = Session["TicketPrices"] as string ?? "";//שמירת מחיר הכרטיסים מהסשן
+            var ticketTypes = ticketTypesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת מהסשן כרשימה שניתן לעבוד עליה
+            var ticketPrices = ticketPricesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת מהסשן כרשימה שניתן לעבוד עליה
 
             var tickets = new List<TicketDetail>();
-            string[] seats = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] seats = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת מהסשן כרשימה שניתן לעבוד עליה
 
             for (int i = 0; i < seats.Length; i++)
             {
                 var parts = seats[i].Split('|');
-                if (parts.Length == 3)
+                if (parts.Length == 3)//בדיקה שהכרטיס מכיל את כל הפרטים שלו (אולם,מושב,שורה)
                 {
-                    tickets.Add(new TicketDetail
+                    tickets.Add(new TicketDetail//בניית אובייקט עם פרטי הכרטיס
                     {
                         HallId = hallId,
                         Row = Convert.ToInt32(parts[1]),
                         Seat = Convert.ToInt32(parts[2]),
                         Type = (i < ticketTypes.Length) ? ticketTypes[i] : "רגיל",
-                        Price = (i < ticketPrices.Length && decimal.TryParse(ticketPrices[i], out decimal p)) ? p : 45.00m
+                        Price = (i < ticketPrices.Length && decimal.TryParse(ticketPrices[i], out decimal p)) ? p : 50.00m
                     });
                 }
             }
 
-            rptTickets.DataSource = tickets;
-            rptTickets.DataBind();
+            rptTickets.DataSource = tickets;//שיוך הנתונים לרפיטר שמציג את הכרטיסים
+            rptTickets.DataBind();//מציגה את המידע
 
-            litTotalPrice.Text = tickets.Sum(t => t.Price).ToString("N2");
+            litTotalPrice.Text = tickets.Sum(t => t.Price).ToString("N2");//והצגת המספר עם 2 ספרות אחרי הנקודה LINQ חישוב המחיר הכולל באמצעות פקודת
             litTotalTickets.Text = tickets.Count.ToString();
         }
 
         protected void BtnPay_Click(object sender, EventArgs e)
         {
-            if (!Page.IsValid) return;
+            if (!Page.IsValid) return;//בדיקה שכל הולידטורים תקינים
 
             if (Session["UserId"] == null)
             {
@@ -129,65 +133,64 @@ namespace Shipping
                 return;
             }
 
-            // --- שלב 1: שליפת הנתונים ---
+            // שמירת נתונים מהסשן
             string userEmail = Session["UserEmail"]?.ToString() ?? "";
             string userName = Session["username"]?.ToString() ?? "";
             string movieName = litMovieName.Text;
             string rawSeats = Session["SelectedSeats"]?.ToString() ?? "";
 
-            // --- שלב 2: עיבוד המושבים ---
-            var seatEntries = rawSeats.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            // עיבוד המושבים עוד פעם
+            var seatEntries = rawSeats.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת מהסשן כרשימה שניתן לעבוד עליה
             List<string> seatNumbersOnly = new List<string>();
 
             foreach (var entry in seatEntries)
             {
                 var parts = entry.Split('|');
-                if (parts.Length == 3)
+                if (parts.Length == 3)//בדיקה שהכרטיס מכיל את כל הפרטים שלו (אולם,מושב,שורה)
                 {
-                    // פורמט תקין: ID|Row|Seat
+                    //הצגה בפורמט תקין (כשיש את כל המידע)
                     seatNumbersOnly.Add($"שורה {parts[1]} מושב {parts[2]}");
                 }
                 else
                 {
-                    // אם אין |, פשוט נוסיף את מה שיש שם (למקרה שהפורמט שונה)
+                    //במידה ואין את כל המידע או המידע מוצג בפורמט שונה הצגה של מה שיש
                     seatNumbersOnly.Add(entry);
                 }
             }
 
-            // אם הרשימה עדיין ריקה משום מה, ניקח את ה-rawSeats כמו שהוא
+            // בדיקה סופית לפני השליחה למייל: אם יש מושבים מעובדים, הם יוצגו כמחרוזת
             string formattedSeatsForEmail = seatNumbersOnly.Count > 0
                 ? string.Join(", ", seatNumbersOnly)
-                : (string.IsNullOrEmpty(rawSeats) ? "לא נבחרו מושבים" : rawSeats);
-
-            // --- המשך הקוד (בדיקת תשלום ושליחת מייל) ---
-
-            // --- שלב 2: בדיקת תשלום ---
-            BankService bank = new BankService();
-            decimal amount = 0;
+                : (string.IsNullOrEmpty(rawSeats) ? "לא נבחרו מושבים" : rawSeats);//אם אין מושבים, במידה והמידע בסשן ריק תוצג הודעה
+        
+            BankService bank = new BankService();//יצירת אובייקט בנק בשביל לבצע שליחת אימייל
+            decimal amount = 0;//יצירת משתנה דסימל לעבודה עם כסף ששומר על דיוק
             decimal.TryParse(litTotalPrice.Text, out amount);
 
-            if (bank.ProcessPayment(txtCardNum.Text, txtExpiry.Text, txtCVV.Text, amount))
+            if (bank.ProcessPayment(txtCardNum.Text, txtCVV.Text, txtExpiry.Text))// בדיקה נוספת של פרטי האשראי
             {
                 try
                 {
-                    // --- שלב 3: שמירה לבסיס הנתונים (כאן ה-Session["SelectedSeats"] הופך ל-null) ---
+                    // שמירה לבסיס נתונים
                     SaveOrderToDatabase();
 
-                    // --- שלב 4: שליחת המייל עם הנתונים ששמרנו מראש ---
+                    //למשתמש לפני ששליחת המייל מתבצעת HTMLלא שולח את ה
+                    //לפני שהוא מראה למשתמש את התוצאה הסופית על המסך awaitמחכה לתוצאה של ה
                     RegisterAsyncTask(new PageAsyncTask(async () =>
                     {
                         try
                         {
                             EmailService mailService = new EmailService();
                             DateTime screeningDate;
-                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))
-                                screeningDate = DateTime.Now;
+                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך הצליחה, נשמור אותה במשתנה
+                                                                                        
+                                screeningDate = DateTime.Now;//אם לא אז התאריך יהיה התאריך של היום
 
-                            await mailService.SendOrderReceiptEmail(
+                            await mailService.SendOrderReceiptEmail(// בזמן שהמייל נשלח השרת מטפל במשתמשים אחרים
                                 userEmail,
                                 movieName,
                                 screeningDate,
-                                formattedSeatsForEmail, // עכשיו זה בטוח לא יהיה ריק!
+                                formattedSeatsForEmail,
                                 amount,
                                 userName
                             );
@@ -196,13 +199,16 @@ namespace Shipping
                         }
                         catch (Exception ex)
                         {
-                            lblMsg.Text = "הזמנה בוצעה אך המייל נכשל: " + ex.Message;
+                            lblMsg.Text = "ההזמנה בוצעה בהצלחה, אך חלה שגיאה בשליחת המייל לאישור.";
+                            Debug.WriteLine("Email Error: " + ex.ToString());
                         }
                     }));
                 }
                 catch (Exception ex)
                 {
-                    lblMsg.Text = "שגיאה בשמירת הנתונים: " + ex.Message;
+                    lblMsg.Text = "מצטערים, חלה שגיאה בתהליך שמירת ההזמנה. אנא נסו שוב מאוחר יותר.";
+
+                    Debug.WriteLine("Database/General Error: " + ex.ToString());
                 }
             }
             else
@@ -215,39 +221,42 @@ namespace Shipping
         {
             string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
-            int screeningId = Convert.ToInt32(Session["ScreeningId"] ?? 0);
-            int userId = Convert.ToInt32(Session["UserId"] ?? 0);
+            int screeningId = Convert.ToInt32(Session["ScreeningId"] ?? 0);//שמירת האיידי של ההקרנה
+            int userId = Convert.ToInt32(Session["UserId"] ?? 0);//שמירת האיידי של המשתמש
 
-            string selectedSeatsData = Session["SelectedSeats"] as string ?? "";
-            string ticketTypesStr = Session["TicketTypes"] as string ?? "";
-            string ticketPricesStr = Session["TicketPrices"] as string ?? "";
+            string selectedSeatsData = Session["SelectedSeats"] as string ?? "";//שמירת המקומות כמחרוזת
+            string ticketTypesStr = Session["TicketTypes"] as string ?? "";//שמירת סוג הכרטיסים כמחרוזת
+            string ticketPricesStr = Session["TicketPrices"] as string ?? "";//שמירת מחיר הכרטיסים כמחרוזת
 
-            string[] seatsArray = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] seatsArray = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת האורכה
+                                                                                                                //כמערך בו כל איבר מציג כיסא
             string[] typesArray = ticketTypesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             string[] pricesArray = ticketPricesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (seatsArray.Length == 0 || screeningId == 0) return;
+            if (seatsArray.Length == 0 || screeningId == 0) return;//בדיקת תקינות
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
-                using (SqlTransaction transaction = con.BeginTransaction())
+                using (SqlTransaction transaction = con.BeginTransaction())//פתיחת טרנזקציה - כל הפעולות לא ישמרו באופן סופי עד שיש אישור
+                                                                           //(בשביל להבטיח שלא יהיה מצב בו יש הזמנה ללא כרטיסים (חוסר עקביות בנתונים
                 {
                     try
                     {
-                        // 1. שמירת כל כרטיס בנפרד בטבלת Tickets
+                       
                         string sqlTickets = @"INSERT INTO [dbo].[Tickets] ([User], [Screening], [Row], [Seat], [Price], [Type])  
                                      VALUES (@user, @screening, @row, @seat, @price, @type)";
 
+                        // שמירת כל כרטיס בטבלת כרטיסים
                         for (int i = 0; i < seatsArray.Length; i++)
                         {
                             var parts = seatsArray[i].Split('|');
                             if (parts.Length == 3)
                             {
-                                using (SqlCommand cmd = new SqlCommand(sqlTickets, con, transaction))
+                                using (SqlCommand cmd = new SqlCommand(sqlTickets, con, transaction))//יצירת קומנד
                                 {
                                     string currentType = (i < typesArray.Length) ? typesArray[i].Trim() : "רגיל";
-                                    decimal currentPrice = (i < pricesArray.Length && decimal.TryParse(pricesArray[i].Trim(), out decimal p)) ? p : 40.00m;
+                                    decimal currentPrice = (i < pricesArray.Length && decimal.TryParse(pricesArray[i].Trim(), out decimal p)) ? p : 50.00m;
 
                                     cmd.Parameters.AddWithValue("@user", userId);
                                     cmd.Parameters.AddWithValue("@screening", screeningId);
@@ -256,13 +265,12 @@ namespace Shipping
                                     cmd.Parameters.AddWithValue("@price", currentPrice);
                                     cmd.Parameters.AddWithValue("@type", currentType);
 
-                                    cmd.ExecuteNonQuery();
+                                    cmd.ExecuteNonQuery();//(ביצוע השאילתא (נון קוורי מפני שלא צריך לקבל נתונים בחזרה אלא רק לעדכן
                                 }
                             }
                         }
 
-                        // --- כאן ההוספה החדשה שלך! ---
-                        // 2. עדכון המונה בטבלת Screening כדי שפונקציית המחיקה לא תמחק את ההקרנה הזו
+                        //עדכון הכרטיסים הבקרנה
                         string sqlUpdateScreening = @"UPDATE [dbo].[Screening] 
                                             SET SeatesBought = SeatesBought + @count 
                                             WHERE ScreeningId = @sId";
@@ -273,16 +281,19 @@ namespace Shipping
                             updateCmd.Parameters.AddWithValue("@sId", screeningId);
                             updateCmd.ExecuteNonQuery();
                         }
-                        // ------------------------------
+                       
 
-                        transaction.Commit();
+                        transaction.Commit();//אישור טרנזקציה - השינויים נשמרים במסד נתונים
                         Session["SelectedSeats"] = null;
                         Session["TotalTickets"] = null;
                     }
                     catch (Exception ex)
                     {
-                        transaction.Rollback();
-                        throw new Exception("שגיאה בשמירת הכרטיסים: " + ex.Message);
+                        transaction.Rollback();//(ביטול כל מה שנעשה מתחילת הטרנזקציה (הגנה על נתונים
+
+                        System.Diagnostics.Trace.WriteLine("Saving Tickets Error: " + ex.ToString());
+
+                        throw new Exception("חלה שגיאה בעיבוד ההזמנה. אנא נסו שוב מאוחר יותר.");//שלה catchוהעברה ל BtnPay_Click עצירה של
                     }
                 }
             }

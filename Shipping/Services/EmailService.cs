@@ -7,6 +7,7 @@ using Google.Apis.Services;
 using MimeKit;
 using System;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -14,42 +15,19 @@ namespace Shipping
 {
     public class EmailService
     {
-        private readonly string senderEmail = "kladnitsky.romi@gmail.com";
-        private readonly string appPassword ="slprfmpvlzczmnit";
+        private readonly string senderEmail = "kladnitsky.romi@gmail.com";//רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
+        private readonly string appPassword ="slprfmpvlzczmnit";//שמאשרת לשלוח מיילים בשמי בלי לאשר ידנית כל פעם SMTP סיסמא יחודית בשביל
 
-        //public async Task SendResetPasswordEmail(string recipientEmail, string resetLink)
-        //{
-        //    var message = new MimeMessage();
-        //    message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));
-        //    message.To.Add(new MailboxAddress("", recipientEmail));
-        //    message.Subject = "שחזור סיסמה";
-
-        //    var bodyBuilder = new BodyBuilder
-        //    {
-        //        HtmlBody = $@"
-        //        <div style='direction: rtl; text-align: right; font-family: Arial, sans-serif;'>
-        //            <h2 style='color: #2c3e50;'>שלום!</h2>
-        //            <p>ביקשת לאפס את הסיסמה באתר הקולנוע שלנו.</p>
-        //            <p>כדי לבחור סיסמה חדשה, לחצי על הכפתור למטה:</p>
-        //            <a href='{resetLink}' style='background-color: #ff4757; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;'>איפוס סיסמה כעת</a>
-        //            <br><br>
-        //            <p>אם לא ביקשת זאת, פשוט התעלמי מהמייל.</p>
-        //            <hr style='border: 0; border-top: 1px solid #eee;' />
-        //            <p style='font-size: 12px; color: #7f8c8d;'>הקישור יהיה בתוקף ל-15 דקות הקרובות.</p>
-        //        </div>"
-        //    };
-        //    message.Body = bodyBuilder.ToMessageBody();
-
-        //    await ExecuteSendAsync(message);
-        //}
+        //הגדרת הפעולה כמשימה אסינכרונית : הפעולה עומדת לקחת זמן אז בזמן הזה השרת יטפל בדברים אחרים
+        //המטרה היא למנוע מהאתר לקופא בזמן שהוא מחכה שפעולה איטית תסתיים
         public async Task SendResetPasswordEmail(string recipientEmail, string resetLink)
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));
-            message.To.Add(new MailboxAddress("", recipientEmail));
+            var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג 
+            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));//הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
+            message.To.Add(new MailboxAddress("", recipientEmail));//כתובת מייל הלקוח
             message.Subject = "שחזור סיסמה";
 
-            var bodyBuilder = new BodyBuilder
+            var bodyBuilder = new BodyBuilder//בניית גוף ההודעה לפי העיצובי שנכתב
             {
                 HtmlBody = $@"
         <div dir='rtl' style='font-family: ""Montserrat"", ""Rubik"", ""Segoe UI"", Tahoma, sans-serif; max-width: 500px; margin: 20px auto; border: 1px solid #eee; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center;'>
@@ -75,9 +53,8 @@ namespace Shipping
             };
             message.Body = bodyBuilder.ToMessageBody();
 
-            await ExecuteSendAsync(message);
+            await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
-        // 2. אישור הזמנה - בעיצוב המקורי עם המסגרת והאימוג'י כרטיס
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string userName)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח
@@ -130,21 +107,23 @@ namespace Shipping
         }
 
         // פונקציית השליחה המרכזית (SMTP)
-        private async Task ExecuteSendAsync(MimeMessage message)
+        private async Task ExecuteSendAsync(MimeMessage message)//הגדרת הפעולה אסינכרונית :המייל מתחיל בשליחה ובזמן הזה השרת מטפל בדברים אחרים
         {
             using (var client = new SmtpClient())
             {
                 try
                 {
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync(senderEmail, appPassword);
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);//יצירת קשר עם השרת של גוגל
+                    await client.AuthenticateAsync(senderEmail, appPassword);//זיהוי הסיסמא והמייל שלי
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                 }
                 catch (Exception ex)
                 {
-                    // כאן תוכלי להוסיף לוג של השגיאה אם תרצי
-                    throw new Exception("שגיאה בשליחת המייל: " + ex.Message);
+                    Debug.WriteLine("שגיאת שרת בשליחת מייל");
+                    Debug.WriteLine(ex.ToString());
+
+                    throw new Exception("חלה שגיאה טכנית בשליחת המייל. אנא נסה שוב מאוחר יותר.");
                 }
             }
              }  

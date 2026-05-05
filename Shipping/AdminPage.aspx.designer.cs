@@ -33,13 +33,13 @@ namespace Shipping
         protected global::System.Web.UI.WebControls.Button Btn3;
 
         /// <summary>
-        /// btnGenerateSchedule control.
+        /// BtnGenerateSchedule control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnGenerateSchedule;
+        protected global::System.Web.UI.WebControls.Button BtnGenerateSchedule;
 
         /// <summary>
         /// lblAdminStatus control.

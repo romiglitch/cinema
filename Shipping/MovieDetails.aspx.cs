@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Web.UI;
 using Newtonsoft.Json.Linq;
-using Shipping.localhost1; // שם ה-Web Reference שלך
+using Shipping.localhost1;
 
 namespace Shipping
 {
@@ -14,13 +14,13 @@ namespace Shipping
         {
             if (!IsPostBack)
             {
-                if (!int.TryParse(Request.QueryString["id"], out int movieId))
+                if (!int.TryParse(Request.QueryString["id"], out int movieId))//לא ניתן להגיע לעמוד בשום דרך שהיא לא לחיצה על הפוסטר
                 {
                     Response.Redirect("HomePage.aspx");
                     return;
                 }
 
-                // טוען פרטי הסרט מה־DB
+                //טעינת פרטי הסרט
                 LoadMovie(movieId);
 
                 // קריאה לוובסרביס לקבלת טריילר
@@ -28,25 +28,36 @@ namespace Shipping
 
                 if (!string.IsNullOrEmpty(trailerUrl))
                 {
-                    // התאמה ל-iframe embed
+                    //Modalבשביל לעקוף את החסימה של יוטיוב ולהציג את הטריילר ישירות ב Embed
+                    //הוספת פקדוה שמתחילה לנגן את הטריילר במיידי
                     modalTrailer.Attributes["data-src"] = trailerUrl.Replace("watch?v=", "embed/") + "?autoplay=1";
                 }
+                else
+                {
+
+#if DEBUG
+                    if (!string.IsNullOrEmpty(trailerUrl))
+                    {
+                        Response.Write("<!-- Trailer Debug: " + trailerUrl + " -->");
+                    }
+#endif
+                }
             }
-        }
+             }
 
         // קריאה אסינכרונית לוובסרביס
         private Task<string> GetTrailerFromWebServiceAsync(int movieId)
         {
             return Task.Run(() =>
             {
-                Trailers client = new Trailers(); // מחלקת ה-client שנוצרה מ-Web Reference
+                Trailers client = new Trailers(); // מחלקה מהוובסרוויס
                 return client.GetTrailerKey(movieId);
             });
         }
 
         private void LoadMovie(int movieId)
         {
-            // יירושה
+            //CinemaMovie טעינת פרטי הסרט באמצעות אובייקט
             CinemaMovie movie = GetMovieByTmdbId(movieId);
 
             if (movie == null)
@@ -55,17 +66,10 @@ namespace Shipping
                 return;
             }
 
-            // יירושה
             imgPoster.ImageUrl = movie.Poster;
             lblTitle.InnerText = movie.Title;
             lblDescription.InnerText = movie.Desc;
-
-            // שימוש במתודה ייחודית של הבן (CinemaMovie) להצגת זמן מעוצב
             lblDuration.InnerText = $"⏱ {movie.GetFormattedDuration()}";
-
-            // שימוש בשדה המחיר החדש (אופציונלי להצגה בעמוד)
-            // lblPrice.InnerText = movie.GetDisplayPrice();
-
             lblGenre.InnerText = $"🎭 {GetGenresByTmdbId(movieId)}";
         }
 
@@ -85,7 +89,7 @@ namespace Shipping
                     
                         if (dr.Read())
                         {
-                            // יצירת אובייקט מסוג הבן (CinemaMovie) ומילוי השדות שירש מהאב
+                            //CinemaMovie יצירת אובייקט מסוג
                             return new CinemaMovie
                             {
                                 Id = dr["Id"] != DBNull.Value ? (int)dr["Id"] : 0,
@@ -139,7 +143,7 @@ namespace Shipping
         {
             if (int.TryParse(Request.QueryString["id"], out int movieId))
             {
-                // שליחת ה-TmdbId לעמוד בחירת ההקרנה
+                //של הסרט הרצוי IDעמוד בחירת ההקרנה עם ה
                 Response.Redirect($"SelectScreening.aspx?movieId={movieId}");
             }
         }

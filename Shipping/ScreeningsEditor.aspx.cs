@@ -30,12 +30,13 @@ namespace Shipping
 
         protected void Page_Init(object sender, EventArgs e)//כשהעמוד נוצר בזיכרון אבל עדיין לא היה פייג' לואד
         {
-            // קוראים את הסרט מה-Request (PostBack-safe)
-            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID]))//קורא איזה סרט נבחר גם ב־PostBack
+            // DDLבדיקה שנבחר סרט ב
+            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID]))//Request.Form מכיוון שהעמוד עדיין לא נבנה ניגשים לנתונים עם
             {
                 int movieId;
                 if (int.TryParse(Request.Form[ddlMovies.UniqueID], out movieId))
                 {
+                    //בנייה מחדש של הטבלה מיד עם טעינת הדף כדי שהצ'קבוקסים בתוך הטבלה ייווצרו בזיכרון
                     RebuildScheduleTable(movieId);
                 }
             }
@@ -44,74 +45,84 @@ namespace Shipping
 
         private void RebuildScheduleTable(int movieId)
         {
-            int slotMinutes = GetRoundedDuration(movieId);//רשימת טווחי שעות רציפים
+            // חישוב אורך הסרט כולל הפסקות ועיגול זמנים
+            int slotMinutes = GetRoundedDuration(movieId);
+            // יצירת רשימת טווחי זמן לאורך יום אחד
             var dailySlots = GenerateSequentialSchedule(slotMinutes);
 
-            // ימים מימין לשמאל
+            // הגדרת מערך הימים לתצוגה בכותרת הטבלה
             string[] days = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
 
+            //יצירת הטבלה שתציג את כל ההקרנות
             Table tbl = new Table();
             tbl.CssClass = "weekSchedule";
-            tbl.Attributes.Add("dir", "rtl"); // קריטי!
+            tbl.Attributes.Add("dir", "rtl");
 
-            // כותרת
+            // יצירת שורת הכותרת של הטבלה
             TableHeaderRow hr = new TableHeaderRow();
+            hr.Cells.Add(new TableHeaderCell { Text = "שעה" }); // עמודה ראשונה: פירוט השעות
 
-            hr.Cells.Add(new TableHeaderCell { Text = "שעה" }); //עמודת השעות
-
-            foreach (string day in days) // מימין לשמאל
+            // הוספת שמות הימים ככותרות לשאר העמודות
+            foreach (string day in days)
                 hr.Cells.Add(new TableHeaderCell { Text = day });
 
             tbl.Rows.Add(hr);
 
-            // שורות שעות
-            foreach (var slot in dailySlots)//עבור כל טווח שעות שורה חדשה בכל יום
+
+            //  מציאת התאריך של היום הנוכחי
+            DateTime today = DateTime.Today;
+            //  חישוב כמה ימים חסרים עד ליום ראשון הקרוב
+            int daysUntilSunday = ((int)DayOfWeek.Sunday - (int)today.DayOfWeek + 7) % 7;
+            // קביעת "נקודת האפס" של הטבלה - יום ראשון בשעה 00:00
+            DateTime startOfVisibleWeek = today.AddDays(daysUntilSunday);
+
+            // מעבר על כל טווח שעות (שורה בטבלה)
+            foreach (var slot in dailySlots)
             {
                 TableRow row = new TableRow();
+                // הוספת עמודת השעה מצד ימין
+                row.Cells.Add(new TableCell { Text = $"{slot.Start:HH:mm} - {slot.End:HH:mm}" });
 
-                // עמודת שעה
-                row.Cells.Add(new TableCell
-                {
-                    Text = $"{slot.Start:HH:mm} - {slot.End:HH:mm}"
-                });
-
-                // תאים לימי השבוע
+                // מעבר על 7 ימי השבוע עבור כל טווח שעות
                 for (int i = 0; i < 7; i++)
                 {
-                    DateTime start = slot.Start.AddDays(i);
-                    DateTime end = slot.End.AddDays(i);
+                    // חישוב התאריך והזמן המדויק עבור התא הספציפי בטבלה
+                    DateTime currentDayStart = startOfVisibleWeek.AddDays(i).Add(slot.Start.TimeOfDay);
+                    DateTime currentDayEnd = startOfVisibleWeek.AddDays(i).Add(slot.End.TimeOfDay);
 
                     TableCell cell = new TableCell();
-
-                    bool available = AnyHallAvailable(start, end);
+                    // בדיקה האם יש אולם פנוי בתאריך ובשעות האלו
+                    bool available = AnyHallAvailable(currentDayStart, currentDayEnd);
 
                     if (available)
                     {
+                        // יצירת תיבת סימון אם הזמן פנוי
                         CheckBox cb = new CheckBox();
-                        cb.ID = $"cb_{movieId}_{start:yyyyMMddHHmm}";//יחודי מבוסס על הסרט והתאריך Id CheckBoxקובע ל
-                        cb.CssClass = "circleCheck";
-                        cb.EnableViewState = true;//PostBackמאפשר שמירת מצב סימון ב
-                        cb.Attributes["data-info"] = $"{movieId}|{start}|{end}";//שמירת מידע נסתר, משמש בהוספת הקרנה
+                        cb.ID = $"cb_{movieId}_{currentDayStart:yyyyMMddHHmm}";//יחודי לכל צ'ק בוקס ID בניית 
+                        cb.CssClass = "circleCheck";//הגדרת עיצוב
+                        cb.EnableViewState = true; //עבור הפקד ViewState מפעיל
+                                                   //שומר על מצב הסימון בין טעינות דף
+
+                        //בשביל שנוכל אחכ לקרוא את המידע ולשמור אותו במסד HTMLשמירת נתוני ההקרנה ב
+                        cb.Attributes["data-info"] = $"{movieId}|{currentDayStart:yyyy-MM-dd HH:mm}|{currentDayEnd:yyyy-MM-dd HH:mm}";
+                        // הצגת כפתור ההוספה ברגע שצ'ק בוקס נבחר
                         cb.Attributes.Add("onclick", "showAddButton(this);");
-
+                        //הכנסת אובייקט הצ'ק בוקס לטבלה
                         cell.Controls.Add(cb);
-
                     }
                     else
                     {
+                        // אם אין אולם פנוי, מציגים איקס
                         cell.Text = "❌";
                     }
-
-
-
                     row.Cells.Add(cell);
                 }
-
                 tbl.Rows.Add(row);
             }
 
+            // ניקוי הפאנל מהטבלה הישנה והוספת הטבלה המעודכנת
             pnlSchedule.Controls.Clear();
-            pnlSchedule.Controls.Add(tbl); //מציג את הטבלה בפאנל
+            pnlSchedule.Controls.Add(tbl);
             pnlSchedule.Visible = true;
         }
 
@@ -131,9 +142,6 @@ namespace Shipping
             ddlMovies.Items.Insert(0, "אנא בחר סרט");
         }
 
-        // ------------------------------
-        // טוען את כל האולמות
-        // ------------------------------
         private void LoadHalls(string con)
         {
             DAL dAL = new DAL(con, "SELECT HallId FROM Halls", "Halls");
@@ -145,33 +153,32 @@ namespace Shipping
 
         }
 
-        // ------------------------------------------------------
-        // כשהמשתמש בוחר סרט → מחשבים את זמן הסרט ושעות פנויות
-        // ------------------------------------------------------
+
         protected void ddlMovies_SelectedIndexChanged(object sender, EventArgs e)
         {
             lblMessage.Text = "";
 
-            // מנקים רק מצב נראות
+            // הסתרת כפתור ההוספה עד שיבחר צ'ק בוקס חדש
             btnAddScreening.CssClass = "btnAddS hiddenBtn";
 
-            if (ddlMovies.SelectedIndex == 0)
+            if (ddlMovies.SelectedIndex == 0)//בדיקת בחירה תקינה
                 return;
 
             int movieId = int.Parse(ddlMovies.SelectedValue);
-            RebuildScheduleTable(movieId);
+            RebuildScheduleTable(movieId);//חישוב אורך הסרט, בדיקת אולמות פנויים ויצירת טבלה עבור הסרט הספציפי
         }
 
         protected void RadioSlot_CheckedChanged(object sender, EventArgs e)
         {
-            RadioButton rb = (RadioButton)sender;
-            string data = rb.Attributes["data-info"];
+            RadioButton rb = (RadioButton)sender; // זיהוי הפקד הספציפי ששלח את האירוע
+            string data = rb.Attributes["data-info"]; // שליפת מחרוזת המידע הנסתרת
 
+            // פירוק המחרוזת לשלושה חלקים
             string[] parts = data.Split('|');
 
-            int movieId = int.Parse(parts[0]);
-            DateTime start = DateTime.Parse(parts[1]);
-            DateTime end = DateTime.Parse(parts[2]);
+            int movieId = int.Parse(parts[0]); // מזהה הסרט
+            DateTime start = DateTime.Parse(parts[1]); // זמן תחילת ההקרנה
+            DateTime end = DateTime.Parse(parts[2]); // זמן סיום ההקרנה
 
             int hallId = FindAvailableHall(start, end);
 
@@ -197,16 +204,19 @@ namespace Shipping
 
             d.ExecuteScalarDalPar();
 
+            // שמירת פרטי הבחירה בזיכרון של הדף כדי שיהיו זמינים בלחיצה על כפתור האישור הסופי
             ViewState["SelectedMovie"] = parts[0];
             ViewState["SelectedStart"] = parts[1];
             ViewState["SelectedEnd"] = parts[2];
 
-            // הצגת הכפתור הקיים
+            // שינוי מצב הכפתור לגלוי כדי שהמשתמש יוכל לאשר סופית
             btnAddScreening.Visible = true;
 
             lblMessage.Text = "בחרת הקרנה. לחץ על 'הוסף הקרנה' כדי לאשר.";
             lblMessage.ForeColor = System.Drawing.Color.Black;
         }
+
+        //של האולם הספציפי שנמצא פנוי IDה
         private int FindAvailableHall(DateTime newStart, DateTime newEnd)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -227,9 +237,6 @@ namespace Shipping
         }
 
 
-        // ----------------------------------------------------
-        // פונקציה שמחזירה משך סרט בדקות מתוך טבלת Movies
-        // ----------------------------------------------------
         private int GetMovieDuration(int movieId)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -247,7 +254,7 @@ namespace Shipping
 
             return duration + 20 + 15; // ניקיון + הפסקה
         }
-
+        //אופציות אפשריות להקרנת הסרט בהתחשב האורך שלו
         private List<(DateTime Start, DateTime End)> GenerateSequentialSchedule(int totalMinutes)
         {
             List<(DateTime, DateTime)> schedule = new List<(DateTime, DateTime)>();
@@ -267,33 +274,7 @@ namespace Shipping
             return schedule;
         }
 
-        // ---------------------------------------------------------
-        // מוצא את כל השעות הפנויות מ-09:00 עד 00:30 בקפיצות של 30 דק'
-        // ---------------------------------------------------------
-        private List<DateTime> FindAvailableTimes(int duration)
-        {
-            List<DateTime> free = new List<DateTime>();
-
-            DateTime start = DateTime.Today.AddHours(9); // 09:00
-            DateTime end = DateTime.Today.AddDays(1).AddMinutes(30); // 00:30
-
-            while (start.AddMinutes(duration) <= end)
-            {
-                // בודק אם יש אולם כלשהו פנוי בזמן הזה
-                if (AnyHallAvailable(start, start.AddMinutes(duration)))
-                {
-                    free.Add(start);
-                }
-
-                start = start.AddMinutes(30); // קפיצה של חצי שעה
-            }
-
-            return free;
-        }
-
-        // ---------------------------------------------------------
-        // בודק האם *יש לפחות אולם אחד פנוי* בזמן הזה
-        // ---------------------------------------------------------
+        //האם קיים אולם פנוי כלשהו
         private bool AnyHallAvailable(DateTime newStart, DateTime newEnd)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -307,15 +288,11 @@ namespace Shipping
                 int hallId = Convert.ToInt32(row["HallId"]);
 
                 if (IsHallAvailable(hallId, newStart, newEnd))
-                    return true; // מצאנו אולם פנוי → מספיק
+                    return true;
             }
 
             return false; // אין אף אולם פנוי
         }
-
-        // ---------------------------------------------------------
-        // בודק האם אולם ספציפי פנוי בזמן הזה
-        // ---------------------------------------------------------
         private bool IsHallAvailable(int hallId, DateTime newStart, DateTime newEnd)
         {
             string query = @"
@@ -336,35 +313,32 @@ namespace Shipping
             return count == 0;
         }
 
-        // ---------------------------------------------------------
-        // הוספת הקרנה למסד הנתונים
-        // ---------------------------------------------------------
         protected void btnAddScreening_Click(object sender, EventArgs e)
         {
             int panelCount = pnlSchedule.Controls.Count;
 
-            List<string> added = new List<string>();
+            List<string> added = new List<string>(); // רשימה שתשמור את פרטי ההקרנות שנוספו בהצלחה כדי להציג למשתמש
 
-            foreach (Control row in pnlSchedule.Controls)
+            foreach (Control row in pnlSchedule.Controls) // סריקת הפאנל שמכיל את הטבלה
             {
-                if (row is Table tbl)
+                if (row is Table tbl) // מוודא שאנחנו עובדים על הטבלה
                 {
-                    foreach (TableRow tr in tbl.Rows)
+                    foreach (TableRow tr in tbl.Rows) // מעבר על כל שורה בטבלה
                     {
-                        // דילוג על שורת כותרת
-                        if (tr is TableHeaderRow)
-                            continue;
+                        if (tr is TableHeaderRow) 
+                            continue; // דילוג על שורת הכותרת (ימי השבוע)
 
-                        for (int i = 1; i < tr.Cells.Count; i++) // ⬅️ מדלגים על עמודת השעה
+                        for (int i = 1; i < tr.Cells.Count; i++) // רץ על כל העמודות (מדלג על עמודה 0 שהיא שעת ההתחלה)
                         {
                             TableCell cell = tr.Cells[i];
+                            if (!cell.HasControls()) 
+                                continue; // אם התא ריק (למשל אולם תפוס), מדלגים
 
-                            if (!cell.HasControls())
-                                continue;
-                            foreach (Control c in cell.Controls)
+                            foreach (Control c in cell.Controls) // בודק מה יש בתוך התא
                             {
-                                if (c is CheckBox cb && cb.Checked)
+                                if (c is CheckBox cb && cb.Checked) // אם מצאנו צ'קבוקס והוא מסומן (V)
                                 {
+                                    // HTMLשליפת המידע שהצמדנו ב
                                     string data = cb.Attributes["data-info"];
                                     string[] parts = data.Split('|');
 
@@ -390,7 +364,14 @@ namespace Shipping
 
                                         d.ExecuteScalarDalPar();
 
-                                        added.Add($"{start:HH:mm} - {end:HH:mm} ביום {start:dddd}");
+                                        //של ישראל (Culture) הגדרת אובייקט תרבות  
+                                        var culture = new System.Globalization.CultureInfo("he-IL");
+
+                                        // המרה של תאריך ההתחלה לשם היום בעברית
+                                        string dayName = start.ToString("dddd", culture);
+
+                                        // הוספה לרשימה בפורמט עברי
+                                        added.Add($"{start:HH:mm} - {end:HH:mm} ביום {dayName}");
                                     }
                                 }
                             }
@@ -404,18 +385,18 @@ namespace Shipping
             if (added.Count > 0)
             {
                 lblMessage.ForeColor = System.Drawing.Color.Green;
-                lblMessage.Text = "הקרנות נוספו בהצלחה:<br>" + string.Join("<br>", added);
+                // איחוד כל ההקרנות לרשימה אחת עם ירידת שורה
+                lblMessage.Text = ":הקרנות נוספו בהצלחה<br>" + string.Join("<br>", added);
             }
             else
             {
-                lblMessage.ForeColor = System.Drawing.Color.Red;
                 lblMessage.Text = "לא נבחרו הקרנות או שאין אולם פנוי.";
             }
 
+            // הסתרת כפתור הוספה
             btnAddScreening.CssClass = "btnAddS hiddenBtn";
+
+
+             }
         }
-
-
-
-    }
 }

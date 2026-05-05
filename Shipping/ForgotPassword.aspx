@@ -3,15 +3,15 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
      <div>
-    <h2>שחזור סיסמה</h2>
-    <p>הכנס את כתובת האימייל איתה נרשמת:</p>
+    <h1>שחזור סיסמה</h1>
+    <p>הכנס את כתובת האימייל איתה נרשמת:</p> 
          <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" placeholder="email@example.com"></asp:TextBox>
-   
+    <br />
     <br />
     
     <asp:Button ID="btnSend" runat="server" Text="שלח לי מייל לשחזור" OnClick="btnSend_Click" />
     <br />
-    
-    <asp:Label ID="lblStatus" runat="server" Text=""></asp:Label>
+         <div style="margin-top:5px;direction:rtl;">
+    <asp:Label ID="lblStatus" runat="server" Text=""></asp:Label></div>
 </div>
 </asp:Content>

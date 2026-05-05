@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
+using System.Diagnostics;
 using System.Web.UI.WebControls;
 
 
@@ -20,21 +21,9 @@ namespace Shipping
         {
             if (!IsPostBack)
             {
-                // טעינה ראשונית של ההיסטוריה לתוך ה-Repeater
+                // הצגת היסטוריית הצאט
                 BindChat();
             }
-            //if (!IsPostBack)
-            //{
-            //    // מחוץ ל־if (!IsPostBack)
-            //    if (Session["category"] != null)
-            //    {
-            //        string category = Session["category"].ToString();
-            //        if (category == "user" || category == "admin")
-            //        {
-            //            Btn.Visible = true;
-            //        }
-            //    }
-            //}
 
         }
         protected void lnkLogout_Click(object sender, EventArgs e)
@@ -44,12 +33,15 @@ namespace Shipping
         }
         private List<string> GetAllMovieNamesFromDB()
         {
+            // יצירת רשימה ריקה שתכיל את שמות הסרטים שנשלוף מהמסד
             List<string> movies = new List<string>();
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
+            //מבטיח שהחיבור למסד הנתונים ייסגר וינוקה מהזיכרון בסיום הפעולה usingשימוש ב 
             using (SqlConnection conn = new SqlConnection(cs))
             {
-                // שליפת שמות סרטים ייחודיים שיש להם הקרנות
+                // SELECT DISTINCT - מחזיר שמות ייחודיים (מונע כפילויות אם לסרט יש כמה הקרנות)
+                // JOIN - מחבר בין טבלת הסרטים לטבלת ההקרנות כדי להביא רק סרטים שבאמת מוקרנים
                 string query = @"SELECT DISTINCT m.Title 
                          FROM Movie m 
                          JOIN Screening s ON m.Id = s.MovieId";
@@ -59,48 +51,52 @@ namespace Shipping
 
                 using (SqlDataReader rdr = cmd.ExecuteReader())
                 {
+                    // כל עוד יש שורות (סרטים) שחזרו מהמסד
                     while (rdr.Read())
                     {
+                        
                         movies.Add(rdr["Title"].ToString());
                     }
                 }
-            }
+            } 
             return movies;
         }
         public async Task<string> AskAiForRecommendation(string prompt, List<ChatMessage> history)
         {
             try
             {
+                //שמירת המפתח והכתובת
                 string apiKey = ConfigurationManager.AppSettings["AIKey"].Trim();
                 string apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
-                // שליפת רשימת הסרטים מה-DB (כמו שעשית קודם)
+                //רשימת הסרטים המוקרנים באתר
                 List<string> currentMovies = GetAllMovieNamesFromDB();
                 string movieList = string.Join(", ", currentMovies);
 
-                using (HttpClient client = new HttpClient())
+                using (HttpClient client = new HttpClient())//שיצור את הקשר עם גמיני HttpClient יצירת אובייקט
                 {
+                    //עם המפתח שלי AI אימות עם השרת 
                     client.DefaultRequestHeaders.Add("X-goog-api-key", apiKey);
 
-                    // --- כאן בניית ההודעה המקוצרת ---
+                    // בניית מבנה ההודעות עבור המודל
                     var messages = new List<object>();
 
-                    // 1. הוראת מערכת (System Instruction) שמכריחה אותו לקצר
+                    // הניות
                     messages.Add(new
                     {
                         role = "user",
                         parts = new[] { new { text = $"אתה עוזר חכם באתר קולנוע. המלץ על סרט אחד בלבד מהרשימה: {movieList}. " +
-                                             "התשובה חייבת להיות עד 3 משפטים בלבד. שם הסרט חייב להיות מודגש ב-**." } }
+                                              "התשובה חייבת להיות עד 3 משפטים בלבד. שם הסרט חייב להיות מודגש ב-**." } }//הדגמה למה הלקוח מבקש
                     });
 
-                    // 2. אישור של המודל שהוא הבין את המגבלה
+                    // הדגמה של תשובה
                     messages.Add(new
                     {
                         role = "model",
                         parts = new[] { new { text = "הבנתי. אתן המלצה קצרה על סרט אחד בלבד." } }
                     });
 
-                    // 3. הוספת היסטוריית השיחה מה-Session (כדי שיהיה לו זיכרון)
+                    // הוספת היסטוריות השיחות כדי לאפשר המשכיות
                     if (history != null)
                     {
                         foreach (var msg in history)
@@ -113,16 +109,18 @@ namespace Shipping
                         }
                     }
 
-                    // בניית גוף הבקשה
+                    //כדי שיהיה ניתן לשלוח אותה JSONהמרת הבקשה ל
                     var requestBody = new { contents = messages };
                     string json = JsonConvert.SerializeObject(requestBody);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                    //שליחת הבקשה לשרת של גוגל והמתנה (בלי לתקוע את האתר) עד שהשרת יחזיר תשובה.
                     var response = await client.PostAsync(apiUrl, content);
-                    string resultJson = await response.Content.ReadAsStringAsync();
+                    string resultJson = await response.Content.ReadAsStringAsync();//המרת התשובה לטקסט פשוט
 
                     if (response.IsSuccessStatusCode)
                     {
+                        //המרת הטקסט לאובייקט שניתן לבדוק אוץו ושליפת התשובה
                         dynamic result = JsonConvert.DeserializeObject(resultJson);
                         return result.candidates[0].content.parts[0].text;
                     }
@@ -132,7 +130,9 @@ namespace Shipping
             }
             catch (Exception ex)
             {
-                return "תקלה טכנית: " + ex.Message;
+                Debug.WriteLine("Error: " + ex.ToString());
+                return "משהו השתבש בתקשורת עם ה-AI. אנחנו מטפלים בזה!"; 
+               
             }
         }
         // מחלקה לעיצוב ההודעות
@@ -143,29 +143,28 @@ namespace Shipping
         }
         private List<ChatMessage> ChatHistory
         {
-            get
+            get//הבאת השיחה הקיימת מהסשן במידה והיא קיימת
             {
                 if (Session["ChatHistory"] == null)
                     Session["ChatHistory"] = new List<ChatMessage>();
                 return (List<ChatMessage>)Session["ChatHistory"];
             }
-            set { Session["ChatHistory"] = value; }
+            set { Session["ChatHistory"] = value; }// מחזיר את כל רשימת ההודעות שנשמרו עבור המשתמש הזה
         }
         protected async void btnChatSend_Click(object sender, EventArgs e)
         {
             string userText = txtChatPrompt.Text.Trim();
             if (string.IsNullOrEmpty(userText)) return;
 
-            // 1. הוספת הודעת המשתמש להיסטוריה
+            // הוספת הודעת המשתמש להיסטוריה
             ChatHistory.Add(new ChatMessage { Sender = "User", Message = userText });
             txtChatPrompt.Text = ""; // ניקוי התיבה
-            BindChat(); // עדכון ה-UI
+            BindChat(); 
 
-            // 2. פנייה ל-AI עם ההיסטוריה
-            // שימי לב: אנחנו שולחים ל-AI את ה-ChatHistory כדי שיהיה לו "זיכרון"
+            //והמתנה עד קבלת תשובה לפני ההמשך בקוד AIשליחת השאלה ל
             string aiResponse = await AskAiForRecommendation(userText, ChatHistory);
 
-            // 3. הוספת תשובת ה-AI להיסטוריה
+            // הוספת התשובה להיסטורייית צאט
             ChatHistory.Add(new ChatMessage { Sender = "AI", Message = aiResponse });
             BindChat();
         }
@@ -174,47 +173,45 @@ namespace Shipping
         {
             rptChat.DataSource = ChatHistory;
             rptChat.DataBind();
-            // גלילה אוטומטית למטה (דרך סקריפט בסוף ה-UpdatePanel)
+            //גלילה אוטומטית למטה
             ScriptManager.RegisterStartupScript(this, GetType(), "scroll", "scrollToBottom();", true);
         }
         protected void MoodClick(object sender, EventArgs e)
         {
-            LinkButton btn = (LinkButton)sender;
-            string mood = btn.CommandArgument;
-            string userMessage = "אני מחפש סרט שמתאים למצב רוח: " + mood;
+            LinkButton btn = (LinkButton)sender; // זיהוי הכפתור הספציפי שנלחץ
+            string mood = btn.CommandArgument;    // שליפת מצב הרוח שהוגדר במאפייני הכפתור
+            string userMessage = "אני מחפש סרט שמתאים למצב רוח: " + mood; // בניית נוסח הפנייה
 
-            // 1. הוספת הודעת המשתמש להיסטוריה (ב-Session) ול-UI
+            // שמירת הבקשה בסשן ועדכון היסטוריית הצאט
             AddMessageToHistory("User", userMessage);
-            BindChat(); // עדכון ה-Repeater כדי שהמשתמש יראה את מה שהוא לחץ
+            BindChat(); 
 
-            // 2. זימון הפעולה האסינכרונית עם הפרמטרים החדשים
+            // זימון הפעולה האסינכרונית עם הפרמטרים החדשים
             Page.RegisterAsyncTask(new PageAsyncTask(async () =>
             {
-                // שליחת ההודעה הנוכחית יחד עם כל ההיסטוריה שנשמרה ב-Session
+                //AIשליחת ההודעה הנוכחית עם ההיסטוריה ל
                 string aiAnswer = await AskAiForRecommendation(userMessage, ChatHistory);
-
-                // 3. הוספת תשובת ה-AI להיסטוריה ועדכון התצוגה
-                AddMessageToHistory("AI", aiAnswer);
-                BindChat();
-                upChat.Update(); // רענון ה-UpdatePanel
+                // טיפול בתשובה שחזרה
+                AddMessageToHistory("AI", aiAnswer); //שמירה של התשובה
+                BindChat(); //עדכון ההיסטוריה
+                upChat.Update(); // עדכון הפאנל
             }));
         }
         private void SaveMessage(string sender, string message)
         {
-            // 1. שליפת הרשימה הקיימת מה-Session או יצירת חדשה אם היא ריקה
+            //שליפת הרשימה הקיימת מהסשן או יצירת חדשה אם היא ריקה
             List<ChatMessage> history = Session["ChatHistory"] as List<ChatMessage>;
             if (history == null)
             {
                 history = new List<ChatMessage>();
             }
 
-            // 2. הוספת ההודעה החדשה
+            //  הוספת ההודעה החדשה
             history.Add(new ChatMessage { Sender = sender, Message = message });
-
-            // 3. שמירה חזרה ל-Session
+            //שמירה חזרה לסשן
             Session["ChatHistory"] = history;
 
-            // 4. חיבור לרפיטר - שימי לב לשם rptChat!
+            //חיבור לריפיטר ועדכון ההיסטוריה
             rptChat.DataSource = history;
             rptChat.DataBind();
         }

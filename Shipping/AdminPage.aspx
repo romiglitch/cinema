@@ -11,9 +11,10 @@
         <div>
             <asp:Button CssClass="admin-buttons" ID="Btn1" runat="server" Text="מעבר לעריכת סרטים" OnClick="Btn1_Click"/>
             <asp:Button CssClass="admin-buttons" ID="Btn3" runat="server" Text="מעבר לעריכת הקרנות" OnClick="Btn2_Click"/>
-            <asp:Button ID="btnGenerateSchedule" runat="server" Text="יצירת לוח הקרנות אוטומטי" 
-                OnClick="btnGenerateSchedule_Click" CssClass="my-button" />
-    <asp:Label ID="lblAdminStatus" runat="server"  Text=""></asp:Label>
+            <asp:Button ID="BtnGenerateSchedule" runat="server" Text="יצירת לוח הקרנות אוטומטי" 
+                OnClick="BtnGenerateSchedule_Click" CssClass="admin-buttons" />
+            <div style="margin-top:20px;">
+    <asp:Label CssClass="no-screenings-msg" ID="lblAdminStatus" runat="server"  Text=""></asp:Label></div>
     </div>
         </div>
 </asp:Content>

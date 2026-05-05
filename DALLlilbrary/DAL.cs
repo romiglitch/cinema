@@ -22,6 +22,13 @@ namespace DALLlilbrary
             com = sqlCommand;
             table = tableName;
         }
+        public DAL(string connectionString, string sqlCommand, string tableName, List<SqlParameter> P)
+        {
+            con = connectionString;
+            com = sqlCommand;
+            table = tableName;
+            Params = P;
+        }
         public DataTable GetData()
         {
             SqlCommand cmd = new SqlCommand(com);
@@ -89,7 +96,7 @@ namespace DALLlilbrary
             {
                 connection.Open();
                 SqlCommand cmd = new SqlCommand(com, connection);
-                cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();//מחזירה את מספר השורות שהושפעו מהשאילתא, אבל הפונקציה לא מחזירה כלום ExecuteNonQuery
             }
         }
         public void ExecuteNonQueryDalPar()
@@ -107,7 +114,7 @@ namespace DALLlilbrary
             }
         }
 
-        // מבצע את השאילתא אשר מחזירה ערך ומחזיר אובייקט
+        // מבצע את השאילתא אשר מחזירה ערך ומחזיר אובייקט ראשוני שהושפע
         public object ExecuteScalarDal()
         {
             using (SqlConnection connection = new SqlConnection(con))

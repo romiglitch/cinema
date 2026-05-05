@@ -1056,6 +1056,7 @@ footer {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
     transform: translateY(-5px); /* מתחיל טיפה מעל המיקום שלו */
+    direction:rtl;
 }
 
     /* כשהודעה מופיעה */
@@ -1791,6 +1792,7 @@ td, th {
     color: rgba(255, 255, 255, 0.6);
     font-size: 1.1rem;
     padding: 20px;
+    direction:rtl;
 }
 /*.buy-button {
     align-self: flex-start !important;

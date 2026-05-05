@@ -9,7 +9,7 @@
     <ItemTemplate>
         <div class="movie-card">
 
-            <!-- מעבר לעמוד פרטים -->
+           <%-- <מעבר לעמוד פרטים>--%>
             <a href='MovieDetails.aspx?id=<%# Eval("Id") %>' class="movie-link">
                 <img src="<%# Eval("Poster") %>" alt="<%# Eval("Title") %>" />
                 <p class="movie-title"><%# Eval("Title") %></p>

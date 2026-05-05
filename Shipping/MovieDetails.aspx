@@ -23,7 +23,6 @@
 
     <div class="movie-details-container">
 
-    <!-- Header עם הפוסטר והפרטים -->
     <div class="movie-header">
         <asp:Image ID="imgPoster" runat="server" CssClass="movie-poster" />
 
@@ -51,7 +50,7 @@
         </div>
     </div>
 
-    <!-- 🔹 Modal הטריילר צריך להיות כאן -->
+    <!-- טריילר -->
     <div id="trailerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTrailer()">&times;</span>

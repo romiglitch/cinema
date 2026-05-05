@@ -17,17 +17,16 @@ namespace Shipping
 
         protected async void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            if (!IsPostBack)//הרצה רק בפעם הראשונה שהמשתמש נכנס לדף
             {
-                await ImportMoviesFromApiAsync();
+                await ImportMoviesFromApiAsync();//השרת לא ממשיך בקוד אלא מתפנה לעבוד על דברים אחרים (משתמשים(
                 await LoadMoviesAsync();
             }
         }
         private async Task LoadMoviesAsync()
         {
-            // מטמון פשוט ל-10 דקות
-            string cacheKey = "NowPlayingMovies";
-            var cachedData = Cache[cacheKey] as JToken;
+            string cacheKey = "NowPlayingMovies";//הגדרת הזיכרון
+            var cachedData = Cache[cacheKey] as JToken;//JToken באובייקט בפורמט NowPlayingMoviesשמירת מה שיש מ
 
             if (cachedData == null)
             {
@@ -47,7 +46,7 @@ namespace Shipping
             }
 
             // Map ל-Repeater
-            var movieList = new System.Collections.Generic.List<Movie>();
+            var movieList = new List<Movie>();
 
 
             foreach (var item in cachedData)
@@ -70,10 +69,10 @@ namespace Shipping
         {
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
-            // 1️⃣ שמירת הסרט
+            //שמירת הסרטים
             string queryMovie = @"INSERT INTO Movie (Title, Description, Duration, Age, Poster, TmdbId)
                           VALUES (@Title, @Description, @Duration, @Age, @Poster, @TmdbId);
-                          SELECT SCOPE_IDENTITY();"; // מחזיר את ה-Id של הסרט
+                          SELECT SCOPE_IDENTITY();"; //האחרון שנוצר IDה
 
             int movieId;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -87,10 +86,10 @@ namespace Shipping
                 cmd.Parameters.AddWithValue("@TmdbId", tmdbId);
 
                 conn.Open();
-                movieId = Convert.ToInt32(cmd.ExecuteScalar()); // <-- Movie.Id
+                movieId = Convert.ToInt32(cmd.ExecuteScalar());
             }
 
-            // 2️⃣ שמירת הז’אנרים
+            // שמירת הז’אנרים
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
@@ -139,10 +138,10 @@ namespace Shipping
                     if (country["iso_3166_1"].ToString() == "IL" ||
                         country["iso_3166_1"].ToString() == "US")
                     {
-                        var rel = country["release_dates"][0];
-                        string cert = rel["certification"]?.ToString();
+                        var rel = country["release_dates"][0];//בחירת ההפצה הראשונה
+                        string cert = rel["certification"]?.ToString();//מחפשים את הדירוג בהפצה הראשונה. אם אין נשמור נאל
 
-                        if (int.TryParse(cert, out int age))
+                        if (int.TryParse(cert, out int age))//אם מצאנו הגבלת גיל נשים אותה, אם לא אז 0 -out
                             return age;
                     }
                 }
@@ -161,7 +160,7 @@ namespace Shipping
             {
                 cmd.Parameters.AddWithValue("@TmdbId", tmdbId);
                 conn.Open();
-                return (int)cmd.ExecuteScalar() > 0;
+                return (int)cmd.ExecuteScalar() > 0;//אם חזר 1 אז אמת אם חזר 0 אז שקר
             }
         }
 
@@ -169,22 +168,20 @@ namespace Shipping
         {
             string url = $"https://api.themoviedb.org/3/movie/now_playing?api_key={apiKey}&language=he-IL&region=IL";
 
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())//APIשמבצע את הגלישה לאתר ה HttpClient יצירת אובייקט
             {
-                var response = await client.GetAsync(url);
-                string json = await response.Content.ReadAsStringAsync();
-                JObject data = JObject.Parse(json);
-                var apiMovies = data["results"];
+                var response = await client.GetAsync(url);//הקוד עוצר עד שיקבל את המידע .APIהמידע שהובא מה
+                string json = await response.Content.ReadAsStringAsync();//JSONשמירת התשובה כמחרוזת מ
+                JObject data = JObject.Parse(json);//C#פארסינג למחרוזת הארוכה לאובייקט שקל לעבוד איתו ב
+                var apiMovies = data["results"];//שמירת התוצאות בלבד מכל המידע שיש
 
-                // רשימה שתשמור את ה-IDs של הסרטים שקיבלנו מה-API עכשיו
+                //LINQ שמירת רק המזהים של הסרטים בעזרת
                 List<int> currentApiTmdbIds = apiMovies.Select(m => m["id"].ToObject<int>()).ToList();
 
-                // 1. מחיקת סרטים ישנים (כאלו שלא ב-API הנוכחי)
-                // שים לב: בגלל קשרי גומלין (Foreign Keys), כדאי שהמחיקה ב-SQL תהיה ב-Cascade 
-                // או למחוק קודם מההקרנות ומהז'אנרים.
+                //APIמחיקת כל הסרטים שכבר לא מופיעים ב
                 DeleteOldMovies(currentApiTmdbIds);
 
-                // 2. הוספת סרטים חדשים (רק אם הם לא קיימים)
+                //(הוספת הסרטים לטבלה (במידה ולא קיימים כבר בה
                 foreach (var item in apiMovies)
                 {
                     int tmdbId = item["id"].ToObject<int>();
@@ -193,8 +190,8 @@ namespace Shipping
                         string title = item["title"]?.ToString();
                         string description = item["overview"]?.ToString();
                         string poster = "https://image.tmdb.org/t/p/w200" + item["poster_path"]?.ToString();
-                        int duration = await GetMovieRuntimeAsync(tmdbId);
-                        int age = await GetMovieAgeRatingAsync(tmdbId);
+                        int duration = await GetMovieRuntimeAsync(tmdbId);//APIפרטים שלא מופיעים ברשימה המתקבלת מה
+                        int age = await GetMovieAgeRatingAsync(tmdbId);//לכן צריך פונקציה נפרדת
                         var genreIds = item["genre_ids"].Select(g => g.ToObject<int>()).ToList();
 
                         InsertMovie(title, description, duration, age, poster, tmdbId, genreIds);
@@ -207,8 +204,10 @@ namespace Shipping
         private void DeleteOldMovies(List<int> currentTmdbIds)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            // שאילתה שמוחקת סרטים שה-TmdbId שלהם לא מופיע ברשימה שקיבלנו
             string idList = string.Join(",", currentTmdbIds);
+            //לזאנר שלו APIמחיקת הקשר בין הסרט שלא מופיע ב 
+            //APIמחיקת ההקרנות המתכוננות של הסרט שלא מופיע ב 
+            //לזאנר שלומחיקת הסרט עצמו מהטבלה
             string query = $@"
         DELETE FROM MovieGenres WHERE IdMovie IN (SELECT Id FROM Movie WHERE TmdbId NOT IN ({idList}));
         DELETE FROM Screening WHERE MovieId IN (SELECT Id FROM Movie WHERE TmdbId NOT IN ({idList}));
@@ -219,105 +218,6 @@ namespace Shipping
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 cmd.ExecuteNonQuery();
-            }
-        }
-        private int GetMovieIdByTmdbId(int tmdbId)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                string query = "SELECT Id FROM Movie WHERE TmdbId = @TmdbId";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@TmdbId", tmdbId);
-                    conn.Open();
-                    return (int)cmd.ExecuteScalar();
-                }
-            }
-        }
-        private void InsertMovieGenres(int tmdbId, List<int> genreIds)
-        {
-            int movieId = GetMovieIdByTmdbId(tmdbId);
-            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                conn.Open();
-
-                foreach (int genreId in genreIds)
-                {
-                    string query = @"
-                INSERT INTO MovieGenres (IdMovie, IdGenre)
-                VALUES (@IdMovie, @IdGenre)";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@IdMovie", movieId);
-                        cmd.Parameters.AddWithValue("@IdGenre", genreId);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-        private bool ScreeningsExistForMovie(int movieId)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            string query = "SELECT COUNT(*) FROM Screening WHERE MovieId = @MovieId";
-
-            using (SqlConnection conn = new SqlConnection(cs))
-            using (SqlCommand cmd = new SqlCommand(query, conn))
-            {
-                cmd.Parameters.AddWithValue("@MovieId", movieId);
-                conn.Open();
-                return (int)cmd.ExecuteScalar() > 0;
-            }
-        }
-        private void CreateScreeningsForMovie(int movieId, int duration)
-        {
-            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-            // שעות הקרנה קבועות
-            TimeSpan[] showTimes =
-            {
-        new TimeSpan(13, 00, 0),
-        new TimeSpan(16, 30, 0),
-        new TimeSpan(20, 00, 0)
-    };
-
-            Random rnd = new Random();
-
-            using (SqlConnection conn = new SqlConnection(cs))
-            {
-                conn.Open();
-
-                for (int day = 0; day < 14; day++)
-                {
-                    DateTime date = DateTime.Today.AddDays(day);
-
-                    foreach (var time in showTimes)
-                    {
-                        DateTime startTime = date.Add(time);
-                        DateTime endTime = startTime.AddMinutes(duration > 0 ? duration : 100);
-
-                        string query = @"
-                INSERT INTO Screening
-                (MovieId, Hall, SeatesBought, StartTime, EndTime)
-                VALUES
-                (@MovieId, @Hall, @Seats, @StartTime, @EndTime)";
-
-                        using (SqlCommand cmd = new SqlCommand(query, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@MovieId", movieId);
-                            cmd.Parameters.AddWithValue("@StartTime", startTime);
-                            cmd.Parameters.AddWithValue("@EndTime", endTime);
-                            cmd.Parameters.AddWithValue("@Hall", rnd.Next(1, 6)); // אולמות 1–5
-                            cmd.Parameters.AddWithValue("@Seats", 0);
-
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                }
             }
         }
       
