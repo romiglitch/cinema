@@ -4,51 +4,57 @@ using System.Configuration;
 
 namespace Shipping
 {
+    // עמוד איפוס סיסמה - מאפשר למשתמש לבחור סיסמה חדשה לאחר קבלת קישור שחזור במייל
     public partial class ResetPassword : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // בדיקה אם הגיע טוקן בכתובת
+            // בדיקה אם הגיע טוקן בכתובת - ללא טוקן הדף לא יתפקד
             if (string.IsNullOrEmpty(Request.QueryString["token"]))
             {
                 lblMessage.Text = "קישור לא תקין.";
-                btnUpdate.Enabled = false;
+                btnUpdate.Enabled = false; // משביתים את הכפתור כדי שלא ניתן יהיה לשלוח ללא טוקן
             }
         }
 
+        // לחיצה על כפתור עדכון הסיסמה - מבצעת את עדכון הסיסמה בבסיס הנתונים
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
-            string token = Request.QueryString["token"];
-            string newPass = txtNewPassword.Text;
+            string token = Request.QueryString["token"]; // שליפת הטוקן מה-URL
+            string newPass = txtNewPassword.Text; // הסיסמה החדשה שהמשתמש הזין
 
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                // בדיקה שהטוקן קיים ושלא עבר הזמן
+                // מעדכנים את הסיסמה רק אם הטוקן קיים ועדיין בתוקף (לא פג)
+                // לאחר העדכון, הטוקן ותאריך התפוגה מתאפסים ל-NULL כדי למנוע שימוש חוזר
                 string query = "UPDATE Users SET Password = @pass, ResetToken = NULL, TokenExpiry = NULL " +
                                "WHERE ResetToken = @token AND TokenExpiry > @now";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@pass", newPass);
                 cmd.Parameters.AddWithValue("@token", token);
-                cmd.Parameters.AddWithValue("@now", DateTime.Now);
+                cmd.Parameters.AddWithValue("@now", DateTime.Now); // השוואה לשעה הנוכחית לבדיקת תוקף
 
                 conn.Open();
-                int rows = cmd.ExecuteNonQuery();
+                int rows = cmd.ExecuteNonQuery(); // מספר השורות שעודכנו
 
                 if (rows > 0)
                 {
+                    // עדכון הצליח - הסיסמה שונתה בהצלחה
                     lblMessage.Text = "הסיסמה עודכנה! את יכולה להתחבר.";
                     lblMessage.ForeColor = System.Drawing.Color.Green;
                 }
                 else
                 {
+                    // לא נמצאה שורה תואמת - הטוקן פג תוקף או שכבר נעשה בו שימוש
                     lblMessage.Text = "הקישור לא בתוקף או שכבר נעשה בו שימוש.";
                     lblMessage.ForeColor = System.Drawing.Color.Red;
                 }
             }
         }
 
+        // פונקציית עזר לדוגמה - מציגה כיצד ניתן לעדכן סיסמה לפי טוקן
         private void UpdatePasswordInDb(string token, string newPassword)
         {
             // הערה: זהו קוד כללי, את צריכה להתאים אותו לטבלה שלך (Users)

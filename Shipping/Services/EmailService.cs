@@ -13,6 +13,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 namespace Shipping
 {
+    // שירות שליחת מיילים - אחראי על שליחת מייל שחזור סיסמה ואישור הזמנה למשתמשים
     public class EmailService
     {
         private readonly string senderEmail = "kladnitsky.romi@gmail.com";//רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
@@ -20,9 +21,11 @@ namespace Shipping
 
         //הגדרת הפעולה כמשימה אסינכרונית : הפעולה עומדת לקחת זמן אז בזמן הזה השרת יטפל בדברים אחרים
         //המטרה היא למנוע מהאתר לקופא בזמן שהוא מחכה שפעולה איטית תסתיים
+
+        // שליחת מייל איפוס סיסמה - מכיל קישור ייחודי (טוקן) לאיפוס הסיסמה
         public async Task SendResetPasswordEmail(string recipientEmail, string resetLink)
         {
-            var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג 
+            var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג
             message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));//הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
             message.To.Add(new MailboxAddress("", recipientEmail));//כתובת מייל הלקוח
             message.Subject = "שחזור סיסמה";
@@ -55,12 +58,13 @@ namespace Shipping
 
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
+        // שליחת אישור הזמנה - נשלח למשתמש לאחר רכישת כרטיסים מוצלחת
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string userName)
         {
-            // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח
+            // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה
             string formattedSeats = seats.Replace("|", ", ");
 
-            // עיצוב התאריך והשעה בעברית
+            // עיצוב התאריך והשעה לתצוגה ידידותית
             string displayDate = screeningTime.ToString("dd/MM/yyyy");
             string displayTime = screeningTime.ToString("HH:mm");
 
@@ -107,16 +111,17 @@ namespace Shipping
         }
 
         // פונקציית השליחה המרכזית (SMTP)
-        private async Task ExecuteSendAsync(MimeMessage message)//הגדרת הפעולה אסינכרונית :המייל מתחיל בשליחה ובזמן הזה השרת מטפל בדברים אחרים
+        private async Task ExecuteSendAsync(MimeMessage message)
         {
             using (var client = new SmtpClient())
             {
                 try
                 {
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);//יצירת קשר עם השרת של גוגל
-                    await client.AuthenticateAsync(senderEmail, appPassword);//זיהוי הסיסמא והמייל שלי
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
+                    // התחברות לשרת Gmail באמצעות פרוטוקול TLS על פורט 587
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync(senderEmail, appPassword); // אימות מול Gmail
+                    await client.SendAsync(message); // שליחת ההודעה
+                    await client.DisconnectAsync(true); // ניתוק מסודר מהשרת
                 }
                 catch (Exception ex)
                 {
