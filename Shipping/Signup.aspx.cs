@@ -11,40 +11,48 @@ using System.Web.UI.WebControls;
 
 namespace Shipping
 {
+    // עמוד הרשמה - מאפשר למשתמש חדש ליצור חשבון ולהתחבר מיד לאחר מכן
     public partial class Login : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // אין צורך בלוגיקה בטעינת הדף - הטופס מוצג ישירות
         }
+
+        // לחיצה על כפתור ההרשמה - מאמת את הטופס, יוצר משתמש חדש ומעביר לדף הבית
         protected void BtnSign_Click(object sender, EventArgs e)
         {
-            if (Page.IsValid)
+            if (Page.IsValid) // בדיקת תקינות שדות הטופס לפני ביצוע פעולה
             {
                 try
-                {            string pass = TxtPassword.Text;
-
+                {
+                    // שליפת הנתונים שהמשתמש הזין בטופס
+                    string pass = TxtPassword.Text;
                     string fullname = TxtName.Text;
                     string email = TxtEmail.Text;
                     string phone = TxtPhone.Text;
-                    bool isAdmin = false; // ברירת מחדל למשתמש חדש
+                    bool isAdmin = false; // ברירת מחדל למשתמש חדש - לא מנהל
 
-                    // שאילתת ה-SQL המתוקנת עם שמות העמודות
-                    string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString; string com = $@"INSERT INTO Users (FullName, Password, Phone, Email, IsAdmin) 
+                    // בניית שאילתת INSERT להוספת המשתמש לטבלת Users
+                    string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+                    string com = $@"INSERT INTO Users (FullName, Password, Phone, Email, IsAdmin) 
                     VALUES ('{fullname}', '{pass}', '{phone}', '{email}', '{isAdmin}')";
 
+                    // יצירת אובייקט משתמש ושמירתו בבסיס הנתונים דרך ה-DAL
                     User newUser = new User(fullname, pass, phone, email, isAdmin);
                     newUser.CreateUser(connectionString, com);
 
-                    // --- כאן החלק הקריטי לחיבור המשתמש ---
-                    // שימי לב: המפתחות חייבים להיות בכתב קטן בדיוק כמו ב-Master Page
+                    // הגדרת Session לאחר הרשמה מוצלחת - המשתמש מחובר מיד
+                    // המפתחות חייבים להיות זהים לאלה שה-Master Page בודק
                     Session["username"] = fullname;
-                    Session["category"] = "user"; // מחרוזת פשוטה כי ה-Master בודק .ToString() == "admin"
+                    Session["category"] = "user"; // ערך "user" מבדיל בין משתמש רגיל למנהל ("admin")
 
-                    // העברה לדף הבית
+                    // העברה לדף הבית לאחר הרשמה מוצלחת
                     Response.Redirect("HomePage.aspx");
                 }
                 catch (Exception ex)
                 {
+                    // הצגת הודעת שגיאה אם ההרשמה נכשלה (למשל - מייל כפול בטבלה)
                     msg.Text = "שגיאה ברישום: " + ex.Message;
                 }
             }

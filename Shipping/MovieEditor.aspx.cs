@@ -15,6 +15,7 @@ using DALLlilbrary;
 
 namespace Shipping
 {
+    // עמוד עריכת סרטים - מאפשר למנהל לצפות, לערוך ולעדכן את רשימת הסרטים במערכת
     public partial class MovieEditor : System.Web.UI.Page
     {
         /// <summary>
@@ -23,25 +24,27 @@ namespace Shipping
         /// </summary>
         protected void Page_Load(object sender, EventArgs e)
         {
-
             if (!IsPostBack)
             {
                 if (Session["category"] != "admin")
-                    Response.Redirect("Login.aspx"); // אם לא admin, לא יכול להיכנס
+                    Response.Redirect("Login.aspx"); // רק מנהל מורשה להיכנס לדף זה
 
                 CurrentPage = 0; // אתחול העמוד הנוכחי ל-0
                 Paging();        // טעינת הדאטה ל-DataList בפעם הראשונה
             }
         }
+
+        // עוברת על כל הסרטים בטבלה ומעדכנת את שדה הפוסטר מ-TMDb לפי שם הסרט
         private void UpdatePostersInDataTable(DataTable dt)
         {
             foreach (DataRow row in dt.Rows)
             {
                 string title = row["Title"].ToString();
-                row["Poster"] = GetPosterFromTMDbByTitle(title);
+                row["Poster"] = GetPosterFromTMDbByTitle(title); // שליפת כתובת תמונה מה-API
             }
         }
 
+        // מחפשת פוסטר לסרט לפי שמו ב-TMDb API ומחזירה URL לתמונה
         public string GetPosterFromTMDbByTitle(string title)
         {
             if (string.IsNullOrWhiteSpace(title))
@@ -52,16 +55,16 @@ namespace Shipping
 
             using (var client = new HttpClient())
             {
-                var response = client.GetStringAsync(url).Result; // סינכרוני
+                var response = client.GetStringAsync(url).Result; // קריאה סינכרונית ל-TMDb API
                 var json = JObject.Parse(response);
-                var result = json["results"]?.FirstOrDefault();
+                var result = json["results"]?.FirstOrDefault(); // לוקחים את התוצאה הראשונה (הרלוונטית ביותר)
                 string posterPath = result?["poster_path"]?.ToString();
 
                 if (!string.IsNullOrEmpty(posterPath))
                     return "https://image.tmdb.org/t/p/original" + posterPath;
             }
 
-            return "/posters/no-image.jpg";
+            return "/posters/no-image.jpg"; // תמונת ברירת מחדל אם לא נמצא פוסטר
         }
 
 
@@ -176,6 +179,7 @@ namespace Shipping
             DLMovies.DataBind();
              
         }
+        // אירוע שנקרא לכל פריט ב-DataList - מאפשר לבצע עיבוד נוסף על כל שורה (כגון טעינת תמונה)
         protected void DLMovies_ItemDataBound(object sender, DataListItemEventArgs e)
         {
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
@@ -183,7 +187,7 @@ namespace Shipping
                 DataRowView row = (DataRowView)e.Item.DataItem;
                 string title = row["Title"].ToString();
 
-                Image img = (Image)e.Item.FindControl("Img");
+                Image img = (Image)e.Item.FindControl("Img"); // מציאת פקד התמונה בפריט
             }
         }
 

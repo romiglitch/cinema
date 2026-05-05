@@ -9,23 +9,28 @@ using System.Collections.Generic;
 
 namespace Shipping
 {
+    // עמוד בחירת כרטיסים - המשתמש בוחר כמה כרטיסים מכל סוג (רגיל, סטודנט וכו') לפני בחירת מושבים
     public partial class Ticketing : System.Web.UI.Page
     {
-        protected int screeningId;
+        protected int screeningId; // מזהה ההקרנה שהועבר בכתובת ה-URL
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // שליפת מזהה ההקרנה מה-URL - אם לא תקין, מציגים הודעת שגיאה
             if (!int.TryParse(Request.QueryString["screeningId"], out screeningId))
             {
                 litScreeningInfo.Text = "<div style='color:red;'>לא נבחרה הקרנה תקינה.</div>";
             }
 
+            // בטעינה ראשונה בלבד - טוענים את פרטי ההקרנה ואת טבלת המחירים
             if (!IsPostBack)
             {
                 LoadScreeningDetails();
                 LoadTickets();
             }
         }
+
+        // שולפת שם הסרט ושעת ההקרנה ומציגה אותם בראש העמוד
         private void LoadScreeningDetails()
         {
             var configSetting = ConfigurationManager.ConnectionStrings["ConnectionString"];
@@ -37,9 +42,8 @@ namespace Shipping
 
             string connectionString = configSetting.ConnectionString;
 
-            // שאילתה מעודכנת לפי שמות העמודות בטבלאות שלך:
-            // ב-Screening זה ScreeningId ו-MovieId
-            // ב-Movie זה Id ו-Title
+            // שאילתה המאחדת את Screening ו-Movie לפי מזהה ההקרנה
+            // ב-Screening זה ScreeningId ו-MovieId, ב-Movie זה Id ו-Title
             string query = @"SELECT m.Title, s.StartTime 
                      FROM Screening s 
                      JOIN Movie m ON s.MovieId = m.Id 
@@ -59,7 +63,7 @@ namespace Shipping
                         string movieTitle = reader["Title"].ToString();
                         DateTime screeningTime = Convert.ToDateTime(reader["StartTime"]);
 
-                        // הצגת שם הסרט והזמן בראש העמוד
+                        // הצגת שם הסרט והזמן בראש העמוד בפורמט dd/MM/yyyy HH:mm
                         litScreeningInfo.Text = $"<h2 style='color:black; margin:0;'>{movieTitle}</h2>" +
                                                $"<p style='color:#666; margin:5px 0;'>{screeningTime.ToString("dd/MM/yyyy HH:mm")}</p>";
                     }
@@ -74,6 +78,8 @@ namespace Shipping
                 }
             }
         }
+
+        // טוענת את סוגי הכרטיסים והמחירים מטבלת TicketsPricing ומקשרת אותם לריפיטר
         private void LoadTickets()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -90,7 +96,7 @@ namespace Shipping
             }
         }
 
-
+        // לחיצה על "המשך" - מחשבת סה"כ כרטיסים ומחיר, שומרת ב-Session ומעבירה לבחירת מושבים
         protected void btnContinue_Click(object sender, EventArgs e)
         {
             int totalTickets = 0;
@@ -99,11 +105,12 @@ namespace Shipping
             List<string> ticketTypes = new List<string>();
             List<string> ticketPrices = new List<string>();
 
+            // עוברים על כל שורה בריפיטר ואוספים את הכמויות שנבחרו
             foreach (RepeaterItem item in RepeaterTickets.Items)
             {
                 HiddenField hfQty = (HiddenField)item.FindControl("hiddenQty");
                 HiddenField hfPrice = (HiddenField)item.FindControl("hiddenPrice");
-                HiddenField hfType = (HiddenField)item.FindControl("hiddenType"); // הוסיפי בשורה הרלוונטית בריפיטר
+                HiddenField hfType = (HiddenField)item.FindControl("hiddenType"); // סוג הכרטיס (רגיל / סטודנט / ילד)
 
                 if (hfQty != null && hfPrice != null && hfType != null)
                 {
@@ -115,7 +122,7 @@ namespace Shipping
                         totalTickets += qty;
                         totalPrice += price * qty;
 
-                        // שומר את סוג ומחיר כל כרטיס לפי הכמות
+                        // שומר את סוג ומחיר כל כרטיס בנפרד לפי הכמות שנבחרה
                         for (int i = 0; i < qty; i++)
                         {
                             ticketTypes.Add(hfType.Value);
@@ -125,19 +132,20 @@ namespace Shipping
                 }
             }
 
+            // אין לאפשר המשך ללא בחירת כרטיס אחד לפחות
             if (totalTickets == 0)
             {
                 ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('אנא בחרי לפחות כרטיס אחד');", true);
                 return;
             }
 
-            // שמירה ל-Session
+            // שמירת הנתונים ב-Session להמשך תהליך הרכישה בעמודים הבאים
             Session["TotalTickets"] = totalTickets;
             Session["TotalPrice"] = totalPrice;
-            Session["TicketTypes"] = string.Join(",", ticketTypes);
-            Session["TicketPrices"] = string.Join(",", ticketPrices);
+            Session["TicketTypes"] = string.Join(",", ticketTypes);   // רשימת סוגים מופרדת בפסיקים
+            Session["TicketPrices"] = string.Join(",", ticketPrices); // רשימת מחירים מופרדת בפסיקים
 
-            // העברה לעמוד בחירת מושבים
+            // העברה לעמוד בחירת המושבים עם מזהה ההקרנה ב-URL
             string sId = Request.QueryString["screeningId"] ?? Request.QueryString["ScreeningId"] ?? "";
             Response.Redirect("SeatsPicker.aspx?screeningId=" + sId);
         }

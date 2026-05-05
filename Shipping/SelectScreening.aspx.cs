@@ -10,31 +10,34 @@ using System.Web.UI.WebControls;
 
 namespace Shipping
 {
+    // עמוד בחירת הקרנה - מציג את כל שעות ההקרנה הזמינות לסרט שנבחר
     public partial class SelectScreening : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // בדיקה אם הגיע ID של סרט ב-URL
+                // שליפת מזהה הסרט (TMDb ID) מה-URL וטעינת ההקרנות המתאימות
                 if (int.TryParse(Request.QueryString["movieId"], out int tmdbId))
                 {
                     LoadScreenings(tmdbId);
                 }
                 else
                 {
+                    // אם לא הועבר ID תקין - מציגים הודעה ומסתירים את הרשימה
                     lblNoScreenings.Text = "לא נבחר סרט תקין.";
                     lblNoScreenings.Visible = true;
                 }
             }
         }
 
+        // שולפת מבסיס הנתונים את כל ההקרנות העתידיות לסרט לפי TMDb ID ומציגה אותן
         private void LoadScreenings(int tmdbId)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cs))
             {
-                // שאילתה שמתאימה למבנה הטבלה שלך
+                // שאילתה המחברת Screening ו-Movie לפי TMDb ID ומסננת רק הקרנות עתידיות
                 string query = @"SELECT s.ScreeningId, s.StartTime, m.Title 
                          FROM Screening s 
                          JOIN Movie m ON s.MovieId = m.Id 
@@ -53,7 +56,7 @@ namespace Shipping
 
                     if (dt.Rows.Count > 0)
                     {
-                        // כאן ה-C# מזהה את lblMovieTitle כי הוספנו runat="server"
+                        // הצגת שם הסרט בכותרת הדף ורשימת השעות בריפיטר
                         lblMovieTitle.InnerText = dt.Rows[0]["Title"].ToString();
                         rptTimes.DataSource = dt;
                         rptTimes.DataBind();
@@ -61,6 +64,7 @@ namespace Shipping
                     }
                     else
                     {
+                        // אין הקרנות זמינות לסרט זה
                         lblNoScreenings.Visible = true;
                     }
                 }
@@ -72,11 +76,11 @@ namespace Shipping
             }
         }
 
-        // פונקציית הלחיצה שתעביר לעמוד ה-Ticketing הקיים שלך
+        // לחיצה על שעת הקרנה - מעבירה לעמוד בחירת כרטיסים עם מזהה ההקרנה ב-URL
         protected void btnSelectTime_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
-            string sId = btn.CommandArgument;
+            string sId = btn.CommandArgument; // מזהה ההקרנה שהוגדר ב-CommandArgument של הכפתור
             Response.Redirect("Ticketing.aspx?screeningId=" + sId);
         }
     }

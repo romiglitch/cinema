@@ -8,19 +8,22 @@ using System.Web.UI.HtmlControls;
 
 namespace Shipping
 {
+    // עמוד בחירת מושבים - מציג את מפת האולם ומאפשר למשתמש לבחור מושבים פנויים
     public partial class SeatsPicker : System.Web.UI.Page
     {
-        protected int screeningId;
-        protected int hallId;
-        protected int totalTickets;
+        protected int screeningId;   // מזהה ההקרנה שהועבר מהעמוד הקודם
+        protected int hallId;        // מזהה האולם שבו מתקיימת ההקרנה
+        protected int totalTickets;  // כמות הכרטיסים שנבחרה בעמוד Ticketing
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                // שליפת כמות הכרטיסים מה-Session ושמירה ב-ViewState לשימוש בפוסטבקים
                 totalTickets = Convert.ToInt32(Session["TotalTickets"] ?? 0);
                 ViewState["TicketsCount"] = totalTickets;
 
+                // שליפת מזהה ההקרנה מה-URL ושמירתו ב-ViewState
                 if (!string.IsNullOrEmpty(Request.QueryString["screeningId"]) &&
                     int.TryParse(Request.QueryString["screeningId"], out int qScId))
                 {
@@ -28,7 +31,7 @@ namespace Shipping
                     ViewState["screeningId"] = screeningId;
                 }
 
-                // נשלוף את ה-HallId רק פעם אחת
+                // שליפת מזהה האולם פעם אחת ושמירה ב-ViewState - לא נשלוף שוב בכל פוסטבק
                 string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
@@ -41,16 +44,18 @@ namespace Shipping
                     }
                 }
 
-                // טען אולם ומושבים פעם אחת בלבד
+                // בניית מפת המושבים - נטען פעם אחת בלבד
                 LoadHallAndSeats();
             }
             else
             {
-                // בפוסטבק נקרא את הנתונים מה־ViewState בלבד
+                // בפוסטבק אין צורך לשלוף שוב מה-DB - הנתונים שמורים ב-ViewState
                 screeningId = Convert.ToInt32(ViewState["screeningId"]);
                 hallId = Convert.ToInt32(ViewState["hallId"]);
                 totalTickets = Convert.ToInt32(ViewState["TicketsCount"]);
             }
+
+            // בדיקת התחברות - משתמש לא מחובר לא יכול לבחור מושבים
             if (Session["UserId"] == null)
             {
                 string currentScId = Request.QueryString["screeningId"];
@@ -203,6 +208,7 @@ window.location.href = 'HomePage.aspx';
             }
         }
 
+        // אירוע שנקרא לכל שורה בריפיטר - בונה דינמית את ה-div של כל מושב בשורה
         protected void RepeaterRows_ItemDataBound(object sender, System.Web.UI.WebControls.RepeaterItemEventArgs e)
         {
             if (e.Item.ItemType != System.Web.UI.WebControls.ListItemType.Item &&
@@ -211,17 +217,18 @@ window.location.href = 'HomePage.aspx';
 
             var rowData = (HallRow)e.Item.DataItem;
 
-            // מצא את ה-div שיש לו runat="server" (ולא Literal)
+            // מציאת ה-div המכיל את המושבים בשורה (runat="server")
             HtmlGenericControl container = (HtmlGenericControl)e.Item.FindControl("rowSeatsContainer");
 
             if (container == null)
-                return; // אם משום מה לא נמצא, לא נזרוק שגיאה
+                return; // אם הקונטיינר לא נמצא, לא נזרוק שגיאה
 
+            // יצירת div לכל מושב בשורה עם CSS class לפי מצבו (פנוי / תפוס / נגיש)
             foreach (var seat in rowData.Seats)
             {
                 HtmlGenericControl seatDiv = new HtmlGenericControl("div");
                 seatDiv.Attributes["class"] = seat.CssClass;
-                string val = $"{seat.SeatId}|{seat.RowNumber}|{seat.SeatNumber}";
+                string val = $"{seat.SeatId}|{seat.RowNumber}|{seat.SeatNumber}"; // ערך מקודד לזיהוי המושב
                 seatDiv.Attributes["data-value"] = val;
                 seatDiv.Attributes["data-row"] = seat.RowNumber.ToString();
                 seatDiv.Attributes["data-seat"] = seat.SeatNumber.ToString();
@@ -231,11 +238,10 @@ window.location.href = 'HomePage.aspx';
             }
         }
 
-
-
+        // לחיצה על "אישור מושבים" - מאמתת שנבחרה הכמות הנכונה ומעבירה לעמוד התשלום
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
-            string selectedData = Request.Form["SelectedSeats"];
+            string selectedData = Request.Form["SelectedSeats"]; // נתוני המושבים שנשלחו מהצד הלקוח
 
             if (string.IsNullOrEmpty(selectedData))
             {
@@ -246,41 +252,40 @@ window.location.href = 'HomePage.aspx';
             var selectedSeatsArray = selectedData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             int ticketsCount = Convert.ToInt32(ViewState["TicketsCount"] ?? 0);
 
+            // וידוא שמספר המושבים שנבחרו תואם בדיוק את כמות הכרטיסים שנקנו
             if (selectedSeatsArray.Length != ticketsCount)
             {
                 ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('בחרת {selectedSeatsArray.Length} מושבים, אך עלייך לבחור בדיוק {ticketsCount}.');", true);
                 return;
             }
 
-            // --- התיקון כאן ---
-            // אם ה-ViewState ריק, נסי לשלוף מה-URL או להשתמש בנתון שקיבלת כשהדף נטען
+            // שמירת המושבים הנבחרים ב-Session להמשך תהליך הרכישה בעמוד הסל
             Session["SelectedSeats"] = selectedData;
 
-            // שליפה בטוחה: אם ה-ViewState ריק, ננסה לקחת מה-QueryString (למשל ?id=5)
+            // שליפה בטוחה של מזהה ההקרנה והאולם - מה-ViewState או כגיבוי מה-QueryString
             string sId = ViewState["screeningId"]?.ToString() ?? Request.QueryString["id"];
             string hId = ViewState["hallId"]?.ToString() ?? Request.QueryString["hall"];
 
             Session["ScreeningId"] = sId;
             Session["HallId"] = hId;
 
-            Response.Redirect("Cart.aspx");
+            Response.Redirect("Cart.aspx"); // מעבר לעמוד הסל לסיום הרכישה
         }
-
-
     }
 
-    // מחלקות עזר
+    // מייצג שורה באולם הכוללת רשימת מושבים
     public class HallRow
     {
         public int RowNumber { get; set; }
         public List<SeatData> Seats { get; set; }
     }
 
+    // מייצג מושב בודד - מזהה, מיקום ומצב (פנוי / תפוס / נגיש)
     public class SeatData
     {
         public int SeatId { get; set; }
         public int RowNumber { get; set; }
         public int SeatNumber { get; set; }
-        public string CssClass { get; set; }
+        public string CssClass { get; set; } // קובע את עיצוב המושב בממשק
     }
 }
