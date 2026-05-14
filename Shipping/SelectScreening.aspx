@@ -18,7 +18,7 @@
         </asp:Repeater>
     </div>
 
-    <asp:Label ID="lblNoScreenings" runat="server" Text="אין הקרנות קרובות לסרט זה." 
+    <asp:Label  ID="lblNoScreenings" runat="server" Text=".אין הקרנות קרובות לסרט זה" 
                Visible="false" CssClass="no-screenings-msg" />
 </div>
 </asp:Content>

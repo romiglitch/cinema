@@ -19,28 +19,28 @@ namespace Shipping
         {
             if (!IsPostBack)
             {
-                // שליפת כמות הכרטיסים מה-Session ושמירה ב-ViewState לשימוש בפוסטבקים
+                // לשימוש בפוסטבקים ViewStateשליפת כמות הכרטיסים מהסשן ושמירה ב 
                 totalTickets = Convert.ToInt32(Session["TotalTickets"] ?? 0);
-                ViewState["TicketsCount"] = totalTickets;
+                ViewState["TicketsCount"] = totalTickets;//שומר על המידע שלא יעלם עם פוסטבק ViewState
 
-                // שליפת מזהה ההקרנה מה-URL ושמירתו ב-ViewState
+                // ViewStateשליפת מזהה ההקרנה מהקישור ושמירתו ב
                 if (!string.IsNullOrEmpty(Request.QueryString["screeningId"]) &&
                     int.TryParse(Request.QueryString["screeningId"], out int qScId))
                 {
-                    screeningId = qScId;
+                    screeningId = qScId;//אם הוא הצליח להמיר את המזהה מהקישור
                     ViewState["screeningId"] = screeningId;
                 }
 
-                // שליפת מזהה האולם פעם אחת ושמירה ב-ViewState - לא נשלוף שוב בכל פוסטבק
+                // בשביל לא לשלוף שוב בכל פוסטבק ViewStateשליפת מזהה האולם פעם אחת ושמירה ב
                 string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     con.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 Hall FROM Screening WHERE ScreeningId = @id", con))
+                    using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 Hall FROM Screening WHERE ScreeningId = @id", con))//החזרה של אולם אחד - אמצעי בטיחות
                     {
                         cmd.Parameters.AddWithValue("@id", screeningId);
-                        hallId = Convert.ToInt32(cmd.ExecuteScalar());
-                        ViewState["hallId"] = hallId;
+                        hallId = Convert.ToInt32(cmd.ExecuteScalar());//המרת תוצאת השאילתא
+                        ViewState["hallId"] = hallId;//שמירת מספר האולם בוויוסטייט בשביל למנוע אובדן מידע ברענון הדף
                     }
                 }
 
@@ -49,7 +49,7 @@ namespace Shipping
             }
             else
             {
-                // בפוסטבק אין צורך לשלוף שוב מה-DB - הנתונים שמורים ב-ViewState
+                //בטעינת הדף שוב ניקח את המידע מהוויוסטייט
                 screeningId = Convert.ToInt32(ViewState["screeningId"]);
                 hallId = Convert.ToInt32(ViewState["hallId"]);
                 totalTickets = Convert.ToInt32(ViewState["TicketsCount"]);
@@ -83,7 +83,7 @@ window.location.href = 'HomePage.aspx';
     }});";
 
 
-                ClientScript.RegisterStartupScript(this.GetType(), "LoginAlert", script, true);
+                ClientScript.RegisterStartupScript(this.GetType(), "LoginAlert", script, true);//שיוך הסקריפט לדף הזה
                 return;
             }
 
@@ -101,11 +101,11 @@ window.location.href = 'HomePage.aspx';
             {
                 con.Open();
 
-                // קבלת HallId לפי ההקרנה (שים לב לשם הטבלה - בדוק אם הטבלה שלך נקראת "Screening" או "Screenings")
+                //מציאת האולם בו ההקרנה מתרחשת
                 using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 Hall FROM Screening WHERE ScreeningId = @id", con))
                 {
                     cmd.Parameters.AddWithValue("@id", screeningId);
-                    object hallObj = cmd.ExecuteScalar();
+                    object hallObj = cmd.ExecuteScalar();//ביצוע השאילתא ושמירת האולם
                     if (hallObj == null)
                     {
                         Response.Write("<div style='color:red;text-align:center;'>שגיאה: לא נמצא אולם להקרנה זו.</div>");
@@ -119,7 +119,8 @@ window.location.href = 'HomePage.aspx';
                 using (SqlCommand cmd = new SqlCommand("SELECT Rows, SeatsPerRow FROM Halls WHERE HallId = @id", con))
                 {
                     cmd.Parameters.AddWithValue("@id", hallId);
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    using (SqlDataReader rdr = cmd.ExecuteReader())//שמירת התוצאות באובייקט קורא
+                                                                   //שמאפשר לעבור עליהן שורה אחר שורה - פרטי האולם
                     {
                         if (rdr.Read())
                         {
@@ -129,7 +130,7 @@ window.location.href = 'HomePage.aspx';
                     }
                 }
 
-                // בניית מבנה שורות ומושבים (אחסון בלבד)
+                // בניית מבנה שורות ומושבים (עבור הצגה)
                 List<HallRow> hallRows = new List<HallRow>();
                 for (int r = 1; r <= rows; r++)
                 {
@@ -138,7 +139,7 @@ window.location.href = 'HomePage.aspx';
                     {
                         seats.Add(new SeatData
                         {
-                            SeatId = 0, // אם יש ב־Seats טבלה מזהה מושב אמיתי אפשר למלא אותו
+                            SeatId = 0, 
                             RowNumber = r,
                             SeatNumber = s,
                             CssClass = "seat available"
@@ -147,7 +148,7 @@ window.location.href = 'HomePage.aspx';
                     hallRows.Add(new HallRow { RowNumber = r, Seats = seats });
                 }
 
-                // שליפת מושבים מיוחדים מטבלת Seats (תפוסים / נגישים)
+                //  (תפוסים / נגישים) Seats שליפת מושבים מיוחדים מטבלת 
                 using (SqlCommand cmd = new SqlCommand("SELECT SeatId, RowNumber, SeatNumber, IsAccessible FROM Seats WHERE HallId = @id", con))
                 {
                     cmd.Parameters.AddWithValue("@id", hallId);
@@ -175,7 +176,7 @@ window.location.href = 'HomePage.aspx';
                     }
                 }
 
-                // סימון מושבים שתפוסים עבור הסקרינינג (מניח שיש טבלת Tickets שמכילה Screening/Row/Seat)
+                // סימון מושבים שתפוסים עבור ההקרנה
                 using (SqlCommand cmd = new SqlCommand("SELECT [Row], [Seat] FROM Tickets WHERE Screening = @screening", con))
                 {
                     cmd.Parameters.AddWithValue("@screening", screeningId);
@@ -203,12 +204,12 @@ window.location.href = 'HomePage.aspx';
                 RepeaterRows.DataSource = hallRows;
                 RepeaterRows.DataBind();
 
-                // שמירת seatsPerRow לשימוש בצד לקוח או לוגיקה עתידית
+                //(וברענון מחדש של הדף JavaScript לשימוש בצד לקוח או לוגיקה עתידית (בקוד seatsPerRow שמירת 
                 ViewState["SeatsPerRow"] = seatsPerRow;
             }
         }
 
-        // אירוע שנקרא לכל שורה בריפיטר - בונה דינמית את ה-div של כל מושב בשורה
+        // של כל מושב בשורה divאירוע שנקרא לכל שורה בריפיטר - בונה דינמית את ה
         protected void RepeaterRows_ItemDataBound(object sender, System.Web.UI.WebControls.RepeaterItemEventArgs e)
         {
             if (e.Item.ItemType != System.Web.UI.WebControls.ListItemType.Item &&
@@ -217,7 +218,7 @@ window.location.href = 'HomePage.aspx';
 
             var rowData = (HallRow)e.Item.DataItem;
 
-            // מציאת ה-div המכיל את המושבים בשורה (runat="server")
+            //שנותן לי לעשות בו שינוי בעיצוב HtmlGenericControlהמכיל את המושבים בשורה והפיכה שלו ל divמציאת ה 
             HtmlGenericControl container = (HtmlGenericControl)e.Item.FindControl("rowSeatsContainer");
 
             if (container == null)
@@ -226,8 +227,8 @@ window.location.href = 'HomePage.aspx';
             // יצירת div לכל מושב בשורה עם CSS class לפי מצבו (פנוי / תפוס / נגיש)
             foreach (var seat in rowData.Seats)
             {
-                HtmlGenericControl seatDiv = new HtmlGenericControl("div");
-                seatDiv.Attributes["class"] = seat.CssClass;
+                HtmlGenericControl seatDiv = new HtmlGenericControl("div");//יצירת דיב עבור כל מושב
+                seatDiv.Attributes["class"] = seat.CssClass;//עיצוב עבור כל מושב לפי הסוג שלו
                 string val = $"{seat.SeatId}|{seat.RowNumber}|{seat.SeatNumber}"; // ערך מקודד לזיהוי המושב
                 seatDiv.Attributes["data-value"] = val;
                 seatDiv.Attributes["data-row"] = seat.RowNumber.ToString();
@@ -259,10 +260,10 @@ window.location.href = 'HomePage.aspx';
                 return;
             }
 
-            // שמירת המושבים הנבחרים ב-Session להמשך תהליך הרכישה בעמוד הסל
+            // שמירת המושבים הנבחרים בסשן להמשך תהליך הרכישה בעמוד הסל
             Session["SelectedSeats"] = selectedData;
 
-            // שליפה בטוחה של מזהה ההקרנה והאולם - מה-ViewState או כגיבוי מה-QueryString
+            //QueryStringאו כגיבוי מה ViewStateשליפה בטוחה של מזהה ההקרנה והאולם - מה
             string sId = ViewState["screeningId"]?.ToString() ?? Request.QueryString["id"];
             string hId = ViewState["hallId"]?.ToString() ?? Request.QueryString["hall"];
 

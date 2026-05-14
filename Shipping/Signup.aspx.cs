@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.Diagnostics;
 using System.Web.UI.WebControls;
 
 namespace Shipping
@@ -16,7 +18,7 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // אין צורך בלוגיקה בטעינת הדף - הטופס מוצג ישירות
+           
         }
 
         // לחיצה על כפתור ההרשמה - מאמת את הטופס, יוצר משתמש חדש ומעביר לדף הבית
@@ -33,17 +35,17 @@ namespace Shipping
                     string phone = TxtPhone.Text;
                     bool isAdmin = false; // ברירת מחדל למשתמש חדש - לא מנהל
 
-                    // בניית שאילתת INSERT להוספת המשתמש לטבלת Users
+                    //Users להוספת המשתמש לטבלת INSERT בניית שאילתת   
                     string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                     string com = $@"INSERT INTO Users (FullName, Password, Phone, Email, IsAdmin) 
                     VALUES ('{fullname}', '{pass}', '{phone}', '{email}', '{isAdmin}')";
 
-                    // יצירת אובייקט משתמש ושמירתו בבסיס הנתונים דרך ה-DAL
+                    //יצירת אובייקט משתמש ושמירתו בבסיס הנתונים דרך מחלקת יוזר  
                     User newUser = new User(fullname, pass, phone, email, isAdmin);
                     newUser.CreateUser(connectionString, com);
 
-                    // הגדרת Session לאחר הרשמה מוצלחת - המשתמש מחובר מיד
-                    // המפתחות חייבים להיות זהים לאלה שה-Master Page בודק
+                    //לאחר הרשמה מוצלחת - המשתמש מחובר מיד Session הגדרת 
+                    //בודק  Master Page המפתחות חייבים להיות זהים לאלה שה
                     Session["username"] = fullname;
                     Session["category"] = "user"; // ערך "user" מבדיל בין משתמש רגיל למנהל ("admin")
 
@@ -52,8 +54,9 @@ namespace Shipping
                 }
                 catch (Exception ex)
                 {
-                    // הצגת הודעת שגיאה אם ההרשמה נכשלה (למשל - מייל כפול בטבלה)
-                    msg.Text = "שגיאה ברישום: " + ex.Message;
+                    // הצגת הודעת שגיאה אם ההרשמה נכשלה 
+                    msg.Text = "שגיאה ברישום";
+                    Debug.WriteLine(ex.ToString());
                 }
             }
         }

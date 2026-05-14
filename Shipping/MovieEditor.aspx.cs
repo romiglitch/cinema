@@ -34,17 +34,7 @@ namespace Shipping
             }
         }
 
-        // עוברת על כל הסרטים בטבלה ומעדכנת את שדה הפוסטר מ-TMDb לפי שם הסרט
-        private void UpdatePostersInDataTable(DataTable dt)
-        {
-            foreach (DataRow row in dt.Rows)
-            {
-                string title = row["Title"].ToString();
-                row["Poster"] = GetPosterFromTMDbByTitle(title); // שליפת כתובת תמונה מה-API
-            }
-        }
-
-        // מחפשת פוסטר לסרט לפי שמו ב-TMDb API ומחזירה URL לתמונה
+        //לתמונה  URL ומחזירה TMDb APIמחפשת פוסטר לסרט לפי שמו ב 
         public string GetPosterFromTMDbByTitle(string title)
         {
             if (string.IsNullOrWhiteSpace(title))
@@ -55,7 +45,7 @@ namespace Shipping
 
             using (var client = new HttpClient())
             {
-                var response = client.GetStringAsync(url).Result; // קריאה סינכרונית ל-TMDb API
+                var response = client.GetStringAsync(url).Result; //TMDb APIקריאה אסינכרונית ל
                 var json = JObject.Parse(response);
                 var result = json["results"]?.FirstOrDefault(); // לוקחים את התוצאה הראשונה (הרלוונטית ביותר)
                 string posterPath = result?["poster_path"]?.ToString();
@@ -68,9 +58,7 @@ namespace Shipping
         }
 
 
-        /// <summary>
-        /// טוען מחדש את הנתונים ל־DataList דרך מנגנון הדפדוף (Paging).
-        /// </summary>
+        //(DataList) חיבור הנתונים לתצוגה
         private void BindMoviesToDatalist()
         {
             Paging();
@@ -81,8 +69,8 @@ namespace Shipping
         /// </summary>
         protected void DLMovies_EditCommand(object source, DataListCommandEventArgs e)
         {
-            DLMovies.EditItemIndex = e.Item.ItemIndex;
-            BindMoviesToDatalist();
+            DLMovies.EditItemIndex = e.Item.ItemIndex;//עדכון הזיכרון
+            BindMoviesToDatalist();// עדכון הדאטהליסט והצגה של טקסטבוקס
         }
 
         /// <summary>
@@ -126,9 +114,10 @@ namespace Shipping
             BindMoviesToDatalist();
         }
 
-    
+
         /// <summary>
         ///מנגנון ששומר מידע בצד הלקוח כדי שיהיה זמין גם לאחר פוסטבק ,ViewState שמירת מספר העמוד הנוכחי של הדפדוף דרך
+        ///חיוני ViewStateכשהמשתמש עובר עמוד הדף נשלח לשרת ונטען מחדש לכן השימוש ב
         /// </summary>
         public int CurrentPage
         {
@@ -164,10 +153,10 @@ namespace Shipping
             DataTable dt = GetMovies();// טעינת כל הסרטים מהמסד
             
             PagedDataSource paged = new PagedDataSource();// אובייקט שמאפשר לקחת אוסף נתונים גדול ולחתוך אותו לעמודים ,PagedDataSource יצירת אובייקט
-            paged.DataSource = dt.DefaultView;//הדאטה טייבל הופך לדיפולט ויו,מנגנון הדפדוף עובד על בסיס הנתונים שחזרו מהמסד
-            paged.AllowPaging = true;
-            paged.PageSize = 4;
-            paged.CurrentPageIndex = CurrentPage;// CurrentPage קביעת העמוד הנוכחי בעזרת 
+            paged.DataSource = dt.DefaultView;//לדפדפף בין העמודים PagedDataSourceהדאטה טייבל הופך לדיפולט ויו ומאפשר ל
+            paged.AllowPaging = true; // הפעלת אפשרות החלוקה לעמודים
+            paged.PageSize = 4; // קביעה שיוצגו בדיוק 4 סרטים בכל עמוד
+            paged.CurrentPageIndex = CurrentPage; // הגדרת העמוד שבו המשתמש נמצא כרגע 
 
             btnPrev.Enabled = !paged.IsFirstPage;//מונע ממעבר לעמוד קודם/הבא 
             btnNext.Enabled = !paged.IsLastPage;// בעמוד הראשון/האחרון
@@ -175,9 +164,9 @@ namespace Shipping
             lblPageNumber1.Text = $"Page {CurrentPage + 1} of {paged.PageCount}";
             lblPageNumber2.Text = $"Page {CurrentPage + 1} of {paged.PageCount}";
 
-            DLMovies.DataSource = paged;//רק את 4 הרשומות של העמוד הנוכחי DataSourceמקבל מה DataListה
-            DLMovies.DataBind();
-             
+            DLMovies.DataSource = paged; // -DataListהזרקת הנתונים החתוכים ל
+            DLMovies.DataBind(); // הצגת הנתונים
+
         }
         // אירוע שנקרא לכל פריט ב-DataList - מאפשר לבצע עיבוד נוסף על כל שורה (כגון טעינת תמונה)
         protected void DLMovies_ItemDataBound(object sender, DataListItemEventArgs e)
@@ -197,7 +186,7 @@ namespace Shipping
         protected void btnNext_Click(object sender, EventArgs e)
         {
             DataTable dt = GetMovies();
-            int maxPages = (int)Math.Ceiling(dt.Rows.Count / 4.0);
+            int maxPages = (int)Math.Ceiling(dt.Rows.Count / 4.0);//חישוב כמה עמודי דפדוף יהיו בסך הכל עבור רשימת הסרטים עם המרה למעלה 
 
             if (CurrentPage < maxPages - 1)
                 CurrentPage++;

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
+using System.Diagnostics;
 namespace Shipping
 {
     // עמוד בחירת הקרנה - מציג את כל שעות ההקרנה הזמינות לסרט שנבחר
@@ -17,21 +17,21 @@ namespace Shipping
         {
             if (!IsPostBack)
             {
-                // שליפת מזהה הסרט (TMDb ID) מה-URL וטעינת ההקרנות המתאימות
+                //וטעינת ההקרנות המתאימות URL-מה (TMDb ID) שליפת מזהה הסרט 
                 if (int.TryParse(Request.QueryString["movieId"], out int tmdbId))
                 {
                     LoadScreenings(tmdbId);
                 }
                 else
                 {
-                    // אם לא הועבר ID תקין - מציגים הודעה ומסתירים את הרשימה
+                    //תקין - מציגים הודעה ומסתירים את הרשימה ID אם לא הועבר  
                     lblNoScreenings.Text = "לא נבחר סרט תקין.";
                     lblNoScreenings.Visible = true;
                 }
             }
         }
 
-        // שולפת מבסיס הנתונים את כל ההקרנות העתידיות לסרט לפי TMDb ID ומציגה אותן
+        //ומציגה אותן TMDb IDשולפת מבסיס הנתונים את כל ההקרנות העתידיות לסרט לפי 
         private void LoadScreenings(int tmdbId)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -70,17 +70,18 @@ namespace Shipping
                 }
                 catch (Exception ex)
                 {
-                    lblNoScreenings.Text = "שגיאה בטעינת נתונים: " + ex.Message;
+                    lblNoScreenings.Text = "שגיאה בטעינת נתונים";
                     lblNoScreenings.Visible = true;
+                    Debug.WriteLine("Error: " + ex.ToString());
                 }
             }
         }
 
-        // לחיצה על שעת הקרנה - מעבירה לעמוד בחירת כרטיסים עם מזהה ההקרנה ב-URL
+        //URLלחיצה על שעת הקרנה - מעבירה לעמוד בחירת כרטיסים עם מזהה ההקרנה ב
         protected void btnSelectTime_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
-            string sId = btn.CommandArgument; // מזהה ההקרנה שהוגדר ב-CommandArgument של הכפתור
+            string sId = btn.CommandArgument; //של הכפתור CommandArgumentמזהה ההקרנה שהוגדר ב 
             Response.Redirect("Ticketing.aspx?screeningId=" + sId);
         }
     }

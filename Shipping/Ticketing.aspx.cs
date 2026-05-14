@@ -1,4 +1,4 @@
-﻿
+﻿using System.Diagnostics;
 using System;
 using System.Configuration;
 using System.Data;
@@ -12,11 +12,11 @@ namespace Shipping
     // עמוד בחירת כרטיסים - המשתמש בוחר כמה כרטיסים מכל סוג (רגיל, סטודנט וכו') לפני בחירת מושבים
     public partial class Ticketing : System.Web.UI.Page
     {
-        protected int screeningId; // מזהה ההקרנה שהועבר בכתובת ה-URL
+        protected int screeningId; // -URLמזהה ההקרנה שהועבר בכתובת ה
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // שליפת מזהה ההקרנה מה-URL - אם לא תקין, מציגים הודעת שגיאה
+            // אם לא תקין, מציגים הודעת שגיאה .URLשליפת מזהה ההקרנה מה
             if (!int.TryParse(Request.QueryString["screeningId"], out screeningId))
             {
                 litScreeningInfo.Text = "<div style='color:red;'>לא נבחרה הקרנה תקינה.</div>";
@@ -42,8 +42,7 @@ namespace Shipping
 
             string connectionString = configSetting.ConnectionString;
 
-            // שאילתה המאחדת את Screening ו-Movie לפי מזהה ההקרנה
-            // ב-Screening זה ScreeningId ו-MovieId, ב-Movie זה Id ו-Title
+            // לפי מזהה ההקרנה Screening ו-Movie שאילתה המאחדת את
             string query = @"SELECT m.Title, s.StartTime 
                      FROM Screening s 
                      JOIN Movie m ON s.MovieId = m.Id 
@@ -74,12 +73,13 @@ namespace Shipping
                 }
                 catch (Exception ex)
                 {
-                    litScreeningInfo.Text = "שגיאה בשליפת נתונים: " + ex.Message;
+                    Debug.WriteLine("Error: " +ex.ToString());
+                    litScreeningInfo.Text = "שגיאה בשליפת נתונים";
                 }
             }
         }
 
-        // טוענת את סוגי הכרטיסים והמחירים מטבלת TicketsPricing ומקשרת אותם לריפיטר
+        //ומקשרת אותם לריפיטר TicketsPricing טוענת את סוגי הכרטיסים והמחירים מטבלת  
         private void LoadTickets()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -96,7 +96,7 @@ namespace Shipping
             }
         }
 
-        // לחיצה על "המשך" - מחשבת סה"כ כרטיסים ומחיר, שומרת ב-Session ומעבירה לבחירת מושבים
+        //ומעבירה לבחירת מושבים Sessionלחיצה על "המשך" - מחשבת סה"כ כרטיסים ומחיר, שומרת ב
         protected void btnContinue_Click(object sender, EventArgs e)
         {
             int totalTickets = 0;
@@ -108,7 +108,7 @@ namespace Shipping
             // עוברים על כל שורה בריפיטר ואוספים את הכמויות שנבחרו
             foreach (RepeaterItem item in RepeaterTickets.Items)
             {
-                HiddenField hfQty = (HiddenField)item.FindControl("hiddenQty");
+                HiddenField hfQty = (HiddenField)item.FindControl("hiddenQty");//שליפת נתונים חבויים
                 HiddenField hfPrice = (HiddenField)item.FindControl("hiddenPrice");
                 HiddenField hfType = (HiddenField)item.FindControl("hiddenType"); // סוג הכרטיס (רגיל / סטודנט / ילד)
 
@@ -139,13 +139,13 @@ namespace Shipping
                 return;
             }
 
-            // שמירת הנתונים ב-Session להמשך תהליך הרכישה בעמודים הבאים
+            //להמשך תהליך הרכישה בעמודים הבאים Sessionשמירת הנתונים ב
             Session["TotalTickets"] = totalTickets;
             Session["TotalPrice"] = totalPrice;
             Session["TicketTypes"] = string.Join(",", ticketTypes);   // רשימת סוגים מופרדת בפסיקים
             Session["TicketPrices"] = string.Join(",", ticketPrices); // רשימת מחירים מופרדת בפסיקים
 
-            // העברה לעמוד בחירת המושבים עם מזהה ההקרנה ב-URL
+            // URLהעברה לעמוד בחירת המושבים עם מזהה ההקרנה ב
             string sId = Request.QueryString["screeningId"] ?? Request.QueryString["ScreeningId"] ?? "";
             Response.Redirect("SeatsPicker.aspx?screeningId=" + sId);
         }

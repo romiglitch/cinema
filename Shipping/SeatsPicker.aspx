@@ -6,31 +6,36 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
+
     // maxSelect חייב להיות מוגדר בצד השרת (Session["TotalTickets"])
-    var maxSelect = <%= (Session["TotalTickets"] ?? 0) %>;
+    var maxSelect = <%= (Session["TotalTickets"] ?? 0) %>;//כמות הכרטיסים הכוללת שהמשתמש בחר
     // seatsPerRow אם צריך - אופציונלי, רק בשביל בדיקה (ממולא ב-ViewState או ב-data-attr)
-    var seatsPerRow = <%= (ViewState["SeatsPerRow"] ?? 0) %>;
+    var seatsPerRow = <%= (ViewState["SeatsPerRow"] ?? 0) %>;//מספר המושבים שיש בכל שורה באולם הקולנוע
 
     // מבנה פנימי של בחירות: [{val: "seatId|row|seat", row: "2", seat: 5, seatNum:5}]
     var selected = [];
 
+    //לוקחת מחרוזת טקסט גולמית (כמו "101|5|12") והופכת אותה לאובייקט מסודר עם שמות.
     function parseVal(v) {
         var p = v.split('|');
         return { seatId: p[0], row: parseInt(p[1], 10), seatNum: parseInt(p[2], 10), raw: v };
     }
 
+    //מוודאת שהמושבים שנבחרו הם צמודים
     function isContiguous(arr) {
         if (arr.length <= 1) return true;
         var nums = arr.map(x => x.seatNum).sort((a, b) => a - b);
         return (nums[nums.length - 1] - nums[0] + 1) === nums.length;
     }
 
+    //בודקת שכל המושבים שנבחרו נמצאים באותה שורה
     function sameRow(arr) {
         if (arr.length === 0) return true;
         var r = arr[0].row;
         return arr.every(x => x.row === r);
     }
 
+    //(מעדכנת את מה שהמשתמש רואה ואת מה שהשרת יקבל (מה מושבים נותרו לבחירה
     function updateHiddenAndDisplay() {
         // עדכון השדה החבוי
         var vals = selected.map(s => s.raw);
@@ -52,6 +57,7 @@
         }
     }
 
+    //רצה בלחיצה על כל מושב : בדיקות
     function toggleSeat(elem) {
         var $el = $(elem);
         if ($el.hasClass('taken') || $el.hasClass('disabled')) return;
@@ -68,7 +74,7 @@
             return;
         }
 
-        // ตรวจ צרף: חייב להיות באותה שורה
+        // צרף: חייב להיות באותה שורה
         if (selected.length > 0 && !sameRow([selected[0], info])) {
             alert('יש לבחור את כל המושבים באותה שורה בלבד.');
             return;
