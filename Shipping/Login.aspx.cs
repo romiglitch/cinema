@@ -83,7 +83,16 @@ namespace Shipping
 
         protected void BtnForgotPassword_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ForgotPassword.aspx");
+            // אם המשתמש כבר הזין אימייל במסך התחברות – נעביר אותו למסך השחזור כשדה ממולא.
+            string email = TxtEmail.Text;
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                Response.Redirect("ForgotPassword.aspx?email=" + Server.UrlEncode(email));
+            }
+            else
+            {
+                Response.Redirect("ForgotPassword.aspx");
+            }
         }
     }
 }

@@ -12,7 +12,15 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!IsPostBack)
+            {
+                // אם הגיענו מהדף Login עם פרמטר email – נמלא אותו אוטומטית בתיבת הטקסט.
+                string fromLogin = Request.QueryString["email"];
+                if (!string.IsNullOrWhiteSpace(fromLogin))
+                {
+                    txtEmail.Text = fromLogin;
+                }
+            }
         }
         protected void btnSend_Click(object sender, EventArgs e)
         {
