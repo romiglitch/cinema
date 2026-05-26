@@ -135,7 +135,7 @@ namespace Shipping
 
             // שמירת נתונים מהסשן
             string userEmail = Session["UserEmail"]?.ToString() ?? "";
-            string userName = Session["username"]?.ToString() ?? "";
+            string fullName = Session["displayName"]?.ToString() ?? "";
             string movieName = litMovieName.Text;
             string rawSeats = Session["SelectedSeats"]?.ToString() ?? "";
 
@@ -192,7 +192,7 @@ namespace Shipping
                                 screeningDate,
                                 formattedSeatsForEmail,
                                 amount,
-                                userName
+                                fullName
                             );
 
                             Response.Redirect("Success.aspx");

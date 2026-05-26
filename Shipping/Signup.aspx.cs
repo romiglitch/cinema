@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
-using System.Diagnostics;
 using System.Web.UI.WebControls;
 
 namespace Shipping
@@ -18,46 +17,68 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-           
+
         }
 
-        // לחיצה על כפתור ההרשמה - מאמת את הטופס, יוצר משתמש חדש ומעביר לדף הבית
         protected void BtnSign_Click(object sender, EventArgs e)
         {
-            if (Page.IsValid) // בדיקת תקינות שדות הטופס לפני ביצוע פעולה
+            if (!Page.IsValid)
+                return;
+
+            try
             {
-                try
+                string pass = TxtPassword.Text;
+                string fullname = TxtName.Text.Trim();
+                string email = EmailHelper.Normalize(TxtEmail.Text);
+                string phone = TxtPhone.Text.Trim();
+                bool isAdmin = false;
+
+                string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    // שליפת הנתונים שהמשתמש הזין בטופס
-                    string pass = TxtPassword.Text;
-                    string fullname = TxtName.Text;
-                    string email = TxtEmail.Text;
-                    string phone = TxtPhone.Text;
-                    bool isAdmin = false; // ברירת מחדל למשתמש חדש - לא מנהל
+                    connection.Open();
 
-                    //Users להוספת המשתמש לטבלת INSERT בניית שאילתת   
-                    string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-                    string com = $@"INSERT INTO Users (FullName, Password, Phone, Email, IsAdmin) 
-                    VALUES ('{fullname}', '{pass}', '{phone}', '{email}', '{isAdmin}')";
+                    using (SqlCommand existsCmd = new SqlCommand(
+                        "SELECT COUNT(1) FROM Users WHERE Email = @email", connection))
+                    {
+                        existsCmd.Parameters.AddWithValue("@email", email);
+                        int existing = Convert.ToInt32(existsCmd.ExecuteScalar());
+                        if (existing > 0)
+                        {
+                            msg.Text = "כתובת האימייל כבר רשומה במערכת";
+                            return;
+                        }
+                    }
 
-                    //יצירת אובייקט משתמש ושמירתו בבסיס הנתונים דרך מחלקת יוזר  
-                    User newUser = new User(fullname, pass, phone, email, isAdmin);
-                    newUser.CreateUser(connectionString, com);
+                    string insertQuery = @"INSERT INTO Users (FullName, Password, Phone, Email, IsAdmin)
+                        VALUES (@fullname, @pass, @phone, @email, @isAdmin);
+                        SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
-                    //לאחר הרשמה מוצלחת - המשתמש מחובר מיד Session הגדרת 
-                    //בודק  Master Page המפתחות חייבים להיות זהים לאלה שה
-                    Session["username"] = fullname;
-                    Session["category"] = "user"; // ערך "user" מבדיל בין משתמש רגיל למנהל ("admin")
+                    int userId;
+                    using (SqlCommand insertCmd = new SqlCommand(insertQuery, connection))
+                    {
+                        insertCmd.Parameters.AddWithValue("@fullname", fullname);
+                        insertCmd.Parameters.AddWithValue("@pass", pass);
+                        insertCmd.Parameters.AddWithValue("@phone", phone);
+                        insertCmd.Parameters.AddWithValue("@email", email);
+                        insertCmd.Parameters.AddWithValue("@isAdmin", isAdmin);
 
-                    // העברה לדף הבית לאחר הרשמה מוצלחת
+                        userId = Convert.ToInt32(insertCmd.ExecuteScalar());
+                    }
+
+                    Session["UserId"] = userId;
+                    Session["UserEmail"] = email;
+                    Session["displayName"] = fullname;
+                    Session["category"] = "user";
+
                     Response.Redirect("HomePage.aspx");
                 }
-                catch (Exception ex)
-                {
-                    // הצגת הודעת שגיאה אם ההרשמה נכשלה 
-                    msg.Text = "שגיאה ברישום";
-                    Debug.WriteLine(ex.ToString());
-                }
+            }
+            catch (Exception ex)
+            {
+                msg.Text = "שגיאה ברישום";
+                Debug.WriteLine(ex.ToString());
             }
         }
     }

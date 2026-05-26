@@ -16,7 +16,7 @@
         <header>
             <nav class="topnav">
                 <div class="nav-left">
-                    <% if (Session["username"] != null) { %>
+                    <% if (Session["category"] != null) { %>
                         <asp:Button ID="Btn" runat="server" Text="התנתקות" OnClick="lnkLogout_Click" CssClass="logout-btn" />
                     <% } else { %>
                         <div style="width: 100px;"></div>
@@ -29,7 +29,7 @@
                     <% } else { %>
                         <a href="HomePage.aspx">דף הבית</a>
                         <a href="Movies.aspx">סרטים</a>
-                        <% if (Session["username"] == null) { %>
+                        <% if (Session["category"] == null) { %>
                             <a href="Signup.aspx">הרשמה</a>
                             <a href="Login.aspx">התחברות</a>
                         <% } %>
@@ -37,9 +37,9 @@
                 </div>
 
                 <div class="nav-right">
-                    <% if (Session["username"] != null) { %>
+                    <% if (Session["displayName"] != null) { %>
                         <span class="user-welcome">
-                            <%= Session["username"] %>
+                            <%= Session["displayName"] %>
                             <% if (Session["category"] != null && Session["category"].ToString() == "admin") { %>
                                 <i class="user-icon">👑</i>
                             <% } else { %>

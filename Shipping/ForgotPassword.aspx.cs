@@ -19,7 +19,7 @@ namespace Shipping
             // כדי לאפשר שליחת מייל בלי לתקוע את הדף async
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
-                string userEmail = txtEmail.Text.Trim();
+                string userEmail = EmailHelper.Normalize(txtEmail.Text);
 
                 if (string.IsNullOrEmpty(userEmail))
                 {

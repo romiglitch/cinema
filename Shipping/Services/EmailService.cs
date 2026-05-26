@@ -59,7 +59,7 @@ namespace Shipping
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
         
-        public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string userName)
+        public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה
             string formattedSeats = seats.Replace("|", ", ");
@@ -82,7 +82,7 @@ namespace Shipping
      </div>
 
      <div style='padding: 30px; background-color: #ffffff; color: #333;'>
-         <p style='font-size: 18px;'>היי, {userName}</p>
+         <p style='font-size: 18px;'>היי, {fullName}</p>
          <p style='font-size: 16px;'>תודה על הזמנתך מאתר הקולנוע של רומי! הכרטיסים שלך לסרט מחכים לך. הנה פרטי ההזמנה:</p>
          
          <div style='background-color: #f8f9fa; border-right: 5px solid #8e2de2; padding: 20px; margin: 20px 0; border-radius: 5px;'>

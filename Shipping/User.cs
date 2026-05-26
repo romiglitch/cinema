@@ -21,7 +21,7 @@ namespace Shipping
             Fullname = fullname;
             Password = password;
             Phone = phone;
-            Email = email;
+            Email = EmailHelper.Normalize(email);
             this.isAdmin = isAdmin;
         }
         public void CreateUser(string con, string com)

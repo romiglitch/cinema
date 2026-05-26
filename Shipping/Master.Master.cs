@@ -28,7 +28,7 @@ namespace Shipping
         }
         protected void lnkLogout_Click(object sender, EventArgs e)
         {
-            Session.Abandon(); // מוחק את כל הנתונים (כולל את ה-username)
+            Session.Abandon(); // מוחק את כל נתוני הסשן (כולל displayName)
             Response.Redirect("HomePage.aspx"); // שולח אותו להתחבר מחדש
         }
         private List<string> GetAllMovieNamesFromDB()
