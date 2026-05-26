@@ -35,6 +35,38 @@
         return arr.every(x => x.row === r);
     }
 
+    // מושב תפוס (נמכר) או נבחר על ידי המשתמש
+    function isSeatBlocked(rowNum, seatNum, selectedNums) {
+        if (selectedNums.indexOf(seatNum) !== -1) return true;
+        var $seat = $('.seat[data-row="' + rowNum + '"][data-seat="' + seatNum + '"]');
+        return $seat.length > 0 && ($seat.hasClass('taken') || $seat.hasClass('selected'));
+    }
+
+    // סופר מושבים ריקים רצופים מתחילת / סוף השורה עד למושב חסום ראשון
+    function countLeadingEmpty(rowNum, selectedNums) {
+        var count = 0;
+        for (var s = 1; s <= seatsPerRow; s++) {
+            if (isSeatBlocked(rowNum, s, selectedNums)) break;
+            count++;
+        }
+        return count;
+    }
+
+    function countTrailingEmpty(rowNum, selectedNums) {
+        var count = 0;
+        for (var s = seatsPerRow; s >= 1; s--) {
+            if (isSeatBlocked(rowNum, s, selectedNums)) break;
+            count++;
+        }
+        return count;
+    }
+
+    // אסור להשאיר מושב בודד ריק בקצה השורה (תחילה או סוף)
+    function hasOrphanAtRowEdge(rowNum, selectedNums) {
+        return countLeadingEmpty(rowNum, selectedNums) === 1
+            || countTrailingEmpty(rowNum, selectedNums) === 1;
+    }
+
     //(מעדכנת את מה שהמשתמש רואה ואת מה שהשרת יקבל (מה מושבים נותרו לבחירה
     function updateHiddenAndDisplay() {
         // עדכון השדה החבוי
@@ -96,6 +128,12 @@
             return;
         }
 
+        var seatNums = temp.map(x => x.seatNum);
+        if (hasOrphanAtRowEdge(temp[0].row, seatNums)) {
+            alert('לא ניתן להשאיר מושב בודד ריק בתחילת או בסוף השורה.');
+            return;
+        }
+
         // אם עברנו את כל הבדיקות - הוסף
         selected.push(info);
         $el.addClass('selected');
@@ -122,6 +160,11 @@
         var parsed = items.map(parseVal);
         if (!sameRow(parsed)) { alert('המושבים חייבים להיות באותה שורה.'); return false; }
         if (!isContiguous(parsed)) { alert('המושבים חייבים להיות צמודים.'); return false; }
+        var seatNums = parsed.map(x => x.seatNum);
+        if (hasOrphanAtRowEdge(parsed[0].row, seatNums)) {
+            alert('לא ניתן להשאיר מושב בודד ריק בתחילת או בסוף השורה.');
+            return false;
+        }
         return true;
     }
 
