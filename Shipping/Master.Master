@@ -16,7 +16,7 @@
         <header>
             <nav class="topnav">
                 <div class="nav-left">
-                    <%-- Auth state is driven by Session["category"] (admin/user) --%>
+                    <%-- מצב התחברות נקבע לפי Session["category"] (admin/user) --%>
                     <% if (Session["category"] != null) { %>
                         <asp:Button ID="Btn" runat="server" Text="התנתקות" OnClick="lnkLogout_Click" CssClass="logout-btn" />
                     <% } else { %>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="nav-right">
-                    <%-- Display name is the user's full name (email is only used for login/identity) --%>
+                    <%-- displayName הוא השם המלא; האימייל משמש רק להתחברות/זיהוי --%>
                     <% if (Session["displayName"] != null) { %>
                         <span class="user-welcome">
                             <%= Session["displayName"] %>

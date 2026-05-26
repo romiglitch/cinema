@@ -21,7 +21,7 @@ namespace Shipping
             Fullname = fullname;
             Password = password;
             Phone = phone;
-            // Keep email normalized everywhere it's created/updated in code.
+            // שמירה על אימייל מנורמל בכל יצירה/עדכון של משתמש בקוד.
             Email = EmailHelper.Normalize(email);
             this.isAdmin = isAdmin;
         }

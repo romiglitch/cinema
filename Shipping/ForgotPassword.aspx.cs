@@ -19,7 +19,7 @@ namespace Shipping
             // כדי לאפשר שליחת מייל בלי לתקוע את הדף async
             RegisterAsyncTask(new PageAsyncTask(async () =>
             {
-                // Normalize to match how emails are stored/queried (trim + lowercase).
+                // נרמול אימייל כדי להתאים לאופן השמירה והחיפוש במסד (קיצוץ + אותיות קטנות).
                 string userEmail = EmailHelper.Normalize(txtEmail.Text);
 
                 if (string.IsNullOrEmpty(userEmail))

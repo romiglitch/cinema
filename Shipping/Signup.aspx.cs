@@ -29,7 +29,7 @@ namespace Shipping
             {
                 string pass = TxtPassword.Text;
                 string fullname = TxtName.Text.Trim();
-                // Store/login by normalized email to avoid case/space duplicates.
+                // שמירה והתחברות לפי אימייל מנורמל כדי למנוע כפילויות בגלל רישיות/רווחים.
                 string email = EmailHelper.Normalize(TxtEmail.Text);
                 string phone = TxtPhone.Text.Trim();
                 bool isAdmin = false;
@@ -47,7 +47,7 @@ namespace Shipping
                         int existing = Convert.ToInt32(existsCmd.ExecuteScalar());
                         if (existing > 0)
                         {
-                            // Email is the username, so it must be unique.
+                            // האימייל הוא שם המשתמש ולכן חייב להיות ייחודי.
                             msg.Text = "כתובת האימייל כבר רשומה במערכת";
                             return;
                         }
@@ -60,7 +60,7 @@ namespace Shipping
                     int userId;
                     using (SqlCommand insertCmd = new SqlCommand(insertQuery, connection))
                     {
-                        // Parameterized INSERT prevents injection and handles special characters safely.
+                        // INSERT עם פרמטרים מונע SQL Injection ומטפל בתווים מיוחדים בבטחה.
                         insertCmd.Parameters.AddWithValue("@fullname", fullname);
                         insertCmd.Parameters.AddWithValue("@pass", pass);
                         insertCmd.Parameters.AddWithValue("@phone", phone);
@@ -72,7 +72,7 @@ namespace Shipping
 
                     Session["UserId"] = userId;
                     Session["UserEmail"] = email;
-                    // DisplayName is used for header + receipts (full name), while email is the login identifier.
+                    // displayName משמש לכותרת ולקבלות (שם מלא); האימייל הוא מזהה ההתחברות.
                     Session["displayName"] = fullname;
                     Session["category"] = "user";
 

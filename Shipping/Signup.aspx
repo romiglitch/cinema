@@ -16,7 +16,7 @@
                         <asp:RequiredFieldValidator ID="RFVName" runat="server" ControlToValidate="TxtName"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVName" runat="server" ControlToValidate="TxtName"
-                            <%-- Full name policy: at least 2 words, Hebrew/Latin letters only (no digits/punctuation) --%>
+                            <%-- שם מלא: לפחות שתי מילים, אותיות עברית/לטינית בלבד (ללא ספרות/סימנים) --%>
                             ErrorMessage="שם מלא: לפחות שתי מילים, אותיות בלבד (ללא מספרים או סימנים)" CssClass="error-text-simple" Display="Dynamic"
                             ValidationExpression="^[\u05D0-\u05EAa-zA-Z]+(?:\s+[\u05D0-\u05EAa-zA-Z]+)+$"></asp:RegularExpressionValidator>
                     </td>
@@ -71,7 +71,7 @@
                         <asp:RequiredFieldValidator ID="RFVPhone" runat="server" ControlToValidate="TxtPhone"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVPhone" runat="server" ControlToValidate="TxtPhone"
-                            <%-- Phone policy: starts with 0, digits only, exactly 10 characters --%>
+                            <%-- טלפון: מתחיל ב-0, ספרות בלבד, באורך 10 תווים --%>
                             ErrorMessage="מספר טלפון חייב להתחיל ב-0, לכלול 10 ספרות בלבד" CssClass="error-text-simple" Display="Dynamic"
                             ValidationExpression="^0\d{9}$"></asp:RegularExpressionValidator>
                     </td>

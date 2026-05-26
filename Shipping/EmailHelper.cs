@@ -6,7 +6,7 @@ namespace Shipping
     {
         public static string Normalize(string email)
         {
-            // Normalize user input so comparisons/uniqueness behave consistently (trim + lowercase).
+            // נרמול קלט: קיצוץ רווחים והמרה לאותיות קטנות לצורך השוואה וייחודיות עקביים.
             if (string.IsNullOrWhiteSpace(email))
                 return string.Empty;
 

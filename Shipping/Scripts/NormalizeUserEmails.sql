@@ -1,12 +1,12 @@
--- Run against the cinema application database (Shipping/App_Data/Dtb.mdf).
+-- להריץ מול מסד הנתונים של האפליקציה (Shipping/App_Data/Dtb.mdf).
 --
 -- SSMS / Azure Data Studio:
---   1. Connect to (LocalDB)\MSSQLLocalDB
---   2. Start the Shipping site once (F5) so Dtb.mdf attaches, or attach Dtb.mdf manually
---   3. In the database dropdown, select "Dtb" (NOT master)
---   4. Execute this script
+--   1. התחברות ל-(LocalDB)\MSSQLLocalDB
+--   2. הפעלת אתר Shipping פעם אחת (F5) כדי ש-Dtb.mdf יצורף, או צירוף Dtb.mdf ידנית
+--   3. בחירת מסד "Dtb" בתפריט (לא master)
+--   4. הרצת הסקריפט
 --
--- Optional: uncomment and set if your catalog name is not Dtb
+-- אופציונלי: לבטל הערה ולעדכן אם שם הקטלוג שונה מ-Dtb
 -- USE [Dtb];
 -- GO
 
@@ -31,7 +31,7 @@ BEGIN
     RETURN;
 END;
 
--- Empty strings become NULL so they do not collide on the unique index
+-- מחרוזות ריקות הופכות ל-NULL כדי שלא יתנגשו באינדקס הייחודי
 UPDATE dbo.Users
 SET Email = NULL
 WHERE Email IS NOT NULL AND LTRIM(RTRIM(Email)) = N'';
@@ -72,7 +72,7 @@ IF NOT EXISTS (
       AND object_id = OBJECT_ID(N'dbo.Users')
 )
 BEGIN
-    -- Filtered unique index: enforces uniqueness for real emails while allowing legacy NULLs.
+    -- אינדקס ייחודי מסונן: ייחודיות לאימיילים קיימים, עם אפשרות ל-NULL ישנים
     CREATE UNIQUE INDEX UX_Users_Email ON dbo.Users(Email) WHERE Email IS NOT NULL;
 END;
 
