@@ -169,7 +169,7 @@ namespace Shipping
             decimal amount = 0;//יצירת משתנה דסימל לעבודה עם כסף ששומר על דיוק
             decimal.TryParse(litTotalPrice.Text, out amount);
 
-            if (bank.ProcessPayment(txtCardNum.Text, txtCVV.Text, txtExpiry.Text))// בדיקה נוספת של פרטי האשראי
+            if (bank.ProcessPayment(txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text))// בדיקה נוספת של פרטי האשראי
             {
                 try
                 {

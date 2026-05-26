@@ -60,6 +60,24 @@ namespace Shipping
         protected global::System.Web.UI.WebControls.Repeater rptTickets;
 
         /// <summary>
+        /// txtHolderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtHolderName;
+
+        /// <summary>
+        /// rfvHolderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvHolderName;
+
+        /// <summary>
         /// txtCardNum control.
         /// </summary>
         /// <remarks>

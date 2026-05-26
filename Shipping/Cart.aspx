@@ -49,6 +49,14 @@
                 </ul>
                <div class="payment-fields" style="margin-top:20px; border-top: 1px solid #ddd; padding-top:10px;">
     <h3>💳 פרטי תשלום:</h3>
+
+    <p>
+        שם בעל הכרטיס:
+        <asp:TextBox ID="txtHolderName" runat="server" MaxLength="100" placeholder="ISRAEL ISRAELI"
+            CssClass="input-box-cart" style="text-transform: uppercase;" />
+        <asp:RequiredFieldValidator ID="rfvHolderName" runat="server" ControlToValidate="txtHolderName"
+            ErrorMessage="שדה חובה" Display="Dynamic" CssClass="error-text-simple" />
+    </p>
     
     <p>
         מספר כרטיס: 
