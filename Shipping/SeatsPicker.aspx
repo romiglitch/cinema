@@ -24,35 +24,43 @@
     //מוודאת שהמושבים שנבחרו הם צמודים
     function isContiguous(arr) {
         if (arr.length <= 1) return true;
-        var nums = arr.map(x => x.seatNum).sort((a, b) => a - b);
-        return (nums[nums.length - 1] - nums[0] + 1) === nums.length;
+        var nums = arr.map(x => x.seatNum).sort((a, b) => a - b); //ממיר את המושבים למספרי המושבים וממיינם מהקטן לגדול
+        return (nums[nums.length - 1] - nums[0] + 1) === nums.length; 
     }
 
     //בודקת שכל המושבים שנבחרו נמצאים באותה שורה
     function sameRow(arr) {
         if (arr.length === 0) return true;
         var r = arr[0].row;
-        return arr.every(x => x.row === r);
+        return arr.every(x => x.row === r); // כל איקס במערך שהשורה שלו שווה לשורה של המושב הראשון
     }
 
-    // מטרה: לסימולציה של השורה – מושב שנמכר או נבחר נחשב "תפוס" לבדיקת יתומים
+    // מטרה: לסימולציה של השורה – מושב שנמכר או נבחר נחשב "תפוס" לבדיקת מושב בודד
     function isSeatBlocked(rowNum, seatNum, selectedNums) {
-        if (selectedNums.indexOf(seatNum) !== -1) return true;
+        if (selectedNums.indexOf(seatNum) !== -1) return true;// אם המושב
+        // מציאת אלמנט המושב ב-DOM לפי מספר שורה ומספר מושב (data-attributes מהשרת)
         var $seat = $('.seat[data-row="' + rowNum + '"][data-seat="' + seatNum + '"]');
+        // תפוס = קיים בדף וגם (נמכר כבר / או נבחר כרגע על ידי המשתמש)
         return $seat.length > 0 && ($seat.hasClass('taken') || $seat.hasClass('selected'));
     }
 
     // מטרה: איסור על השארת בדיוק מושב ריק אחד בכל מקום בשורה
     function hasOrphanSeatInRow(rowNum, selectedNums) {
+        // מונה כמה מושבים ריקים רצופים נפגשו לפני המושב התפוס הבא
         var emptyRun = 0;
+        // סריקה משמאל לימין על כל מספרי המושבים בשורה (1..seatsPerRow)
         for (var s = 1; s <= seatsPerRow; s++) {
             if (isSeatBlocked(rowNum, s, selectedNums)) {
+                // מושב תפוס אחרי בדיוק מושב ריק אחד = "יתום" באמצע השורה
                 if (emptyRun === 1) return true;
+                // אחרי תפוס – מאפסים את רצף הריקים
                 emptyRun = 0;
             } else {
+                // מושב ריק – מרחיבים את הרצף הנוכחי
                 emptyRun++;
             }
         }
+        // בסוף השורה: מושב ריק בודד אחרון גם נחשב יתום
         return emptyRun === 1;
     }
 
