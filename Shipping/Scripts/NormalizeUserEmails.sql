@@ -72,7 +72,7 @@ IF NOT EXISTS (
       AND object_id = OBJECT_ID(N'dbo.Users')
 )
 BEGIN
-    -- Filtered index: unique emails when set; multiple NULLs allowed (legacy rows)
+    -- Filtered unique index: enforces uniqueness for real emails while allowing legacy NULLs.
     CREATE UNIQUE INDEX UX_Users_Email ON dbo.Users(Email) WHERE Email IS NOT NULL;
 END;
 

@@ -14,6 +14,7 @@ namespace Shipping
 {
     public partial class Login1 : System.Web.UI.Page
     {
+        // Admin login is email-based like users, but uses a fixed credential.
         private const string AdminEmail = "admin@cinema.edu";
 
         protected void Page_Load(object sender, EventArgs e)
@@ -23,6 +24,7 @@ namespace Shipping
 
         protected void BtnLogin_Click(object sender, EventArgs e)
         {
+            // Email is the login identifier; normalize to match DB/index rules.
             string email = EmailHelper.Normalize(TxtEmail.Text);
             string password = TxtPassword.Text;
 
@@ -35,6 +37,7 @@ namespace Shipping
             if (email == AdminEmail && password == "1234")
             {
                 Session["category"] = "admin";
+                // UI displays a friendly name; login identity remains email.
                 Session["displayName"] = "מנהל מערכת";
                 Response.Redirect("AdminPage.aspx");
                 return;
@@ -54,6 +57,7 @@ namespace Shipping
 
                 if (rdr.Read())
                 {
+                    // Persist both identity (UserId/Email) and display name for consistent UI and checkout.
                     Session["UserId"] = rdr["UserId"];
                     Session["UserEmail"] = rdr["Email"];
                     Session["displayName"] = rdr["FullName"];

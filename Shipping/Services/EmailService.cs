@@ -59,6 +59,7 @@ namespace Shipping
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
         
+        // Receipt email: sent to the user's email (login identifier) while greeting uses the user's full name.
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה

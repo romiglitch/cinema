@@ -20,8 +20,20 @@ namespace Shipping
         // לחיצה על כפתור עדכון הסיסמה - מבצעת את עדכון הסיסמה בבסיס הנתונים
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             string token = Request.QueryString["token"]; // שליפת הטוקן מהקישור
             string newPass = txtNewPassword.Text; // הסיסמה החדשה שהמשתמש הזין
+            string confirmPass = txtConfirmPassword.Text; // אימות סיסמה
+
+            if (newPass != confirmPass)
+            {
+                // הגנה נוספת בצד השרת גם אם ה-CompareValidator לא רץ (למשל JS כבוי)
+                lblMessage.Text = "אימות הסיסמה לא תואם לסיסמה החדשה.";
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
 
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connString))

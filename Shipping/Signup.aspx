@@ -16,8 +16,9 @@
                         <asp:RequiredFieldValidator ID="RFVName" runat="server" ControlToValidate="TxtName"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVName" runat="server" ControlToValidate="TxtName"
-                            ErrorMessage="שם חייב להכיל לפחות 4 תווים" CssClass="error-text-simple" Display="Dynamic"
-                            ValidationExpression=".{4,}"></asp:RegularExpressionValidator>
+                            <%-- Full name policy: at least 2 words, Hebrew/Latin letters only (no digits/punctuation) --%>
+                            ErrorMessage="שם מלא: לפחות שתי מילים, אותיות בלבד (ללא מספרים או סימנים)" CssClass="error-text-simple" Display="Dynamic"
+                            ValidationExpression="^[\u05D0-\u05EAa-zA-Z]+(?:\s+[\u05D0-\u05EAa-zA-Z]+)+$"></asp:RegularExpressionValidator>
                     </td>
                     <td>
                         <asp:Label ID="LblName" runat="server" Text="שם מלא"></asp:Label>
@@ -70,8 +71,9 @@
                         <asp:RequiredFieldValidator ID="RFVPhone" runat="server" ControlToValidate="TxtPhone"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVPhone" runat="server" ControlToValidate="TxtPhone"
-                            ErrorMessage="מספר טלפון לא תקין" CssClass="error-text-simple" Display="Dynamic"
-                            ValidationExpression="^05\d{8}$"></asp:RegularExpressionValidator>
+                            <%-- Phone policy: starts with 0, digits only, exactly 10 characters --%>
+                            ErrorMessage="מספר טלפון חייב להתחיל ב-0, לכלול 10 ספרות בלבד" CssClass="error-text-simple" Display="Dynamic"
+                            ValidationExpression="^0\d{9}$"></asp:RegularExpressionValidator>
                     </td>
                     <td>
                         <asp:Label ID="LblPhone" runat="server" Text="טלפון"></asp:Label></td>

@@ -135,6 +135,7 @@ namespace Shipping
 
             // שמירת נתונים מהסשן
             string userEmail = Session["UserEmail"]?.ToString() ?? "";
+            // Display name is the user's full name (used in header + receipt greeting).
             string fullName = Session["displayName"]?.ToString() ?? "";
             string movieName = litMovieName.Text;
             string rawSeats = Session["SelectedSeats"]?.ToString() ?? "";
