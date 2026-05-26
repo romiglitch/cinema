@@ -35,26 +35,25 @@
         return arr.every(x => x.row === r);
     }
 
-    // מושב חסום = כבר נמכר (taken) או נבחר כעת על ידי המשתמש
+    // מטרה: לסימולציה של השורה – מושב שנמכר או נבחר נחשב "תפוס" לבדיקת יתומים
     function isSeatBlocked(rowNum, seatNum, selectedNums) {
         if (selectedNums.indexOf(seatNum) !== -1) return true;
         var $seat = $('.seat[data-row="' + rowNum + '"][data-seat="' + seatNum + '"]');
         return $seat.length > 0 && ($seat.hasClass('taken') || $seat.hasClass('selected'));
     }
 
-    // כלל קולנוע: אסור להשאיר מושב בודד ריק בשורה (בקצה או באמצע בין מושבים חסומים)
-    // דוגמה: מושב 3 תפוס + בחירת מושב 1 → מושב 2 נשאר יתום → נחסם
+    // מטרה: איסור על השארת בדיוק מושב ריק אחד בכל מקום בשורה
     function hasOrphanSeatInRow(rowNum, selectedNums) {
-        var emptyRun = 0; // אורך רצף מושבים ריקים רצופים
+        var emptyRun = 0;
         for (var s = 1; s <= seatsPerRow; s++) {
             if (isSeatBlocked(rowNum, s, selectedNums)) {
-                if (emptyRun === 1) return true; // יתום לפני בלוק חסום
+                if (emptyRun === 1) return true;
                 emptyRun = 0;
             } else {
                 emptyRun++;
             }
         }
-        return emptyRun === 1; // יתום בסוף השורה
+        return emptyRun === 1;
     }
 
     //(מעדכנת את מה שהמשתמש רואה ואת מה שהשרת יקבל (מה מושבים נותרו לבחירה
