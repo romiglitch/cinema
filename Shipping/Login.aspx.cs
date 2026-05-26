@@ -24,6 +24,9 @@ namespace Shipping
 
         protected void BtnLogin_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             // האימייל הוא מזהה ההתחברות; נרמול כדי להתאים לכללי האחסון והאינדקס במסד.
             string email = EmailHelper.Normalize(TxtEmail.Text);
             string password = TxtPassword.Text;

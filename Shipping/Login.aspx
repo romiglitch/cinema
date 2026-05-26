@@ -12,11 +12,13 @@
             <table>
                 <tr>
                     <td>
-                        <asp:TextBox dir="rtl" ID="TxtEmail" runat="server" CssClass="input-box" TextMode="Email" placeholder="הכנס את כתובת האימייל שלך"></asp:TextBox>
+                        <asp:TextBox dir="rtl" ID="TxtEmail" runat="server" CssClass="input-box" TextMode="Email" placeholder="הכנס כתובת דואל"></asp:TextBox>
                         <br />
                         <asp:RequiredFieldValidator ID="RFVEmail" runat="server" ControlToValidate="TxtEmail"
+                            ValidationGroup="Login"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVEmail" runat="server" ControlToValidate="TxtEmail"
+                            ValidationGroup="Login"
                             ErrorMessage="כתובת אימייל לא תקינה" CssClass="error-text-simple" Display="Dynamic"
                             ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
                     </td>
@@ -36,7 +38,7 @@
 
                 <tr>
                     <td colspan="2">
-                        <asp:Button ID="btnLogin" runat="server" Text="להתחבר" CssClass="login-btn" OnClick="BtnLogin_Click" />
+                        <asp:Button ID="btnLogin" runat="server" Text="להתחבר" CssClass="login-btn" ValidationGroup="Login" OnClick="BtnLogin_Click" />
                     </td>
                 </tr>
 
@@ -46,6 +48,7 @@
     ID="btnForgotPassword" 
     runat="server" 
     CssClass="forgot-link" 
+    CausesValidation="false"
     OnClick="BtnForgotPassword_Click" 
     Text="?שכחת סיסמא">
 </asp:LinkButton>
