@@ -71,13 +71,7 @@
         $('#SelectedSeats').val(vals.join(','));
         // עדכון תצוגת נותרו
         $('#remaining').text(Math.max(0, maxSelect - selected.length));
-        // עדכון כיתוב נבחרים (אופציונלי)
-        if (selected.length > 0) {
-            var list = selected.map(s => 'ש' + s.row + '-' + s.seatNum).join(', ');
-            $('#selectedDisplay').text('בחרת: ' + list);
-        } else {
-            $('#selectedDisplay').text('');
-        }
+       
         // חסימה/הפעלה של מושבים בהתאם למצב
         if (selected.length >= maxSelect) {
             $('.seat').not('.selected').addClass('disabled').prop('disabled', true);
