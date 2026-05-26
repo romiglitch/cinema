@@ -139,6 +139,7 @@ namespace Shipping
             string fullName = Session["displayName"]?.ToString() ?? "";
             string movieName = litMovieName.Text;
             string rawSeats = Session["SelectedSeats"]?.ToString() ?? "";
+            string ticketTypesStr = Session["TicketTypes"] as string ?? "";
 
             // עיבוד המושבים עוד פעם
             var seatEntries = rawSeats.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת מהסשן כרשימה שניתן לעבוד עליה
@@ -193,7 +194,8 @@ namespace Shipping
                                 screeningDate,
                                 formattedSeatsForEmail,
                                 amount,
-                                fullName
+                                fullName,
+                                ticketTypesStr
                             );
 
                             Response.Redirect("Success.aspx");

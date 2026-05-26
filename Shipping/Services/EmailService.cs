@@ -60,7 +60,7 @@ namespace Shipping
         }
         
         // אישור הזמנה: נשלח ל-toEmail (אימייל התחברות), הברכה ב-fullName (שם מלא)
-        public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName)
+        public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName, string ticketTypesCsv)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה
             string formattedSeats = seats.Replace("|", ", ");
@@ -68,6 +68,16 @@ namespace Shipping
             // עיצוב התאריך והשעה
             string displayDate = screeningTime.ToString("dd/MM/yyyy");
             string displayTime = screeningTime.ToString("HH:mm");
+
+            // אזהרה לכרטיסים שאינם מסוג "רגיל" (סטודנט, ילד וכו')
+            string idDocumentWarningHtml = "";
+            if (HasNonRegularTicketType(ticketTypesCsv))
+            {
+                idDocumentWarningHtml = @"
+         <div style='background-color: #fff8e6; border-right: 5px solid #f0ad4e; padding: 16px; margin: 20px 0; border-radius: 5px;'>
+             <p style='margin: 0; font-size: 15px; color: #856404; font-weight: bold;'>⚠️ נא להביא תעודה מזהה על מנת לאשר את הטבתכם</p>
+         </div>";
+            }
 
             var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג
             message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));//הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
@@ -93,7 +103,7 @@ namespace Shipping
              <p style='margin: 5px 0;'><strong>💺 מושבים:</strong> {formattedSeats}</p>
              <p style='margin: 5px 0;'><strong>💰 סה""כ לתשלום:</strong> ₪{totalPrice:N2}</p>
          </div>
-
+{idDocumentWarningHtml}
          <p style='font-size: 15px; color: #666; text-align: center;'>הכרטיסים יחכו לך בקופות הקולנוע עם הצגת המייל הזה או מספר הטלפון שלך.</p>
          
          <div style='height: 4px; background: linear-gradient(to right, #8e2de2, #4a00e0); margin: 30px 0; border-radius: 2px;'></div>
@@ -109,6 +119,21 @@ namespace Shipping
             message.Body = bodyBuilder.ToMessageBody();
 
             await ExecuteSendAsync(message);
+        }
+
+        // האם יש לפחות כרטיס שאינו מסוג "רגיל"
+        private static bool HasNonRegularTicketType(string ticketTypesCsv)
+        {
+            if (string.IsNullOrWhiteSpace(ticketTypesCsv))
+                return false;
+
+            foreach (var type in ticketTypesCsv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (!string.Equals(type.Trim(), "רגיל", StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
         }
 
         // פונקציית השליחה המרכזית (SMTP)
