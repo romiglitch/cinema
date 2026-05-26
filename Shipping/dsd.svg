@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="980" viewBox="0 0 1420 980">
+  <title>DSD - Shipping Cinema (Dtb)</title>
+  <rect width="1420" height="980" fill="#FFFFFF"/>
+
+  <defs>
+    <marker id="crow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L10,6 L0,12 M0,0 L5,6 M0,12 L5,6" fill="none" stroke="#495057" stroke-width="1.2"/>
+    </marker>
+    <g id="one-end">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#495057" stroke-width="1.5"/>
+      <line x1="4" y1="-5" x2="4" y2="5" stroke="#495057" stroke-width="1.5"/>
+    </g>
+  </defs>
+
+  <text x="1380" y="42" text-anchor="end" font-size="22" font-weight="700" fill="#0D6EFD" font-family="sans-serif">&#x5EA;&#x5E8;&#x5E9;&#x5D9;&#x5DD; DSD</text>
+  <text x="40" y="62" font-size="10" fill="#6C757D" font-family="sans-serif">Shipping / Dtb.mdf &#x2014; schema from application SQL (10 tables)</text>
+
+  <!-- Relationships (under tables) -->
+  <g id="rels" fill="none" stroke="#495057" stroke-width="1.2">
+    <!-- Genres 1:N MovieGenres -->
+    <polyline points="495,108 530,108" marker-end="url(#crow)"/><use href="#one-end" transform="translate(495,108)"/>
+    <!-- Movie 1:N MovieGenres -->
+    <polyline points="780,108 730,108" marker-end="url(#crow)"/><use href="#one-end" transform="translate(780,108)"/>
+    <!-- Movie 1:N Screening -->
+    <polyline points="890,264 890,272 595,272 595,280" marker-end="url(#crow)"/><use href="#one-end" transform="translate(890,264)"/>
+    <!-- Halls 1:N Screening (route right of Halls, not across Movie row) -->
+    <polyline points="1080,128 1320,128 1320,368 710,368" marker-end="url(#crow)"/><use href="#one-end" transform="translate(1080,128)"/>
+    <!-- Halls 1:N Seats -->
+    <polyline points="1180,186 1180,248" marker-end="url(#crow)"/><use href="#one-end" transform="translate(1180,186)"/>
+    <!-- Users 1:N Tickets -->
+    <polyline points="140,468 140,512 280,512 280,548" marker-end="url(#crow)"/><use href="#one-end" transform="translate(140,468)"/>
+    <!-- Screening 1:N Tickets -->
+    <polyline points="595,436 595,512 490,512 490,548" marker-end="url(#crow)"/><use href="#one-end" transform="translate(595,436)"/>
+  </g>
+  <polyline points="490,716 820,716 820,568 1080,568" fill="none" stroke="#ADB5BD" stroke-width="1" stroke-dasharray="5,4"/>
+  <text x="820" y="708" text-anchor="middle" font-size="8" fill="#6C757D" font-family="sans-serif">Tickets.Type &#x2192; TicketsPricing.PersonType</text>
+
+  <!-- CreditCards (no FK) -->
+  <g transform="translate(40, 88)">
+    <rect width="248" height="28" fill="#FFF8E6" stroke="#856404" stroke-width="1"/>
+    <text x="124" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">CreditCards</text>
+    <rect y="28" width="248" height="108" fill="#FFFBF0" stroke="#856404" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="136" stroke="#E9ECEF"/><line x1="188" y1="28" x2="188" y2="136" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">Id</text><text x="194" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">HolderName</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">CardNumber</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">ExpirationDate</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">CVC</text>
+  </g>
+  <text x="164" y="218" text-anchor="middle" font-size="8" fill="#856404" font-family="sans-serif">BankService (no FK)</text>
+
+  <!-- Genres -->
+  <g transform="translate(320, 88)">
+    <rect width="175" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="87.5" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Genres</text>
+    <rect y="28" width="175" height="48" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="76" stroke="#E9ECEF"/><line x1="128" y1="28" x2="128" y2="76" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">Id</text><text x="134" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">Name</text>
+  </g>
+
+  <!-- MovieGenres -->
+  <g transform="translate(530, 88)">
+    <rect width="200" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="100" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">MovieGenres</text>
+    <rect y="28" width="200" height="48" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="76" stroke="#E9ECEF"/><line x1="148" y1="28" x2="148" y2="76" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">IdMovie</text><text x="154" y="44" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">IdGenre</text><text x="154" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+  </g>
+
+  <!-- Movie -->
+  <g transform="translate(780, 88)">
+    <rect width="220" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="110" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Movie</text>
+    <rect y="28" width="220" height="148" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="176" stroke="#E9ECEF"/><line x1="168" y1="28" x2="168" y2="176" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">Id</text><text x="174" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">Title</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Description</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">Duration</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">Age</text>
+    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">Poster</text>
+    <text x="6" y="164" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="164" font-size="9" fill="#212529" font-family="monospace">TmdbId</text>
+  </g>
+
+  <!-- Halls -->
+  <g transform="translate(1080, 88)">
+    <rect width="200" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="100" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Halls</text>
+    <rect y="28" width="200" height="68" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="96" stroke="#E9ECEF"/><line x1="148" y1="28" x2="148" y2="96" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">HallId</text><text x="154" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">Rows</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">SeatsPerRow</text>
+  </g>
+
+  <!-- Users -->
+  <g transform="translate(40, 280)">
+    <rect width="200" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="100" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Users</text>
+    <rect y="28" width="200" height="168" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="196" stroke="#E9ECEF"/><line x1="148" y1="28" x2="148" y2="196" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">UserId</text><text x="154" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">FullName</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Password</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">Phone</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">Email</text><text x="154" y="124" font-size="8" font-weight="600" fill="#0D6EFD" font-family="sans-serif">UQ</text>
+    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">bit</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">IsAdmin</text>
+    <text x="6" y="164" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="164" font-size="9" fill="#212529" font-family="monospace">ResetToken</text>
+    <text x="6" y="184" font-size="9" fill="#6C757D" font-family="sans-serif">datetime</text><text x="64" y="184" font-size="9" fill="#212529" font-family="monospace">TokenExpiry</text>
+  </g>
+
+  <!-- Screening -->
+  <g transform="translate(480, 280)">
+    <rect width="230" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="115" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Screening</text>
+    <rect y="28" width="230" height="128" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="156" stroke="#E9ECEF"/><line x1="178" y1="28" x2="178" y2="156" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">ScreeningId</text><text x="184" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">MovieId</text><text x="184" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Hall</text><text x="184" y="84" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">datetime</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">StartTime</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">datetime</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">EndTime</text>
+    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">SeatesBought</text>
+  </g>
+
+  <!-- Seats -->
+  <g transform="translate(1080, 248)">
+    <rect width="220" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="110" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Seats</text>
+    <rect y="28" width="220" height="108" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="136" stroke="#E9ECEF"/><line x1="168" y1="28" x2="168" y2="136" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">SeatId</text><text x="174" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">HallId</text><text x="174" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">RowNumber</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">SeatNumber</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">bit</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">IsAccessible</text>
+  </g>
+
+  <!-- Tickets -->
+  <g transform="translate(280, 548)">
+    <rect width="210" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="105" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Tickets</text>
+    <rect y="28" width="210" height="128" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="156" stroke="#E9ECEF"/><line x1="158" y1="28" x2="158" y2="156" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">User</text><text x="164" y="44" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">Screening</text><text x="164" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Row</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">Seat</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">decimal</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">Price</text>
+    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">Type</text>
+  </g>
+  <text x="385" y="540" text-anchor="middle" font-size="8" fill="#6C757D" font-family="sans-serif">seat key: User + Screening + Row + Seat</text>
+
+  <!-- TicketsPricing -->
+  <g transform="translate(1080, 528)">
+    <rect width="220" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
+    <text x="110" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">TicketsPricing</text>
+    <rect y="28" width="220" height="68" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="96" stroke="#E9ECEF"/><line x1="168" y1="28" x2="168" y2="96" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">Id</text><text x="174" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">PersonType</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">decimal</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Price</text>
+  </g>
+
+  <text x="40" y="940" font-size="9" fill="#6C757D" font-family="sans-serif">Login: Users.Email (unique index UX_Users_Email) | HomePage imports TMDb genres into MovieGenres; MovieDetails joins Genres.Name</text>
+  <text x="40" y="956" font-size="9" fill="#6C757D" font-family="sans-serif">ScreeningsEditor inserts without SeatesBought; AdminPage/Cart update SeatesBought on booking</text>
+  <text x="40" y="972" font-size="9" fill="#6C757D" font-family="sans-serif">Scripts: CreateCreditCards.sql, NormalizeUserEmails.sql</text>
+</svg>
