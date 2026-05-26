@@ -161,8 +161,8 @@ namespace Shipping
             btnPrev.Enabled = !paged.IsFirstPage;//מונע ממעבר לעמוד קודם/הבא 
             btnNext.Enabled = !paged.IsLastPage;// בעמוד הראשון/האחרון
 
-            lblPageNumber1.Text = $"Page {CurrentPage + 1} of {paged.PageCount}";
-            lblPageNumber2.Text = $"Page {CurrentPage + 1} of {paged.PageCount}";
+            lblPageNumber1.Text = $"עמוד {CurrentPage + 1} מתוך {paged.PageCount}";
+            lblPageNumber2.Text = $"עמוד {CurrentPage + 1} מתוך {paged.PageCount}";
 
             DLMovies.DataSource = paged; // -DataListהזרקת הנתונים החתוכים ל
             DLMovies.DataBind(); // הצגת הנתונים
