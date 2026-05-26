@@ -1,248 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="900" viewBox="0 0 650 900">
   <title>UML Class Diagram — Shipping Cinema System</title>
-  <rect width="1200" height="900" fill="#FFFFFF"/>
-<text x="30" y="44" font-size="10" fill="#6C757D" font-family="sans-serif" font-weight="600" letter-spacing="1">C# DOMAIN CLASSES &amp; SERVICES</text>
-<line x1="30" y1="56" x2="595" y2="56" stroke="#ADB5BD" stroke-width="0.5" stroke-dasharray="3,3"/>
-<text x="640" y="44" font-size="10" fill="#6C757D" font-family="sans-serif" font-weight="600" letter-spacing="1">DATABASE TABLES (9 tables)</text>
-<line x1="640" y1="56" x2="1180" y2="56" stroke="#ADB5BD" stroke-width="0.5" stroke-dasharray="3,3"/>
-<line x1="617" y1="30" x2="617" y2="868" stroke="#ADB5BD" stroke-width="0.5" stroke-dasharray="4,4"/>
+  <rect width="650" height="900" fill="#FFFFFF"/>
+<text x="30" y="36" font-size="14" font-weight="600" fill="#212529" font-family="sans-serif">UML Class Diagram — Shipping Cinema System</text>
+<text x="30" y="54" font-size="10" fill="#6C757D" font-family="sans-serif">C# domain classes &amp; services · see uml-database-erd.svg for tables</text>
+<line x1="30" y1="64" x2="620" y2="64" stroke="#ADB5BD" stroke-width="0.5" stroke-dasharray="3,3"/>
 
 <!-- Movie -->
-<rect x="30" y="70" width="235" height="32" fill="#E9ECEF"/>
-<text x="147.5" y="91" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Movie</text>
-<line x1="30" y1="102" x2="265" y2="102" stroke="#CED4DA" stroke-width="1"/>
-<text x="38" y="124" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="143" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Title: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="38" y="162" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Desc: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="38" y="181" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Dur: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="200" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Age: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="219" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Poster: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="38" y="238" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Genres: </tspan><tspan fill="#495057" font-style="italic">List&lt;Genre&gt;</tspan></text>
-<text x="38" y="257" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">TrailerUrl: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<rect x="30" y="70" width="235" height="199" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="30" y="80" width="235" height="32" fill="#E9ECEF"/>
+<text x="147.5" y="101" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Movie</text>
+<line x1="30" y1="112" x2="265" y2="112" stroke="#CED4DA" stroke-width="1"/>
+<text x="38" y="134" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="153" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Title: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="38" y="172" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Desc: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="38" y="191" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Dur: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="210" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Age: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="229" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Poster: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="38" y="248" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Genres: </tspan><tspan fill="#495057" font-style="italic">List&lt;Genre&gt;</tspan></text>
+<text x="38" y="267" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">TrailerUrl: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<rect x="30" y="80" width="235" height="199" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- CinemaMovie -->
-<rect x="30" y="338" width="235" height="32" fill="#E9ECEF"/>
-<text x="147.5" y="359" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">CinemaMovie</text>
-<line x1="30" y1="370" x2="265" y2="370" stroke="#CED4DA" stroke-width="1"/>
-<text x="38" y="392" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">TicketPrice: </tspan><tspan fill="#495057" font-style="italic">double</tspan></text>
-<text x="38" y="411" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CinemaHall: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<line x1="30" y1="423" x2="265" y2="423" stroke="#CED4DA" stroke-width="1"/>
-<text x="38" y="445" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">GetFormattedDuration(): string</tspan></text>
-<text x="38" y="464" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">GetDisplayPrice(): string</tspan></text>
-<rect x="30" y="338" width="235" height="139" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="30" y="348" width="235" height="32" fill="#E9ECEF"/>
+<text x="147.5" y="369" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">CinemaMovie</text>
+<line x1="30" y1="380" x2="265" y2="380" stroke="#CED4DA" stroke-width="1"/>
+<text x="38" y="402" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">TicketPrice: </tspan><tspan fill="#495057" font-style="italic">double</tspan></text>
+<text x="38" y="421" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CinemaHall: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<line x1="30" y1="433" x2="265" y2="433" stroke="#CED4DA" stroke-width="1"/>
+<text x="38" y="455" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">GetFormattedDuration(): string</tspan></text>
+<text x="38" y="474" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">GetDisplayPrice(): string</tspan></text>
+<rect x="30" y="348" width="235" height="139" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- Genre -->
-<rect x="320" y="70" width="175" height="32" fill="#E9ECEF"/>
-<text x="407.5" y="91" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Genre</text>
-<line x1="320" y1="102" x2="495" y2="102" stroke="#CED4DA" stroke-width="1"/>
-<text x="328" y="124" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="328" y="143" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Name: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<rect x="320" y="70" width="175" height="85" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="320" y="80" width="175" height="32" fill="#E9ECEF"/>
+<text x="407.5" y="101" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Genre</text>
+<line x1="320" y1="112" x2="495" y2="112" stroke="#CED4DA" stroke-width="1"/>
+<text x="328" y="134" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="328" y="153" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Name: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<rect x="320" y="80" width="175" height="85" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- User -->
-<rect x="320" y="210" width="260" height="32" fill="#E9ECEF"/>
-<text x="450.0" y="231" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">User</text>
-<line x1="320" y1="242" x2="580" y2="242" stroke="#CED4DA" stroke-width="1"/>
-<text x="328" y="264" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Fullname: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="328" y="283" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Password: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="328" y="302" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Phone: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="328" y="321" font-size="11" font-family="monospace"><tspan fill="#6C757D">UQ </tspan><tspan fill="#495057">Email: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="328" y="340" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">isAdmin: </tspan><tspan fill="#495057" font-style="italic">bool</tspan></text>
-<line x1="320" y1="352" x2="580" y2="352" stroke="#CED4DA" stroke-width="1"/>
-<text x="328" y="374" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CreateUser(con, com): void</tspan></text>
-<text x="328" y="393" font-size="10" font-family="sans-serif" fill="#6C757D">«uses EmailHelper.Normalize»</text>
-<rect x="320" y="210" width="260" height="196" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="320" y="220" width="260" height="32" fill="#E9ECEF"/>
+<text x="450.0" y="241" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">User</text>
+<line x1="320" y1="252" x2="580" y2="252" stroke="#CED4DA" stroke-width="1"/>
+<text x="328" y="274" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Fullname: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="328" y="293" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Password: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="328" y="312" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Phone: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="328" y="331" font-size="11" font-family="monospace"><tspan fill="#6C757D">UQ </tspan><tspan fill="#495057">Email: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="328" y="350" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">isAdmin: </tspan><tspan fill="#495057" font-style="italic">bool</tspan></text>
+<line x1="320" y1="362" x2="580" y2="362" stroke="#CED4DA" stroke-width="1"/>
+<text x="328" y="384" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CreateUser(con, com): void</tspan></text>
+<text x="328" y="403" font-size="10" font-family="sans-serif" fill="#6C757D">«uses EmailHelper.Normalize»</text>
+<rect x="320" y="220" width="260" height="196" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- TicketDetail -->
-<rect x="30" y="545" width="235" height="32" fill="#E9ECEF"/>
-<text x="147.5" y="566" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">TicketDetail</text>
-<line x1="30" y1="577" x2="265" y2="577" stroke="#CED4DA" stroke-width="1"/>
-<text x="38" y="599" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">HallId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="618" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Row: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="637" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seat: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="656" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Type: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="38" y="675" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">decimal</tspan></text>
-<rect x="30" y="545" width="235" height="142" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="30" y="555" width="235" height="32" fill="#E9ECEF"/>
+<text x="147.5" y="576" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">TicketDetail</text>
+<line x1="30" y1="587" x2="265" y2="587" stroke="#CED4DA" stroke-width="1"/>
+<text x="38" y="609" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">HallId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="628" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Row: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="647" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seat: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="666" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Type: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<text x="38" y="685" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">decimal</tspan></text>
+<rect x="30" y="555" width="235" height="142" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- HallRow -->
-<rect x="320" y="455" width="215" height="32" fill="#E9ECEF"/>
-<text x="427.5" y="476" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">HallRow</text>
-<line x1="320" y1="487" x2="535" y2="487" stroke="#CED4DA" stroke-width="1"/>
-<text x="328" y="509" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">RowNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="328" y="528" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seats: </tspan><tspan fill="#495057" font-style="italic">List&lt;SeatData&gt;</tspan></text>
-<rect x="320" y="455" width="215" height="85" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="320" y="465" width="215" height="32" fill="#E9ECEF"/>
+<text x="427.5" y="486" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">HallRow</text>
+<line x1="320" y1="497" x2="535" y2="497" stroke="#CED4DA" stroke-width="1"/>
+<text x="328" y="519" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">RowNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="328" y="538" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seats: </tspan><tspan fill="#495057" font-style="italic">List&lt;SeatData&gt;</tspan></text>
+<rect x="320" y="465" width="215" height="85" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- SeatData -->
-<rect x="320" y="595" width="215" height="32" fill="#E9ECEF"/>
-<text x="427.5" y="616" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">SeatData</text>
-<line x1="320" y1="627" x2="535" y2="627" stroke="#CED4DA" stroke-width="1"/>
-<text x="328" y="649" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="328" y="668" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">RowNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="328" y="687" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="328" y="706" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CssClass: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<rect x="320" y="595" width="215" height="123" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="320" y="605" width="215" height="32" fill="#E9ECEF"/>
+<text x="427.5" y="626" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">SeatData</text>
+<line x1="320" y1="637" x2="535" y2="637" stroke="#CED4DA" stroke-width="1"/>
+<text x="328" y="659" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="328" y="678" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">RowNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="328" y="697" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="328" y="716" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CssClass: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
+<rect x="320" y="605" width="215" height="123" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- EmailHelper -->
-<rect x="30" y="730" width="175" height="32" fill="#E9ECEF"/>
-<text x="117.5" y="751" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">«utility» EmailHelper</text>
-<line x1="30" y1="762" x2="205" y2="762" stroke="#CED4DA" stroke-width="1"/>
-<text x="38" y="784" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Normalize(email): string</tspan></text>
-<rect x="30" y="730" width="175" height="66" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="30" y="740" width="175" height="32" fill="#E9ECEF"/>
+<text x="117.5" y="761" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">«utility» EmailHelper</text>
+<line x1="30" y1="772" x2="205" y2="772" stroke="#CED4DA" stroke-width="1"/>
+<text x="38" y="794" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Normalize(email): string</tspan></text>
+<rect x="30" y="740" width="175" height="66" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- EmailService -->
-<rect x="220" y="730" width="280" height="32" fill="#E9ECEF"/>
-<text x="360.0" y="751" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">EmailService</text>
-<line x1="220" y1="762" x2="500" y2="762" stroke="#CED4DA" stroke-width="1"/>
-<text x="228" y="784" font-size="10" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SendResetPasswordEmail(...)</tspan></text>
-<text x="228" y="801" font-size="10" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SendOrderReceiptEmail(...)</tspan></text>
-<text x="228" y="818" font-size="10" font-family="sans-serif" fill="#6C757D">receipt warns if ticket ≠ רגיל</text>
-<rect x="220" y="730" width="280" height="100" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="220" y="740" width="280" height="32" fill="#E9ECEF"/>
+<text x="360.0" y="761" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">EmailService</text>
+<line x1="220" y1="772" x2="500" y2="772" stroke="#CED4DA" stroke-width="1"/>
+<text x="228" y="794" font-size="10" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SendResetPasswordEmail(...)</tspan></text>
+<text x="228" y="811" font-size="10" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SendOrderReceiptEmail(...)</tspan></text>
+<text x="228" y="828" font-size="10" font-family="sans-serif" fill="#6C757D">receipt warns if ticket ≠ רגיל</text>
+<rect x="220" y="740" width="280" height="100" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- BankService -->
-<rect x="515" y="730" width="95" height="32" fill="#E9ECEF"/>
-<text x="562.5" y="751" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">BankService</text>
-<line x1="515" y1="762" x2="610" y2="762" stroke="#CED4DA" stroke-width="1"/>
-<text x="523" y="784" font-size="9" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">ProcessPayment(</tspan></text>
-<text x="523" y="799" font-size="9" font-family="monospace"><tspan fill="#495057">  card, cvv, expiry,</tspan></text>
-<text x="523" y="814" font-size="9" font-family="monospace"><tspan fill="#495057">  holderName): bool</tspan></text>
-<rect x="515" y="730" width="95" height="100" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- Screening -->
-<text x="757.5" y="83" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="640" y="88" width="235" height="32" fill="#E9ECEF"/>
-<text x="757.5" y="109" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Screening</text>
-<line x1="640" y1="120" x2="875" y2="120" stroke="#CED4DA" stroke-width="1"/>
-<text x="648" y="142" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">ScreeningId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="161" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">MovieId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="180" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Hall: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="199" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">StartTime: </tspan><tspan fill="#495057" font-style="italic">datetime</tspan></text>
-<text x="648" y="218" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">EndTime: </tspan><tspan fill="#495057" font-style="italic">datetime</tspan></text>
-<text x="648" y="237" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatesBought: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<rect x="640" y="70" width="235" height="179" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- Halls -->
-<text x="747.5" y="281" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="640" y="286" width="215" height="32" fill="#E9ECEF"/>
-<text x="747.5" y="307" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Halls</text>
-<line x1="640" y1="318" x2="855" y2="318" stroke="#CED4DA" stroke-width="1"/>
-<text x="648" y="340" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">HallId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="359" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Rows: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="378" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatsPerRow: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<rect x="640" y="268" width="215" height="122" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- Users -->
-<text x="757.5" y="418" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="640" y="423" width="235" height="32" fill="#E9ECEF"/>
-<text x="757.5" y="444" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Users</text>
-<line x1="640" y1="455" x2="875" y2="455" stroke="#CED4DA" stroke-width="1"/>
-<text x="648" y="477" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">UserId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="496" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">FullName: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="515" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Password: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="534" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Phone: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="553" font-size="11" font-family="monospace"><tspan fill="#6C757D">UQ </tspan><tspan fill="#495057">Email: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="572" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">ResetToken: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="591" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">TokenExpiry: </tspan><tspan fill="#495057" font-style="italic">datetime</tspan></text>
-<text x="648" y="610" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">IsAdmin: </tspan><tspan fill="#495057" font-style="italic">bit</tspan></text>
-<rect x="640" y="405" width="235" height="217" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- CreditCards -->
-<text x="757.5" y="648" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="640" y="653" width="235" height="32" fill="#E9ECEF"/>
-<text x="757.5" y="674" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">CreditCards</text>
-<line x1="640" y1="685" x2="875" y2="685" stroke="#CED4DA" stroke-width="1"/>
-<text x="648" y="707" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="648" y="726" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">HolderName: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="745" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CardNumber: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="764" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">ExpirationDate: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<text x="648" y="783" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">CVC: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<rect x="640" y="635" width="235" height="160" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- Tickets -->
-<text x="1052.5" y="83" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="935" y="88" width="235" height="32" fill="#E9ECEF"/>
-<text x="1052.5" y="109" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Tickets</text>
-<line x1="935" y1="120" x2="1170" y2="120" stroke="#CED4DA" stroke-width="1"/>
-<text x="943" y="142" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">User: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="161" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Screening: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="180" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Row: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="199" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seat: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="218" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">decimal</tspan></text>
-<text x="943" y="237" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Type: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<rect x="935" y="70" width="235" height="179" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- TicketsPricing -->
-<text x="1050.0" y="283" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="935" y="288" width="230" height="32" fill="#E9ECEF"/>
-<text x="1050.0" y="309" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">TicketsPricing</text>
-<line x1="935" y1="320" x2="1165" y2="320" stroke="#CED4DA" stroke-width="1"/>
-<text x="943" y="342" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">Id: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="361" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">PersonType: </tspan><tspan fill="#495057" font-style="italic">string</tspan></text>
-<text x="943" y="380" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">decimal</tspan></text>
-<rect x="935" y="270" width="230" height="122" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
-
-<!-- Seats -->
-<text x="1050.0" y="433" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
-<rect x="935" y="438" width="230" height="32" fill="#E9ECEF"/>
-<text x="1050.0" y="459" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Seats</text>
-<line x1="935" y1="470" x2="1165" y2="470" stroke="#CED4DA" stroke-width="1"/>
-<text x="943" y="492" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">SeatId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="511" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">HallId: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="530" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">RowNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="549" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">SeatNumber: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="943" y="568" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">IsAccessible: </tspan><tspan fill="#495057" font-style="italic">bool</tspan></text>
-<rect x="935" y="420" width="230" height="160" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<rect x="515" y="740" width="120" height="32" fill="#E9ECEF"/>
+<text x="575.0" y="761" text-anchor="middle" font-size="11" font-weight="600" fill="#212529" font-family="monospace">BankService</text>
+<line x1="515" y1="772" x2="635" y2="772" stroke="#CED4DA" stroke-width="1"/>
+<text x="523" y="794" font-size="9" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">ProcessPayment(</tspan></text>
+<text x="523" y="809" font-size="9" font-family="monospace"><tspan fill="#495057">  card, cvv, expiry,</tspan></text>
+<text x="523" y="824" font-size="9" font-family="monospace"><tspan fill="#495057">  holderName): bool</tspan></text>
+<text x="523" y="839" font-size="9" font-family="sans-serif" fill="#6C757D">«queries CreditCards»</text>
+<rect x="515" y="740" width="120" height="115" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- Relationships -->
-<line x1="147.5" y1="338.0" x2="147.5" y2="282.0" stroke="#ADB5BD" stroke-width="1.5"/>
-<polygon points="147.5,269.0 154.7,282.0 140.3,282.0" fill="#FFFFFF" stroke="#ADB5BD" stroke-width="1.5"/>
-<text x="151.5" y="307.5" font-size="9" fill="#6C757D" font-family="sans-serif">extends</text>
+<line x1="147.5" y1="348.0" x2="147.5" y2="292.0" stroke="#ADB5BD" stroke-width="1.5"/>
+<polygon points="147.5,279.0 154.7,292.0 140.3,292.0" fill="#FFFFFF" stroke="#ADB5BD" stroke-width="1.5"/>
+<text x="151.5" y="317.5" font-size="9" fill="#6C757D" font-family="sans-serif">extends</text>
 
-<line x1="265.0" y1="234.0" x2="320.0" y2="112.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="320.0" y1="112.0" x2="321.2" y2="122.4" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="320.0" y1="112.0" x2="311.4" y2="118.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="279" y="198" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
-<text x="306" y="138" font-size="9" fill="#6C757D" font-family="sans-serif">*</text>
+<line x1="265.0" y1="244.0" x2="320.0" y2="122.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="320.0" y1="122.0" x2="321.2" y2="132.4" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="320.0" y1="122.0" x2="311.4" y2="128.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<text x="279" y="208" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
+<text x="306" y="148" font-size="9" fill="#6C757D" font-family="sans-serif">*</text>
 
-<line x1="427.5" y1="540.0" x2="427.5" y2="595.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="427.5" y1="595.0" x2="422.1" y2="586.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="427.5" y1="595.0" x2="432.9" y2="586.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="428" y="549" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
-<text x="428" y="576" font-size="9" fill="#6C757D" font-family="sans-serif">*</text>
+<line x1="427.5" y1="550.0" x2="427.5" y2="605.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="427.5" y1="605.0" x2="422.1" y2="596.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="427.5" y1="605.0" x2="432.9" y2="596.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<text x="428" y="559" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
+<text x="428" y="586" font-size="9" fill="#6C757D" font-family="sans-serif">*</text>
 
-<line x1="580.0" y1="300.0" x2="640.0" y2="520.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="640.0" y1="520.0" x2="634.0" y2="511.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="640.0" y1="520.0" x2="648.0" y2="511.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="600" y="400" font-size="9" fill="#6C757D" font-family="sans-serif">maps</text>
+<line x1="328.0" y1="403.0" x2="205.0" y2="740.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
+<line x1="205.0" y1="740.0" x2="212.0" y2="732.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="205.0" y1="740.0" x2="198.0" y2="732.0" stroke="#ADB5BD" stroke-width="1.2"/>
 
-<line x1="562.5" y1="730.0" x2="640.0" y2="720.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="640.0" y1="720.0" x2="632.0" y2="712.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="640.0" y1="720.0" x2="648.0" y2="712.0" stroke="#ADB5BD" stroke-width="1.2"/>
-
-<line x1="757.5" y1="249.0" x2="747.5" y2="268.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="747.5" y1="268.0" x2="743.2" y2="258.4" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="747.5" y1="268.0" x2="753.9" y2="259.7" stroke="#ADB5BD" stroke-width="1.2"/>
-
-<line x1="935.0" y1="159.5" x2="875.0" y2="150.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="875.0" y1="150.0" x2="884.7" y2="146.1" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="875.0" y1="150.0" x2="883.0" y2="156.7" stroke="#ADB5BD" stroke-width="1.2"/>
-
-<line x1="1052.5" y1="249.0" x2="1050.0" y2="270.0" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="1050.0" y1="270.0" x2="1045.7" y2="260.4" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="1050.0" y1="270.0" x2="1056.4" y2="261.7" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="1056.5" y="259.5" font-size="9" fill="#6C757D" font-family="sans-serif">Type</text>
-
-<polyline points="935.0,500.0 869.0,500.0 869.0,379.0 855.0,379.0" fill="none" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="855.0" y1="379.0" x2="864.0" y2="373.6" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="855.0" y1="379.0" x2="864.0" y2="384.4" stroke="#ADB5BD" stroke-width="1.2"/>
-
-<polyline points="935.0,151.0 875.0,151.0 875.0,513.0 640.0,513.0" fill="none" stroke="#ADB5BD" stroke-width="1.2" stroke-dasharray="5,3"/>
-<line x1="640.0" y1="513.0" x2="648.0" y2="504.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<line x1="640.0" y1="513.0" x2="632.0" y2="504.0" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="780" y="330" font-size="9" fill="#6C757D" font-family="sans-serif">User FK</text>
-
-<text x="30" y="858" font-size="9" fill="#6C757D" font-family="sans-serif">▷ extends · ──▶ association · - -▶ FK/maps · Session: UserEmail, UserId, displayName, category · Login by Email · Cart: txtHolderName + BankService → CreditCards</text>
-<text x="30" y="873" font-size="9" fill="#6C757D" font-family="sans-serif">TicketDetail = Cart.aspx.cs · HallRow/SeatData = SeatsPicker.aspx.cs · UX_Users_Email filtered unique on Users.Email</text>
-<text x="30" y="888" font-size="9" fill="#6C757D" font-family="sans-serif">Tickets.Type → TicketsPricing.PersonType · CreditCards: no FK (payment sandbox)</text>
+<text x="30" y="868" font-size="9" fill="#6C757D" font-family="sans-serif">▷ extends · ──▶ association · 1/* = multiplicity · Session: UserEmail, UserId, displayName, category</text>
+<text x="30" y="883" font-size="9" fill="#6C757D" font-family="sans-serif">TicketDetail = nested in Cart.aspx.cs · HallRow/SeatData = SeatsPicker.aspx.cs · Login by Email (Users table in ERD)</text>
 </svg>
