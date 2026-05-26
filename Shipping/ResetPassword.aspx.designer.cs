@@ -24,6 +24,15 @@ namespace Shipping
         protected global::System.Web.UI.WebControls.Label lblMessage;
 
         /// <summary>
+        /// lblNewPassword control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblNewPassword;
+
+        /// <summary>
         /// txtNewPassword control.
         /// </summary>
         /// <remarks>
@@ -51,13 +60,13 @@ namespace Shipping
         protected global::System.Web.UI.WebControls.CustomValidator CVNewPassword;
 
         /// <summary>
-        /// lblNewPassword control.
+        /// lblConfirmPassword control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblNewPassword;
+        protected global::System.Web.UI.WebControls.Label lblConfirmPassword;
 
         /// <summary>
         /// txtConfirmPassword control.
@@ -85,15 +94,6 @@ namespace Shipping
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CompareValidator CVConfirmPassword;
-
-        /// <summary>
-        /// lblConfirmPassword control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblConfirmPassword;
 
         /// <summary>
         /// btnUpdate control.

@@ -5,7 +5,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <%-- פריסת RTL: תווית מימין, שדה משמאל --%>
     <div dir="rtl" style="max-width: 420px; margin: 40px auto; text-align: right;">
-        <h2 style="margin-bottom: 12px;">בחירת סיסמה חדשה</h2>
+        <h1 style="margin-bottom: 12px;">בחירת סיסמה חדשה</h1>
 
         <asp:Label ID="lblMessage" runat="server" CssClass="msg-label"></asp:Label>
 
