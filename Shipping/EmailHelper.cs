@@ -2,6 +2,7 @@ using System;
 
 namespace Shipping
 {
+    // עזר לנרמול כתובות אימייל – משמש בהתחברות, הרשמה ושחזור סיסמה.
     public static class EmailHelper
     {
         public static string Normalize(string email)

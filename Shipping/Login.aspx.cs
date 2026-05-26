@@ -24,6 +24,7 @@ namespace Shipping
 
         protected void BtnLogin_Click(object sender, EventArgs e)
         {
+            // בדיקת ולידציית אימייל (קבוצת Login) לפני פנייה למסד הנתונים
             if (!Page.IsValid)
                 return;
 
@@ -47,6 +48,7 @@ namespace Shipping
             }
 
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            // התחברות לפי אימייל (לא לפי שם מלא)
             string strQuery = "SELECT UserId, Email, FullName FROM Users WHERE Email=@email AND Password=@pass";
 
             using (SqlConnection con = new SqlConnection(connectionString))

@@ -9,7 +9,7 @@ namespace Shipping
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // ForgotPasswordבדיקה אם הגיע טוקן בכתובת - כלומר שלהקוח הגיע מ
+            // בדיקה שהמשתמש הגיע מקישור תקין בעמוד ForgotPassword (פרמטר token)
             if (string.IsNullOrEmpty(Request.QueryString["token"]))
             {
                 lblMessage.Text = "קישור לא תקין.";
@@ -20,6 +20,7 @@ namespace Shipping
         // לחיצה על כפתור עדכון הסיסמה - מבצעת את עדכון הסיסמה בבסיס הנתונים
         protected void btnUpdate_Click(object sender, EventArgs e)
         {
+            // ולידציה: שדות חובה, מדיניות סיסמה והתאמת אימות
             if (!Page.IsValid)
                 return;
 
@@ -29,7 +30,7 @@ namespace Shipping
 
             if (newPass != confirmPass)
             {
-                // הגנה נוספת בצד השרת גם אם ה-CompareValidator לא רץ (למשל JS כבוי)
+                // הגנה נוספת בשרת גם אם ולידציית ההשוואה לא רצה (למשל JavaScript כבוי)
                 lblMessage.Text = "אימות הסיסמה לא תואם לסיסמה החדשה.";
                 lblMessage.ForeColor = System.Drawing.Color.Red;
                 return;

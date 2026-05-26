@@ -29,6 +29,7 @@
                     <td>
                         <asp:TextBox dir="rtl" ID="TxtEmail" runat="server" CssClass="input-box" TextMode="Email" placeholder="הכנס כתובת דואל"></asp:TextBox>
                         <br />
+                        <%-- אימייל = שם משתמש; חובה + פורמט תקין --%>
                         <asp:RequiredFieldValidator ID="RFVEmail" runat="server" ControlToValidate="TxtEmail"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="REVEmail" runat="server" ControlToValidate="TxtEmail"
@@ -119,16 +120,16 @@
             txtPass.type = "text"; // מציג את הסיסמה כדי שיראו מה הוצע
             alert("הוצעה סיסמה חזקה: " + pass);
         }
+        // מדיניות סיסמה: 10 תווים, 2 גדולות, 2 קטנות, 3 ספרות, תו מיוחד אחד
         function validatePassword(sender, args) {
             var pass = args.Value;
 
-            // אם השדה ריק, אנחנו לא מראים את שגיאת המורכבות
+            // שדה ריק – לא מציגים שגיאת מורכבות (יש RequiredFieldValidator)
             if (pass === "") {
                 args.IsValid = true;
                 return;
             }
 
-            // שאר הבדיקות שלך
             var hasMinLength = pass.length >= 10;
             var hasUpper = (pass.match(/[A-Z]/g) || []).length >= 2;
             var hasLower = (pass.match(/[a-z]/g) || []).length >= 2;

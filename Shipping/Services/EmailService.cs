@@ -59,7 +59,7 @@ namespace Shipping
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
         
-        // מייל אישור נשלח לכתובת ההתחברות; הברכה משתמשת בשם המלא.
+        // אישור הזמנה: נשלח ל-toEmail (אימייל התחברות), הברכה ב-fullName (שם מלא)
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName)
         {
             // תיקון תצוגת המושבים - מחליף את ה- | בפסיק ורווח לקריאות נוחה

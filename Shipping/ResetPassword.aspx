@@ -3,6 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <%-- פריסת RTL: תווית מימין, שדה משמאל --%>
     <div dir="rtl" style="max-width: 420px; margin: 40px auto; text-align: right;">
         <h2 style="margin-bottom: 12px;">בחירת סיסמה חדשה</h2>
 
@@ -18,6 +19,7 @@
                     <br />
                     <asp:RequiredFieldValidator ID="RFVNewPassword" runat="server" ControlToValidate="txtNewPassword"
                         ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
+                    <%-- אותה מדיניות סיסמה כמו בהרשמה --%>
                     <asp:CustomValidator ID="CVNewPassword" runat="server"
                         ControlToValidate="txtNewPassword"
                         ClientValidationFunction="validatePassword"
@@ -37,6 +39,7 @@
                     <br />
                     <asp:RequiredFieldValidator ID="RFVConfirmPassword" runat="server" ControlToValidate="txtConfirmPassword"
                         ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
+                    <%-- וידוא שהאימות תואם לסיסמה החדשה --%>
                     <asp:CompareValidator ID="CVConfirmPassword" runat="server"
                         ControlToValidate="txtConfirmPassword"
                         ControlToCompare="txtNewPassword"
@@ -60,6 +63,7 @@
         function validatePassword(sender, args) {
             var pass = args.Value;
 
+            // שדה ריק – לא מציגים שגיאת מורכבות (יש RequiredFieldValidator)
             if (pass === "") {
                 args.IsValid = true;
                 return;
@@ -74,6 +78,7 @@
             args.IsValid = hasMinLength && hasUpper && hasLower && hasDigits && hasSpecial;
         }
 
+        // בדיקה בזמן הקלדה – רק לוולידטור הסיסמה, לא לכל הדף
         function validatePasswordRealTime() {
             var passValidator = document.getElementById('<%= CVNewPassword.ClientID %>');
 

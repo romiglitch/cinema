@@ -2,10 +2,11 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server" >
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-     <div>
+     <div dir="rtl">
     <h1>שחזור סיסמה</h1>
-    <p>הכנס את כתובת האימייל איתה נרשמת:</p> 
-         <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" placeholder="email@example.com"></asp:TextBox>
+    <p>הכנס את כתובת האימייל איתה נרשמת:</p>
+    <%-- ערך עשוי להגיע מ-Login.aspx?email=... --%>
+         <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" placeholder="email@example.com"></asp:TextBox>
     <br />
     <br />
     

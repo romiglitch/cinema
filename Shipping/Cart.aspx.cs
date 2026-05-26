@@ -135,7 +135,7 @@ namespace Shipping
 
             // שמירת נתונים מהסשן
             string userEmail = Session["UserEmail"]?.ToString() ?? "";
-            // שם התצוגה הוא השם המלא של המשתמש (כותרת + ברכה במייל אישור).
+            // שם מלא לברכה במייל; כתובת המייל נלקחת בנפרד מ-UserEmail
             string fullName = Session["displayName"]?.ToString() ?? "";
             string movieName = litMovieName.Text;
             string rawSeats = Session["SelectedSeats"]?.ToString() ?? "";

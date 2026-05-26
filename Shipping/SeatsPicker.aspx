@@ -35,36 +35,26 @@
         return arr.every(x => x.row === r);
     }
 
-    // מושב תפוס (נמכר) או נבחר על ידי המשתמש
+    // מושב חסום = כבר נמכר (taken) או נבחר כעת על ידי המשתמש
     function isSeatBlocked(rowNum, seatNum, selectedNums) {
         if (selectedNums.indexOf(seatNum) !== -1) return true;
         var $seat = $('.seat[data-row="' + rowNum + '"][data-seat="' + seatNum + '"]');
         return $seat.length > 0 && ($seat.hasClass('taken') || $seat.hasClass('selected'));
     }
 
-    // סופר מושבים ריקים רצופים מתחילת / סוף השורה עד למושב חסום ראשון
-    function countLeadingEmpty(rowNum, selectedNums) {
-        var count = 0;
+    // כלל קולנוע: אסור להשאיר מושב בודד ריק בשורה (בקצה או באמצע בין מושבים חסומים)
+    // דוגמה: מושב 3 תפוס + בחירת מושב 1 → מושב 2 נשאר יתום → נחסם
+    function hasOrphanSeatInRow(rowNum, selectedNums) {
+        var emptyRun = 0; // אורך רצף מושבים ריקים רצופים
         for (var s = 1; s <= seatsPerRow; s++) {
-            if (isSeatBlocked(rowNum, s, selectedNums)) break;
-            count++;
+            if (isSeatBlocked(rowNum, s, selectedNums)) {
+                if (emptyRun === 1) return true; // יתום לפני בלוק חסום
+                emptyRun = 0;
+            } else {
+                emptyRun++;
+            }
         }
-        return count;
-    }
-
-    function countTrailingEmpty(rowNum, selectedNums) {
-        var count = 0;
-        for (var s = seatsPerRow; s >= 1; s--) {
-            if (isSeatBlocked(rowNum, s, selectedNums)) break;
-            count++;
-        }
-        return count;
-    }
-
-    // אסור להשאיר מושב בודד ריק בקצה השורה (תחילה או סוף)
-    function hasOrphanAtRowEdge(rowNum, selectedNums) {
-        return countLeadingEmpty(rowNum, selectedNums) === 1
-            || countTrailingEmpty(rowNum, selectedNums) === 1;
+        return emptyRun === 1; // יתום בסוף השורה
     }
 
     //(מעדכנת את מה שהמשתמש רואה ואת מה שהשרת יקבל (מה מושבים נותרו לבחירה
@@ -128,9 +118,10 @@
             return;
         }
 
+        // בדיקת מושב יתום (לפני הוספה לבחירה)
         var seatNums = temp.map(x => x.seatNum);
-        if (hasOrphanAtRowEdge(temp[0].row, seatNums)) {
-            alert('לא ניתן להשאיר מושב בודד ריק בתחילת או בסוף השורה.');
+        if (hasOrphanSeatInRow(temp[0].row, seatNums)) {
+            alert('לא ניתן להשאיר מושב בודד ריק בשורה.');
             return;
         }
 
@@ -156,13 +147,13 @@
             alert('בחרת ' + items.length + ' מושבים; נדרשים בדיוק ' + maxSelect + '.');
             return false;
         }
-        // וודא אותם תנאים בצד לקוח
+        // אימות חוזר לפני מעבר לתשלום (אותן בדיקות כמו בלחיצה על מושב)
         var parsed = items.map(parseVal);
         if (!sameRow(parsed)) { alert('המושבים חייבים להיות באותה שורה.'); return false; }
         if (!isContiguous(parsed)) { alert('המושבים חייבים להיות צמודים.'); return false; }
         var seatNums = parsed.map(x => x.seatNum);
-        if (hasOrphanAtRowEdge(parsed[0].row, seatNums)) {
-            alert('לא ניתן להשאיר מושב בודד ריק בתחילת או בסוף השורה.');
+        if (hasOrphanSeatInRow(parsed[0].row, seatNums)) {
+            alert('לא ניתן להשאיר מושב בודד ריק בשורה.');
             return false;
         }
         return true;

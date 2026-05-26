@@ -14,6 +14,7 @@
                     <td>
                         <asp:TextBox dir="rtl" ID="TxtEmail" runat="server" CssClass="input-box" TextMode="Email" placeholder="הכנס כתובת דואל"></asp:TextBox>
                         <br />
+                        <%-- ולידציית אימייל שייכת לקבוצת Login בלבד (לא לכפתור שכחתי סיסמה) --%>
                         <asp:RequiredFieldValidator ID="RFVEmail" runat="server" ControlToValidate="TxtEmail"
                             ValidationGroup="Login"
                             ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
@@ -28,8 +29,8 @@
                 </tr>
 
                 <tr>
-                    <td><%-- כפתור השכחתי סיסמא יופיע אחרי שנכתב תו אחד onkeyup--%>
-                        <asp:TextBox dir="rtl" ID="TxtPassword" runat="server" CssClass="input-box" TextMode="Password" placeholder="הכנס את סיסמתך" onkeyup="showForgotButton()"></asp:TextBox>
+                    <td>
+                        <asp:TextBox dir="rtl" ID="TxtPassword" runat="server" CssClass="input-box" TextMode="Password" placeholder="הכנס את סיסמתך"></asp:TextBox>
                     </td>
                     <td>
                         <asp:Label ID="LblPassword" runat="server" Text="סיסמא"></asp:Label>
@@ -38,12 +39,14 @@
 
                 <tr>
                     <td colspan="2">
+                        <%-- ValidationGroup="Login" – מפעיל רק את ולידטורי האימייל של ההתחברות --%>
                         <asp:Button ID="btnLogin" runat="server" Text="להתחבר" CssClass="login-btn" ValidationGroup="Login" OnClick="BtnLogin_Click" />
                     </td>
                 </tr>
 
                 <tr class="no-border-row">
                     <td colspan="2" style="text-align: center; padding-top: 10px;">
+                       <%-- CausesValidation="false" – מאפשר מעבר לשחזור סיסמה גם בלי אימייל תקין בטופס --%>
                        <asp:LinkButton 
     ID="btnForgotPassword" 
     runat="server" 

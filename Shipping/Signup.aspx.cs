@@ -22,6 +22,7 @@ namespace Shipping
 
         protected void BtnSign_Click(object sender, EventArgs e)
         {
+            // ולידציה בצד לקוח ושרת (שם מלא, אימייל, סיסמה, טלפון)
             if (!Page.IsValid)
                 return;
 
@@ -60,7 +61,7 @@ namespace Shipping
                     int userId;
                     using (SqlCommand insertCmd = new SqlCommand(insertQuery, connection))
                     {
-                        // INSERT עם פרמטרים מונע SQL Injection ומטפל בתווים מיוחדים בבטחה.
+                        // הוספה עם פרמטרים – מונע הזרקת SQL ומטפל בתווים מיוחדים
                         insertCmd.Parameters.AddWithValue("@fullname", fullname);
                         insertCmd.Parameters.AddWithValue("@pass", pass);
                         insertCmd.Parameters.AddWithValue("@phone", phone);
@@ -72,7 +73,7 @@ namespace Shipping
 
                     Session["UserId"] = userId;
                     Session["UserEmail"] = email;
-                    // displayName משמש לכותרת ולקבלות (שם מלא); האימייל הוא מזהה ההתחברות.
+                    // שם תצוגה לכותרת ולקבלות; האימייל נשמר בנפרד כמזהה התחברות
                     Session["displayName"] = fullname;
                     Session["category"] = "user";
 

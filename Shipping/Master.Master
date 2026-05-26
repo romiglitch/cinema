@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="nav-right">
-                    <%-- displayName הוא השם המלא; האימייל משמש רק להתחברות/זיהוי --%>
+                    <%-- Session["displayName"] = שם מלא לתצוגה; האימייל משמש רק להתחברות --%>
                     <% if (Session["displayName"] != null) { %>
                         <span class="user-welcome">
                             <%= Session["displayName"] %>
