@@ -58,8 +58,8 @@ namespace Shipping
                     {
                         lblMovieTitle.InnerText = dt.Rows[0]["Title"].ToString();
 
-                        // המרת DataTable לשאילתת LINQ על שורות
-                        var dayGroups = dt.AsEnumerable()
+                        
+                        var dayGroups = dt.AsEnumerable()//LINQבשביל להשתמש ב datarow בתור datatableמתייחס ל
                             // מפתח הקיבוץ: רק תאריך (00:00) – כל ההקרנות באותו יום בקבוצה אחת
                             .GroupBy(r => ((DateTime)r["StartTime"]).Date)
                             // ימים מהקרוב לרחוק (השאילתה כבר ממוינת, OrderBy שומר על סדר עקבי)
