@@ -14,36 +14,12 @@ namespace Shipping
     public partial class SelectScreening
     {
 
-        /// <summary>
-        /// lblMovieTitle control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblMovieTitle;
 
-        /// <summary>
-        /// pnlLegacyList control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlLegacyList;
+        protected global::System.Web.UI.WebControls.Panel pnlScreeningsByDate;
 
-        /// <summary>
-        /// rptTimes control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptTimes;
+        protected global::System.Web.UI.WebControls.Repeater rptDays;
 
-        /// <summary>
-        /// lblNoScreenings control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblNoScreenings;
     }
 }

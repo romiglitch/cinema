@@ -3,41 +3,39 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Diagnostics;
+
 namespace Shipping
 {
-    // עמוד בחירת הקרנה - מציג את כל שעות ההקרנה הזמינות לסרט שנבחר
+    // עמוד בחירת הקרנה - מציג הקרנות עתידיות מקובצות לפי תאריך
     public partial class SelectScreening : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                //וטעינת ההקרנות המתאימות URL-מה (TMDb ID) שליפת מזהה הסרט 
                 if (int.TryParse(Request.QueryString["movieId"], out int tmdbId))
                 {
                     LoadScreenings(tmdbId);
                 }
                 else
                 {
-                    //תקין - מציגים הודעה ומסתירים את הרשימה ID אם לא הועבר  
                     lblNoScreenings.Text = "לא נבחר סרט תקין.";
                     lblNoScreenings.Visible = true;
+                    pnlScreeningsByDate.Visible = false;
                 }
             }
         }
 
-        //ומציגה אותן TMDb IDשולפת מבסיס הנתונים את כל ההקרנות העתידיות לסרט לפי 
         private void LoadScreenings(int tmdbId)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cs))
             {
-                // שאילתה המחברת Screening ו-Movie לפי TMDb ID ומסננת רק הקרנות עתידיות
                 string query = @"SELECT s.ScreeningId, s.StartTime, m.Title 
                          FROM Screening s 
                          JOIN Movie m ON s.MovieId = m.Id 
@@ -56,20 +54,37 @@ namespace Shipping
 
                     if (dt.Rows.Count > 0)
                     {
-                        // הצגת שם הסרט בכותרת הדף ורשימת השעות בריפיטר
                         lblMovieTitle.InnerText = dt.Rows[0]["Title"].ToString();
-                        rptTimes.DataSource = dt;
-                        rptTimes.DataBind();
+
+                        var dayGroups = dt.AsEnumerable()
+                            .GroupBy(r => ((DateTime)r["StartTime"]).Date)
+                            .OrderBy(g => g.Key)
+                            .Select(g => new ScreeningDayGroup
+                            {
+                                DateLabel = FormatHebrewDate(g.Key),
+                                Count = g.Count(),
+                                Screenings = g.Select(r => new ScreeningSlot
+                                {
+                                    ScreeningId = Convert.ToInt32(r["ScreeningId"]),
+                                    StartTime = (DateTime)r["StartTime"]
+                                }).ToList()
+                            })
+                            .ToList();
+
+                        rptDays.DataSource = dayGroups;
+                        rptDays.DataBind();
+                        pnlScreeningsByDate.Visible = true;
                         lblNoScreenings.Visible = false;
                     }
                     else
                     {
-                        // אין הקרנות זמינות לסרט זה
+                        pnlScreeningsByDate.Visible = false;
                         lblNoScreenings.Visible = true;
                     }
                 }
                 catch (Exception ex)
                 {
+                    pnlScreeningsByDate.Visible = false;
                     lblNoScreenings.Text = "שגיאה בטעינת נתונים";
                     lblNoScreenings.Visible = true;
                     Debug.WriteLine("Error: " + ex.ToString());
@@ -77,12 +92,44 @@ namespace Shipping
             }
         }
 
-        //URLלחיצה על שעת הקרנה - מעבירה לעמוד בחירת כרטיסים עם מזהה ההקרנה ב
+        protected void rptDays_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem)
+                return;
+
+            var day = (ScreeningDayGroup)e.Item.DataItem;
+            var rptDayTimes = (Repeater)e.Item.FindControl("rptDayTimes");
+            if (rptDayTimes != null)
+            {
+                rptDayTimes.DataSource = day.Screenings;
+                rptDayTimes.DataBind();
+            }
+        }
+
+        private static string FormatHebrewDate(DateTime date)
+        {
+            var culture = new CultureInfo("he-IL");
+            return date.ToString("dddd, d MMMM yyyy", culture);
+        }
+
         protected void btnSelectTime_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
-            string sId = btn.CommandArgument; //של הכפתור CommandArgumentמזהה ההקרנה שהוגדר ב 
+            string sId = btn.CommandArgument;
             Response.Redirect("Ticketing.aspx?screeningId=" + sId);
+        }
+
+        private sealed class ScreeningDayGroup
+        {
+            public string DateLabel { get; set; }
+            public int Count { get; set; }
+            public List<ScreeningSlot> Screenings { get; set; }
+        }
+
+        private sealed class ScreeningSlot
+        {
+            public int ScreeningId { get; set; }
+            public DateTime StartTime { get; set; }
         }
     }
 }
