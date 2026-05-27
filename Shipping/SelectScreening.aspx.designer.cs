@@ -24,6 +24,11 @@ namespace Shipping
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl lblMovieTitle;
 
         /// <summary>
+        /// pnlLegacyList control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlLegacyList;
+
+        /// <summary>
         /// rptTimes control.
         /// </summary>
         /// <remarks>
