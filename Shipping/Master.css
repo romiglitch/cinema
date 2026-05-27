@@ -1867,45 +1867,57 @@ td, th {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 14px;
+    padding: 10px 16px;
     background: linear-gradient(90deg, rgba(168, 85, 247, 0.12), rgba(249, 115, 22, 0.08));
     color: #fff;
     font-weight: 700;
-    font-size: 0.95rem;
-    line-height: 1.3;
+    font-size: 1.2rem;
+    line-height: 1.35;
 }
 
 .screenings-by-date .screening-day-count {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.6);
     white-space: nowrap;
 }
 
 .screenings-by-date .screening-day-body {
     padding: 14px 14px 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: right;
 }
 
-.screenings-grid-by-day {
+/* fixed-width tiles, RTL: pack rows from the right; wrap to new rows */
+.screenings-by-date .screenings-grid-by-day {
     display: grid;
     grid-template-columns: repeat(auto-fill, 140px);
+    grid-auto-rows: 84px;
     justify-content: start;
     gap: 14px;
     direction: rtl;
+    width: 100%;
+    margin-top: 0;
 }
 
-.screenings-grid-by-day .screening-item {
+.screenings-by-date .screenings-grid-by-day > .screening-item,
+.screenings-by-date .screenings-grid-by-day > a.screening-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 140px;
     min-width: 140px;
+    max-width: 140px;
     height: 84px;
     min-height: 84px;
+    max-height: 84px;
     box-sizing: border-box;
     padding: 12px;
-    justify-content: center;
+    margin: 0;
 }
 
-.screenings-grid-by-day .screening-item .screening-date {
+.screenings-by-date .screenings-grid-by-day .screening-item .screening-date {
     display: none;
 }
 /*.buy-button {

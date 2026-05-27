@@ -14,7 +14,7 @@
                         <span class="screening-day-count"><%# Eval("Count") %> הקרנות</span>
                     </div>
                     <div class="screening-day-body">
-                        <div class="screenings-grid screenings-grid-by-day">
+                        <div class="screenings-grid-by-day">
                             <asp:Repeater ID="rptDayTimes" runat="server">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="btnSelect" runat="server" CssClass="screening-item"
