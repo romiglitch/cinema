@@ -1082,13 +1082,98 @@ footer {
     }
 }
 
-/* הודעת הצלחה (לא חובה, אם תרצי גם צבע חיובי) */
-.msg-label.success {
-    background: rgba(255, 179, 71, 0.12);
-    color: #ffb347;
-    box-shadow: 0 0 15px rgba(255, 179, 71, 0.25);
+.forgot-link {
+    font-family: 'Rubik', sans-serif !important;
+    font-size: 14px !important;
+    color: #bbb !important;
+    text-decoration: none !important;
+    position: relative !important;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
+    /* 🎨 הקו המעוצב שלך */
+    .forgot-link::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -3px;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #8e2de2, #ffb347);
+        transition: width 0.3s ease;
+    }
+
+    /* ✨ אפקטים במעבר עכבר */
+    .forgot-link:hover {
+        color: #fff !important;
+    }
+
+        .forgot-link:hover::after {
+            width: 100% !important;
+        }
+/* עיצוב כללי של אזור התוכן - ממרכז את הכרטיס באמצע הדף */
+.forgot-password-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* מגביה את האזור כדי שהמרכוס האנכי יהיה מורגש ומדויק */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+}
+
+/* כרטיס שחזור הסיסמה המרכזי */
+.recovery-card {
+    background-color: rgba(20, 20, 20, 0.65); /* רקע כהה חצי שקוף */
+    border: 1px solid rgba(147, 51, 234, 0.3); /* מסגרת סגלגלה עדינה */
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%  !important;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px); /* אפקט זכוכית מודרני */
+}
+
+    /* טקסט ההסבר */
+    .recovery-card p {
+        color: #cbd5e1; /* צבע אפור בהיר וקריא */
+        font-size: 1rem;
+        margin-bottom: 25px;
+    }
+
+/* עיצוב תיבת הקלט של האימייל */
+.recovery-input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(147, 51, 234, 0.4);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+    /* מצב פוקוס על תיבת האימייל */
+    .recovery-input:focus {
+        border-color: #ff9d00; /* שינוי לכתום בזמן לחיצה */
+        box-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+
+
+/* עיצוב הודעת הסטטוס */
+.status-message {
+    font-size: 0.95rem !important;
+     color: rgba(255, 255, 255, 0.6);
+    
+}
 /* כפתורי אדמין – עיצוב בסגנון קולנועי כמו הניווט */
 .admin-buttons,
 .admin-buttons input,
@@ -1353,39 +1438,7 @@ input.btnAddS {
     border: none !important;
     background: transparent;
 }
-.forgot-link {
-    font-family: 'Rubik', sans-serif !important;
-    font-size: 14px !important;
-    color: #bbb !important;
-    text-decoration: none !important;
-    position: relative !important;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
 
-}
-
-    /* 🎨 הקו המעוצב שלך */
-    .forgot-link::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        bottom: -3px;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #8e2de2, #ffb347);
-        transition: width 0.3s ease;
-    }
-
-    /* ✨ אפקטים במעבר עכבר */
-    .forgot-link:hover {
-        color: #fff !important;
-    }
-
-        .forgot-link:hover::after {
-            width: 100% !important;
-        }
 /* כרטיסי סרטים */
 /*.movie-block, .DataList-item, .movie-card {
     background: #1a1a1a;
@@ -1788,11 +1841,11 @@ td, th {
 }
 
 /* הודעת "אין הקרנות" */
-.no-screenings-msg {
+.screenings-msg {
     color: rgba(255, 255, 255, 0.6);
     font-size: 1.1rem;
     padding: 20px;
-    direction:rtl;
+    direction:rtl !important;
 }
 /*.buy-button {
     align-self: flex-start !important;

@@ -1,6 +1,7 @@
-﻿using System;
-using System.Data.SqlClient; 
+﻿using Org.BouncyCastle.Asn1.Cmp;
+using System;
 using System.Configuration;
+using System.Data.SqlClient; 
 
 namespace Shipping
 {
@@ -54,14 +55,14 @@ namespace Shipping
 
                 if (rows > 0)
                 {
-                    lblMessage.Text = "הסיסמה עודכנה! את יכולה להתחבר.";
-                    lblMessage.ForeColor = System.Drawing.Color.Green;
+                    lblMessage.Text = "עדכון הסיסמא עבר בהצלחה!";
+                    lblMessage.CssClass = "status-message";
                 }
                 else
                 {
                     // לא נמצאה שורה תואמת - הטוקן פג תוקף או שכבר נעשה בו שימוש
                     lblMessage.Text = "הקישור לא בתוקף או שכבר נעשה בו שימוש.";
-                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                    lblMessage.CssClass = "msg-label";
                 }
             }
         }

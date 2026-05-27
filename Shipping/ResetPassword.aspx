@@ -3,67 +3,74 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <%-- פריסת RTL: תווית מימין, שדה משמאל --%>
-    <div dir="rtl" style="max-width: 420px; margin: 40px auto; text-align: right;">
-        <h1 style="margin-bottom: 12px;">בחירת סיסמה חדשה</h1>
+    <%-- קונטיינר חיצוני שממרכז את הכרטיס בדיוק באמצע הדף --%>
+    <div class="forgot-password-container" dir="rtl">
+        
+        <%-- כרטיס זכוכית כהה מעוצב --%>
+        <div class="recovery-card" style="text-align: right;">
+            <h1 style="margin-bottom: 12px; text-align: center;">בחירת סיסמה חדשה</h1>
 
-        <asp:Label ID="lblMessage" runat="server" CssClass="msg-label"></asp:Label>
+            <table style="width: 100%; margin-top: 14px;">
+                <tr>
+                    <td style="width: 45%; padding-right: 10px;">
+                        <asp:Label ID="lblNewPassword" runat="server" Text="סיסמה חדשה"></asp:Label>
+                    </td>
+                    <td style="width: 55%;">
+                        <asp:TextBox ID="txtNewPassword" runat="server" TextMode="Password" CssClass="input-box" onkeyup="validatePasswordRealTime()" />
+                        <br />
+                        <asp:RequiredFieldValidator ID="RFVNewPassword" runat="server" ControlToValidate="txtNewPassword"
+                            ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
+                        
+                        <asp:CustomValidator ID="CVNewPassword" runat="server"
+                            ControlToValidate="txtNewPassword"
+                            ClientValidationFunction="validatePassword"
+                            ErrorMessage=".הסיסמה חייבת להכיל 10 תווים, 2 אותיות גדולות, 2 קטנות, 3 מספרים ותו מיוחד"
+                            CssClass="error-text-simple"
+                            Display="Dynamic"
+                            ValidateEmptyText="false"></asp:CustomValidator>
+                    </td>
+                </tr>
 
-        <table style="width: 100%; margin-top: 14px;">
-            <tr>
-                <td style="width: 45%; padding-right: 10px;">
-                    <asp:Label ID="lblNewPassword" runat="server" Text="סיסמה חדשה"></asp:Label>
-                </td>
-                <td style="width: 55%;">
-                    <asp:TextBox ID="txtNewPassword" runat="server" TextMode="Password" CssClass="input-box" onkeyup="validatePasswordRealTime()" />
-                    <br />
-                    <asp:RequiredFieldValidator ID="RFVNewPassword" runat="server" ControlToValidate="txtNewPassword"
-                        ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
-                    <%-- אותה מדיניות סיסמה כמו בהרשמה --%>
-                    <asp:CustomValidator ID="CVNewPassword" runat="server"
-                        ControlToValidate="txtNewPassword"
-                        ClientValidationFunction="validatePassword"
-                        ErrorMessage=".הסיסמה חייבת להכיל 10 תווים, 2 אותיות גדולות, 2 קטנות, 3 מספרים ותו מיוחד"
-                        CssClass="error-text-simple"
-                        Display="Dynamic"
-                        ValidateEmptyText="false"></asp:CustomValidator>
-                </td>
-            </tr>
+                <tr>
+                    <td style="padding-right: 10px;">
+                        <asp:Label ID="lblConfirmPassword" runat="server" Text="אימות סיסמה"></asp:Label>
+                    </td>
+                    <td >
+                        <asp:TextBox ID="txtConfirmPassword" runat="server" TextMode="Password" CssClass="input-box" />
+                        <br />
+                        <asp:RequiredFieldValidator ID="RFVConfirmPassword" runat="server" ControlToValidate="txtConfirmPassword"
+                            ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
+                        
+                        <asp:CompareValidator ID="CVConfirmPassword" runat="server"
+                            ControlToValidate="txtConfirmPassword"
+                            ControlToCompare="txtNewPassword"
+                            Operator="Equal"
+                            Type="String"
+                            ErrorMessage="אימות הסיסמה לא תואם לסיסמה החדשה"
+                            CssClass="error-text-simple"
+                            Display="Dynamic"></asp:CompareValidator>
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="padding-right: 10px;">
-                    <asp:Label ID="lblConfirmPassword" runat="server" Text="אימות סיסמה"></asp:Label>
-                </td>
-                <td>
-                    <asp:TextBox ID="txtConfirmPassword" runat="server" TextMode="Password" CssClass="input-box" />
-                    <br />
-                    <asp:RequiredFieldValidator ID="RFVConfirmPassword" runat="server" ControlToValidate="txtConfirmPassword"
-                        ErrorMessage="שדה חובה" CssClass="error-text-simple" Display="Dynamic"></asp:RequiredFieldValidator>
-                    <%-- וידוא שהאימות תואם לסיסמה החדשה --%>
-                    <asp:CompareValidator ID="CVConfirmPassword" runat="server"
-                        ControlToValidate="txtConfirmPassword"
-                        ControlToCompare="txtNewPassword"
-                        Operator="Equal"
-                        Type="String"
-                        ErrorMessage="אימות הסיסמה לא תואם לסיסמה החדשה"
-                        CssClass="error-text-simple"
-                        Display="Dynamic"></asp:CompareValidator>
-                </td>
-            </tr>
-
-            <tr>
-                <td colspan="2" style="padding-top: 12px;">
-                    <asp:Button ID="btnUpdate" runat="server" Text="עדכן סיסמה" OnClick="btnUpdate_Click" CssClass="signup-btn" />
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td colspan="2" style="padding-top: 12px; border: none">
+                        <asp:Button ID="btnUpdate" runat="server" Text="עדכן סיסמה" OnClick="btnUpdate_Click" CssClass="signup-btn" Style="width: 100%;" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center; padding-top: 15px; border: none">
+                        <asp:Label ID="lblMessage" runat="server"></asp:Label>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
+
     <script>
         // אותה מדיניות סיסמה כמו ב-Signup.aspx (10 תווים, 2 גדולות, 2 קטנות, 3 ספרות, תו מיוחד).
         function validatePassword(sender, args) {
             var pass = args.Value;
 
-            // שדה ריק – לא מציגים שגיאת מורכבות (יש RequiredFieldValidator)
             if (pass === "") {
                 args.IsValid = true;
                 return;
@@ -78,7 +85,6 @@
             args.IsValid = hasMinLength && hasUpper && hasLower && hasDigits && hasSpecial;
         }
 
-        // בדיקה בזמן הקלדה – רק לוולידטור הסיסמה, לא לכל הדף
         function validatePasswordRealTime() {
             var passValidator = document.getElementById('<%= CVNewPassword.ClientID %>');
 

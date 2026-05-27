@@ -66,7 +66,7 @@ namespace Shipping
                             EmailService mailService = new EmailService();
                             await mailService.SendResetPasswordEmail(userEmail, resetLink);//בזמן שהמייל נשלח השרת מטפל במשתמשים אחרים
                             lblStatus.Text = "מייל שחזור נשלח בהצלחה!"; 
-                            lblStatus.CssClass = "no-screenings-msg";
+                            lblStatus.CssClass = "status-message";
 
                         }
                         else

@@ -58,7 +58,7 @@ namespace Shipping
 
             await ExecuteSendAsync(message);//השרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
         }
-        
+
         // אישור הזמנה: נשלח ל-toEmail (אימייל התחברות), הברכה ב-fullName (שם מלא)
         public async Task SendOrderReceiptEmail(string toEmail, string movieName, DateTime screeningTime, string seats, decimal totalPrice, string fullName, string ticketTypesCsv)
         {
@@ -69,58 +69,63 @@ namespace Shipping
             string displayDate = screeningTime.ToString("dd/MM/yyyy");
             string displayTime = screeningTime.ToString("HH:mm");
 
-            // אזהרה לכרטיסים שאינם מסוג "רגיל" (סטודנט, ילד וכו')
-            string idDocumentWarningHtml = "";
+            // בניית משפט ההנחיות לקופות באופן דינמי לפי סוגי הכרטיסים
+            string pickupInstructionsHtml;
             if (HasNonRegularTicketType(ticketTypesCsv))
             {
-                idDocumentWarningHtml = @"
-         <div style='background-color: #fff8e6; border-right: 5px solid #f0ad4e; padding: 16px; margin: 20px 0; border-radius: 5px;'>
-             <p style='margin: 0; font-size: 15px; color: #856404; font-weight: bold;'>⚠️ נא להביא תעודה מזהה על מנת לאשר את הטבתכם</p>
-         </div>";
+                // אם יש כרטיס מיוחד - המשפט מורחב וכולל דרישה לתעודה מזהה/מסמך רלוונטי
+                pickupInstructionsHtml = "הכרטיסים יחכו לך בקופות הקולנוע עם הצגת המייל הזה או מספר הטלפון שלך. <br />" +
+                                         "<strong style='color: #8e2de2;'>⚠️ שימו לב:</strong> יש להצטייד בתעודה מזהה על מנת לאמת את הטבתכם.";
+            }
+            else
+            {
+                // משפט רגיל עבור כרטיסים רגילים
+                pickupInstructionsHtml = "הכרטיסים יחכו לך בקופות הקולנוע עם הצגת המייל הזה או מספר הטלפון שלך.";
             }
 
-            var message = new MimeMessage();//(MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג
-            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail));//הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
-            message.To.Add(new MailboxAddress("", toEmail));//כתובת מייל הלקוח
+            var message = new MimeMessage(); // (MailKit בעזרת ספריית) MimeMessage יצירת אובייקט מסוג
+            message.From.Add(new MailboxAddress("אתר הקולנוע של רומי 🎬", senderEmail)); // הגדרת שם השולח שיוצג והכתובת ממנה המייל ישלח
+            message.To.Add(new MailboxAddress("", toEmail)); // כתובת מייל הלקוח
             message.Subject = "אישור הזמנה 🎟️";
 
             var bodyBuilder = new BodyBuilder
             {
                 HtmlBody = $@"
- <div dir='rtl' style='font-family: ""Montserrat"", ""Rubik"", ""Segoe UI"", Tahoma, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
-     <div style='background-color: #8e2de2; background: linear-gradient(to right, #8e2de2, #4a00e0); padding: 20px; text-align: center;'>
-         <h1 style='color: white; margin: 0; font-size: 24px;'>הזמנתך הושלמה</h1>
-     </div>
+<div dir='rtl' style='font-family: ""Montserrat"", ""Rubik"", ""Segoe UI"", Tahoma, sans-serif; max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
+    <div style='background-color: #8e2de2; background: linear-gradient(to right, #8e2de2, #4a00e0); padding: 20px; text-align: center;'>
+        <h1 style='color: white; margin: 0; font-size: 24px;'>הזמנתך הושלמה</h1>
+    </div>
 
-     <div style='padding: 30px; background-color: #ffffff; color: #333;'>
-         <p style='font-size: 18px;'>היי, {fullName}</p>
-         <p style='font-size: 16px;'>תודה על הזמנתך מאתר הקולנוע של רומי! הכרטיסים שלך לסרט מחכים לך. הנה פרטי ההזמנה:</p>
-         
-         <div style='background-color: #f8f9fa; border-right: 5px solid #8e2de2; padding: 20px; margin: 20px 0; border-radius: 5px;'>
-             <p style='margin: 5px 0;'><strong>🎬 סרט:</strong> <span style='color: #8e2de2; font-size: 18px;'>{movieName}</span></p>
-             <p style='margin: 5px 0;'><strong>📅 תאריך:</strong> {displayDate}</p>
-             <p style='margin: 5px 0;'><strong>🕒 שעה:</strong> {displayTime}</p>
-             <p style='margin: 5px 0;'><strong>💺 מושבים:</strong> {formattedSeats}</p>
-             <p style='margin: 5px 0;'><strong>💰 סה""כ לתשלום:</strong> ₪{totalPrice:N2}</p>
-         </div>
-{idDocumentWarningHtml}
-         <p style='font-size: 15px; color: #666; text-align: center;'>הכרטיסים יחכו לך בקופות הקולנוע עם הצגת המייל הזה או מספר הטלפון שלך.</p>
-         
-         <div style='height: 4px; background: linear-gradient(to right, #8e2de2, #4a00e0); margin: 30px 0; border-radius: 2px;'></div>
+    <div style='padding: 30px; background-color: #ffffff; color: #333;'>
+        <p style='font-size: 18px;'>היי, {fullName}</p>
+        <p style='font-size: 16px;'>תודה על הזמנתך מאתר הקולנוע של רומי! הכרטיסים שלך לסרט מחכים לך. הנה פרטי ההזמנה:</p>
+        
+        <div style='background-color: #f8f9fa; border-right: 5px solid #8e2de2; padding: 20px; margin: 20px 0; border-radius: 5px;'>
+            <p style='margin: 5px 0;'><strong>🎬 סרט:</strong> <span style='color: #8e2de2; font-size: 18px;'>{movieName}</span></p>
+            <p style='margin: 5px 0;'><strong>📅 תאריך:</strong> {displayDate}</p>
+            <p style='margin: 5px 0;'><strong>🕒 שעה:</strong> {displayTime}</p>
+            <p style='margin: 5px 0;'><strong>💺 מושבים:</strong> {formattedSeats}</p>
+            <p style='margin: 5px 0;'><strong>💰 סה""כ לתשלום:</strong> ₪{totalPrice:N2}</p>
+        </div>
 
-         <p style='text-align: center; font-weight: bold; color: #8e2de2; font-size: 18px;'>נתראה בסרט! 🍿</p>
-     </div>
+        <p style='font-size: 15px; color: #555; text-align: center; line-height: 1.6; margin: 25px 0;'>
+            {pickupInstructionsHtml}
+        </p>
+        
+        <div style='height: 4px; background: linear-gradient(to right, #8e2de2, #4a00e0); margin: 30px 0; border-radius: 2px;'></div>
 
-     <div style='background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #999;'>
-         © {DateTime.Now.Year} אתר הקולנוע של רומי | רחוב הקולנוע 1, סינמה סיטי
-     </div>
- </div>"
+        <p style='text-align: center; font-weight: bold; color: #8e2de2; font-size: 18px;'>נתראה בסרט! 🍿</p>
+    </div>
+
+    <div style='background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 12px; color: #999;'>
+        © {DateTime.Now.Year} אתר הקולנוע של רומי | רחוב הקולנוע 1, סינמה סיטי
+    </div>
+</div>"
             };
             message.Body = bodyBuilder.ToMessageBody();
 
             await ExecuteSendAsync(message);
         }
-
         // האם יש לפחות כרטיס שאינו מסוג "רגיל"
         private static bool HasNonRegularTicketType(string ticketTypesCsv)
         {

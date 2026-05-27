@@ -14,7 +14,7 @@
             <asp:Button ID="BtnGenerateSchedule" runat="server" Text="יצירת לוח הקרנות אוטומטי" 
                 OnClick="BtnGenerateSchedule_Click" CssClass="admin-buttons" />
             <div style="margin-top:20px;">
-    <asp:Label CssClass="no-screenings-msg" ID="lblAdminStatus" runat="server"  Text=""></asp:Label></div>
+    <asp:Label CssClass="screenings-msg" ID="lblAdminStatus" runat="server"  Text=""></asp:Label></div>
     </div>
         </div>
 </asp:Content>

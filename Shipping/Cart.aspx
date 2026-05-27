@@ -60,7 +60,7 @@
     
     <p>
         מספר כרטיס: 
-        <asp:TextBox ID="txtCardNum" runat="server" MaxLength="16" placeholder="1234123412341234" CssClass="input-box-cart" />
+        <asp:TextBox ID="txtCardNum" runat="server" MaxLength="16" placeholder="1234567890123456" CssClass="input-box-cart" />
         <asp:RequiredFieldValidator ID="rfvCard" runat="server" ControlToValidate="txtCardNum" 
             ErrorMessage="שדה חובה" Display="Dynamic" CssClass="error-text-simple" />
         <asp:RegularExpressionValidator ID="revCard" runat="server" ControlToValidate="txtCardNum" 
