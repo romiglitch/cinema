@@ -1903,7 +1903,7 @@ td, th {
 .screenings-by-date .screenings-grid-by-day > .screening-item,
 .screenings-by-date .screenings-grid-by-day > a.screening-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     width: 140px;
@@ -1913,8 +1913,20 @@ td, th {
     min-height: 84px;
     max-height: 84px;
     box-sizing: border-box;
-    padding: 12px;
+    padding: 0;
     margin: 0;
+    text-align: center;
+    line-height: 1;
+}
+
+.screenings-by-date .screenings-grid-by-day > a.screening-item .screening-time,
+.screenings-by-date .screenings-grid-by-day > .screening-item .screening-time {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    line-height: 1.2;
+    flex-shrink: 0;
 }
 
 .screenings-by-date .screenings-grid-by-day .screening-item .screening-date {

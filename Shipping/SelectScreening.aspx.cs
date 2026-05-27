@@ -11,13 +11,14 @@ using System.Web.UI.WebControls;
 
 namespace Shipping
 {
-    // עמוד בחירת הקרנה - מציג הקרנות עתידיות מקובצות לפי תאריך
+    // עמוד בחירת הקרנה – מציג הקרנות עתידיות לסרט, מקובצות לפי תאריך
     public partial class SelectScreening : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                // movieId ב-URL הוא מזהה TMDb (כמו בעמוד פרטי הסרט), לא מזהה פנימי של Movie.Id
                 if (int.TryParse(Request.QueryString["movieId"], out int tmdbId))
                 {
                     LoadScreenings(tmdbId);
@@ -31,6 +32,7 @@ namespace Shipping
             }
         }
 
+        // שולף מהמסד את כל ההקרנות העתידיות לסרט ומקבץ לפי יום לתצוגה ב-rptDays / rptDayTimes
         private void LoadScreenings(int tmdbId)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -56,13 +58,20 @@ namespace Shipping
                     {
                         lblMovieTitle.InnerText = dt.Rows[0]["Title"].ToString();
 
+                        // המרת DataTable לשאילתת LINQ על שורות
                         var dayGroups = dt.AsEnumerable()
+                            // מפתח הקיבוץ: רק תאריך (00:00) – כל ההקרנות באותו יום בקבוצה אחת
                             .GroupBy(r => ((DateTime)r["StartTime"]).Date)
+                            // ימים מהקרוב לרחוק (השאילתה כבר ממוינת, OrderBy שומר על סדר עקבי)
                             .OrderBy(g => g.Key)
+                            // בניית אובייקט לכל יום – מה ש-rptDays מציג ב-ItemTemplate
                             .Select(g => new ScreeningDayGroup
                             {
+                                // כותרת היום בעברית (יום בשבוע + תאריך)
                                 DateLabel = FormatHebrewDate(g.Key),
+                                // מספר ההקרנות באותו יום – מוצג ליד הכותרת ("N הקרנות")
                                 Count = g.Count(),
+                                // רשימת השעות באותו יום – נקשרת ל-rptDayTimes ב-ItemDataBound
                                 Screenings = g.Select(r => new ScreeningSlot
                                 {
                                     ScreeningId = Convert.ToInt32(r["ScreeningId"]),
@@ -71,6 +80,7 @@ namespace Shipping
                             })
                             .ToList();
 
+                        // ריפיטר חיצוני: איטרציה על ימים (כל ItemTemplate = screening-day אחד)
                         rptDays.DataSource = dayGroups;
                         rptDays.DataBind();
                         pnlScreeningsByDate.Visible = true;
@@ -92,6 +102,7 @@ namespace Shipping
             }
         }
 
+        // ריפיטר מקונן: לכל יום ב-rptDays ממלאים את rptDayTimes בשעות של אותו יום
         protected void rptDays_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
             if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem)
@@ -106,12 +117,14 @@ namespace Shipping
             }
         }
 
+        // תווית תאריך בעברית לכותרת כל קבוצה (למשל: יום רביעי, 27 במאי 2026)
         private static string FormatHebrewDate(DateTime date)
         {
             var culture = new CultureInfo("he-IL");
             return date.ToString("dddd, d MMMM yyyy", culture);
         }
 
+        // לחיצה על שעה – מעבר לבחירת סוגי כרטיסים והמשך תהליך הרכישה
         protected void btnSelectTime_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
@@ -119,6 +132,7 @@ namespace Shipping
             Response.Redirect("Ticketing.aspx?screeningId=" + sId);
         }
 
+        // נתונים לשורת תאריך אחת בריפיטר החיצוני
         private sealed class ScreeningDayGroup
         {
             public string DateLabel { get; set; }
@@ -126,6 +140,7 @@ namespace Shipping
             public List<ScreeningSlot> Screenings { get; set; }
         }
 
+        // הקרנה בודדת בתוך יום – מזהה לניווט ושעה לתצוגה
         private sealed class ScreeningSlot
         {
             public int ScreeningId { get; set; }
