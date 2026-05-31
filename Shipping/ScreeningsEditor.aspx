@@ -45,11 +45,13 @@
  
         <asp:Panel ID="pnlSchedule" runat="server" Visible="false"></asp:Panel>
 
+<div style="text-align:center;">
 <asp:Button CssClass="login-btn hiddenBtn"
     ID="btnAddScreening"
     runat="server"
     Text="עדכן הקרנות"
     OnClick="btnAddScreening_Click" />
+</div>
 
 <div style="margin-top:10px; text-align:center;">
     <asp:Label CssClass="editorMsg"

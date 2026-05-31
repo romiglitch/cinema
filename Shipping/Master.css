@@ -1016,7 +1016,9 @@ footer {
     padding-left: 10px;
 }
 
-.login-btn {
+.login-btn,
+input[type="submit"].login-btn,
+input[type="button"].login-btn {
     background: linear-gradient(45deg, #8e2de2, #ffb347);
     border: none;
     color: #fff;
@@ -1026,9 +1028,13 @@ footer {
     font-weight: bold;
     transition: all 0.3s ease;
     box-shadow: 0 0 10px rgba(142, 45, 226, 0.4);
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-    .login-btn:hover {
+    .login-btn:hover,
+    input[type="submit"].login-btn:hover,
+    input[type="button"].login-btn:hover {
         background: linear-gradient(45deg, #ffb347, #8e2de2);
         transform: scale(1.05);
         box-shadow: 0 0 18px rgba(255, 179, 71, 0.7);
@@ -1546,8 +1552,23 @@ input[type="checkbox"] {
     input[type="checkbox"]:hover {
         border-color: #000;
     }
-.signup-form input.login-btn.hiddenBtn {
+.signup-form input[type="submit"].login-btn,
+.signup-form input.login-btn {
     display: block;
+    background: linear-gradient(45deg, #8e2de2, #ffb347) !important;
+    border: none !important;
+    color: #fff !important;
+    padding: 10px 25px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0 10px rgba(142, 45, 226, 0.4) !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+
+.signup-form input.login-btn.hiddenBtn {
     opacity: 0;
     pointer-events: none;
     transform: translateY(10px);
@@ -1555,14 +1576,16 @@ input[type="checkbox"] {
 }
 
 .signup-form input.login-btn.showBtn {
-    display: block;
     opacity: 1;
     pointer-events: auto;
     margin: 25px auto 0 auto !important;
+    transform: translateY(0);
 }
 
 .signup-form input.login-btn.showBtn:hover {
-    transform: scale(1.05);
+    background: linear-gradient(45deg, #ffb347, #8e2de2) !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 18px rgba(255, 179, 71, 0.7) !important;
 }
 
 .hiddenBtn {
@@ -1575,8 +1598,11 @@ input[type="checkbox"] {
 .showBtn {
     opacity: 1;
     pointer-events: auto;
-    transform: translateY(0);
     margin-top: 25px !important;
+}
+
+.showBtn:not(.login-btn) {
+    transform: translateY(0);
 }
 .editorMsg {
     margin-top:-20px;
