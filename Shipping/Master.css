@@ -1629,15 +1629,23 @@ input[type="checkbox"] {
 }
 
 .screenings-editor-actions input.schedule-update-btn {
-    display: none;
+    display: block;
     margin: 25px auto 16px auto;
 }
 
-.screenings-editor-actions input.schedule-update-btn.is-visible {
-    display: block !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+.screenings-editor-actions input.schedule-update-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(0.35);
     transform: none !important;
+    box-shadow: none !important;
+}
+
+.screenings-editor-actions input.schedule-update-btn:disabled:hover {
+    background: linear-gradient(45deg, #8e2de2, #ffb347) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 /* -------- SIGN UP -------- */
 .signup-container {

@@ -41,7 +41,14 @@ namespace Shipping
         {
             base.OnPreRender(e);
 
+            bool scheduleReady = pnlSchedule.Visible && ddlMovies.SelectedIndex > 0;
             btnAddScreening.CssClass = "login-btn schedule-update-btn";
+            btnAddScreening.Enabled = scheduleReady;
+
+            if (scheduleReady)
+                btnAddScreening.Attributes["disabled"] = "disabled";
+            else
+                btnAddScreening.Attributes.Remove("disabled");
             ddlMovies.Attributes["onchange"] = "return onMovieSelectionChanging(this);";
         }
 

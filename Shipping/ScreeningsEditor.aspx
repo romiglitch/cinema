@@ -3,6 +3,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
    <script type="text/javascript">
+       // מחזיר את הצ'קבוקס מתוך תא בלוח ההקרנות
        function getScheduleCheckbox(cell) {
            if (!cell) return null;
            return cell.querySelector('input[type="checkbox"]');
@@ -14,6 +15,7 @@
            for (var i = 0; i < cells.length; i++) {
                var cell = cells[i];
                var cb = getScheduleCheckbox(cell);
+               // תאים חסומים (עבר / אין אולם פנוי) לא נספרים כשינוי
                if (!cb || cb.disabled) continue;
 
                var initialChecked = cell.getAttribute('data-initial-checked') === 'true';
@@ -24,24 +26,23 @@
            return false;
        }
 
-       // מציג/מסתיר את כפתור "עדכן הקרנות"
-       function setUpdateButtonVisible(visible) {
+       // מפעיל/מנטרל את כפתור "עדכן הקרנות" — הכפתור תמיד גלוי, רק לא לחיץ כשאין שינויים
+       function setUpdateButtonEnabled(enabled) {
            var btn = document.getElementById('<%= btnAddScreening.ClientID %>');
            if (!btn) return;
 
-           if (visible) {
-               btn.classList.add('is-visible');
-           } else {
-               btn.classList.remove('is-visible');
-           }
+           btn.disabled = !enabled;
        }
 
+       // מעדכן מצב הכפתור והודעת המשוב לפי שינויים שלא נשמרו
        function updateUnsavedState() {
            var lbl = document.getElementById('<%= lblMessage.ClientID %>');
-           var hasChanges = hasUnsavedScheduleChanges();
+           var schedule = document.querySelector('.weekSchedule');
+           var hasChanges = schedule && hasUnsavedScheduleChanges();
 
-           setUpdateButtonVisible(hasChanges);
+           setUpdateButtonEnabled(hasChanges);
 
+           // ניקוי הודעה קודמת (למשל "לא בוצעו שינויים") ברגע שמתחילים לערוך שוב
            if (lbl && hasChanges) {
                lbl.innerHTML = "";
            }
@@ -62,16 +63,18 @@
            }
        }
 
-       // מסנכרן מראה הצ'קבוקס, רקע התא ומצב הכפתור
+       // מסנכרן מראה הצ'קבוקס, רקע התא ומצב הכפתור אחרי לחיצה
        function syncScheduleCheckboxUi(checkbox) {
            var wrapper = checkbox.closest('.checkbox-wrapper-33');
            if (wrapper) {
                var symbol = wrapper.querySelector('.checkbox__symbol');
                if (symbol) {
                    if (checkbox.checked) {
+                       // הקרנה נבחרה — מסמן את התא כפעיל (ירוק)
                        wrapper.classList.add('checkbox-wrapper-33--checked');
                        symbol.classList.add('checkbox__symbol--checked');
                    } else {
+                       // ביטול בחירה — מחזיר למראה רגיל
                        wrapper.classList.remove('checkbox-wrapper-33--checked');
                        symbol.classList.remove('checkbox__symbol--checked');
                    }
@@ -82,9 +85,10 @@
            updateUnsavedState();
        }
 
-       // מאזין ללחיצות על הצ'קבוקסים (delegation) — setTimeout מבטיח שהמצב כבר התעדכן
+       // מאזין ללחיצות על הצ'קבוקסים (event delegation על כל הלוח)
        function bindScheduleEditorEvents() {
            var schedule = document.querySelector('.weekSchedule');
+           // מונע רישום כפול של אותו מאזין אחרי postback
            if (!schedule || schedule.getAttribute('data-editor-bound') === '1') {
                return;
            }
@@ -101,16 +105,18 @@
                    return;
                }
 
+               // setTimeout מבטיח ש-checkbox.checked כבר התעדכן לפני הסנכרון
                window.setTimeout(function () {
                    syncScheduleCheckboxUi(checkbox);
                }, 0);
            });
        }
 
-       // מסנכרן את מצב הרקע והכפתור לכל התאים אחרי טעינת הדף
+       // אתחול אחרי טעינת הדף — מאזינים, רקע תאים, ומצב התחלתי של הכפתור
        function initScheduleEditorUi() {
            var ddl = document.getElementById('<%= ddlMovies.ClientID %>');
            if (ddl) {
+               // שומר את הסרט הנוכחי לצורך ביטול מעבר אם המשתמש מבטל confirm
                ddl.setAttribute('data-selected-value', ddl.value);
            }
 
@@ -132,6 +138,7 @@
            if (hasUnsavedScheduleChanges()) {
                var confirmed = confirm('יש שינויים שלא נשמרו בהקרנות. האם לבטל אותם ולעבור לסרט אחר?');
                if (!confirmed) {
+                   // מחזיר את הרשימה הנפתחת לסרט שנבחר קודם
                    select.value = select.getAttribute('data-selected-value');
                    return false;
                }
@@ -142,6 +149,7 @@
            return false;
        }
 
+       // אתחול UI אחרי טעינת הדף (כולל postback)
        if (window.addEventListener) {
            window.addEventListener('load', initScheduleEditorUi);
        } else {
