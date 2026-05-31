@@ -1628,24 +1628,16 @@ input[type="checkbox"] {
     margin-top: 8px;
 }
 
-.screenings-editor-actions input.login-btn.showBtn,
-.screenings-editor-actions input.login-btn.hiddenBtn {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+.screenings-editor-actions input.schedule-update-btn {
+    display: none;
+    margin: 25px auto 16px auto;
 }
 
-.screenings-editor-actions input.login-btn.showBtn {
+.screenings-editor-actions input.schedule-update-btn.is-visible {
+    display: block !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    transform: translateY(0) !important;
-    margin-top: 25px !important;
-    margin-bottom: 16px !important;
-}
-
-.screenings-editor-actions input.login-btn.hiddenBtn {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    transform: none !important;
 }
 /* -------- SIGN UP -------- */
 .signup-container {

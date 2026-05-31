@@ -41,7 +41,7 @@ namespace Shipping
         {
             base.OnPreRender(e);
 
-            btnAddScreening.CssClass = "login-btn hiddenBtn";
+            btnAddScreening.CssClass = "login-btn schedule-update-btn";
             ddlMovies.Attributes["onchange"] = "return onMovieSelectionChanging(this);";
         }
 
@@ -94,6 +94,8 @@ namespace Shipping
                     cell.CssClass = "schedule-day-cell";
                     bool isPast = currentDayStart <= DateTime.Now;
                     existingBySlot.TryGetValue(slotKey, out ExistingScreening existing);
+                    bool initiallyChecked = existing != null;
+                    cell.Attributes["data-initial-checked"] = initiallyChecked ? "true" : "false";
 
                     if (existing != null)
                     {
@@ -156,9 +158,6 @@ namespace Shipping
             cb.InputAttributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
             cb.InputAttributes["data-initial-checked"] = isChecked ? "true" : "false";
             cb.InputAttributes["data-cell-key"] = cellKey;
-
-            if (isEnabled)
-                cb.InputAttributes["onchange"] = "onScheduleCheckboxClick(this);";
 
             var wrapperClass = "checkbox-wrapper-33";
             if (isChecked)

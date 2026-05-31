@@ -3,12 +3,20 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
    <script type="text/javascript">
-       // בודק אם יש צ'קבוקסים שסטטוסם שונה מהמצב השמור בשרת
+       function getScheduleCheckbox(cell) {
+           if (!cell) return null;
+           return cell.querySelector('input[type="checkbox"]');
+       }
+
+       // בודק אם יש תאים שסטטוס הצ'קבוקס שלהם שונה מהמצב השמור בשרת
        function hasUnsavedScheduleChanges() {
-           var checkboxes = document.querySelectorAll('.weekSchedule .checkbox__trigger[data-initial-checked]');
-           for (var i = 0; i < checkboxes.length; i++) {
-               var cb = checkboxes[i];
-               var initialChecked = cb.getAttribute('data-initial-checked') === 'true';
+           var cells = document.querySelectorAll('.weekSchedule td.schedule-day-cell[data-initial-checked]');
+           for (var i = 0; i < cells.length; i++) {
+               var cell = cells[i];
+               var cb = getScheduleCheckbox(cell);
+               if (!cb || cb.disabled) continue;
+
+               var initialChecked = cell.getAttribute('data-initial-checked') === 'true';
                if (cb.checked !== initialChecked) {
                    return true;
                }
@@ -16,22 +24,15 @@
            return false;
        }
 
-       // מציג/מסתיר את כפתור "עדכן הקרנות" לפי קיום שינויים שלא נשמרו
+       // מציג/מסתיר את כפתור "עדכן הקרנות"
        function setUpdateButtonVisible(visible) {
            var btn = document.getElementById('<%= btnAddScreening.ClientID %>');
            if (!btn) return;
 
            if (visible) {
-               btn.classList.remove('hiddenBtn');
-               btn.classList.add('showBtn', 'login-btn');
-               btn.style.opacity = '1';
-               btn.style.pointerEvents = 'auto';
-               btn.style.transform = 'translateY(0)';
+               btn.classList.add('is-visible');
            } else {
-               btn.classList.remove('showBtn');
-               btn.classList.add('hiddenBtn', 'login-btn');
-               btn.style.opacity = '0';
-               btn.style.pointerEvents = 'none';
+               btn.classList.remove('is-visible');
            }
        }
 
@@ -51,7 +52,7 @@
            var cell = checkbox.closest('td.schedule-day-cell');
            if (!cell) return;
 
-           var initialChecked = checkbox.getAttribute('data-initial-checked') === 'true';
+           var initialChecked = cell.getAttribute('data-initial-checked') === 'true';
            var isChanged = checkbox.checked !== initialChecked;
 
            if (isChanged) {
@@ -61,6 +62,51 @@
            }
        }
 
+       // מסנכרן מראה הצ'קבוקס, רקע התא ומצב הכפתור
+       function syncScheduleCheckboxUi(checkbox) {
+           var wrapper = checkbox.closest('.checkbox-wrapper-33');
+           if (wrapper) {
+               var symbol = wrapper.querySelector('.checkbox__symbol');
+               if (symbol) {
+                   if (checkbox.checked) {
+                       wrapper.classList.add('checkbox-wrapper-33--checked');
+                       symbol.classList.add('checkbox__symbol--checked');
+                   } else {
+                       wrapper.classList.remove('checkbox-wrapper-33--checked');
+                       symbol.classList.remove('checkbox__symbol--checked');
+                   }
+               }
+           }
+
+           updateCellPendingState(checkbox);
+           updateUnsavedState();
+       }
+
+       // מאזין ללחיצות על הצ'קבוקסים (delegation) — setTimeout מבטיח שהמצב כבר התעדכן
+       function bindScheduleEditorEvents() {
+           var schedule = document.querySelector('.weekSchedule');
+           if (!schedule || schedule.getAttribute('data-editor-bound') === '1') {
+               return;
+           }
+
+           schedule.setAttribute('data-editor-bound', '1');
+           schedule.addEventListener('click', function (e) {
+               var wrapper = e.target.closest('.checkbox-wrapper-33');
+               if (!wrapper || wrapper.classList.contains('checkbox-wrapper-33--disabled')) {
+                   return;
+               }
+
+               var checkbox = wrapper.querySelector('input[type="checkbox"]');
+               if (!checkbox || checkbox.disabled) {
+                   return;
+               }
+
+               window.setTimeout(function () {
+                   syncScheduleCheckboxUi(checkbox);
+               }, 0);
+           });
+       }
+
        // מסנכרן את מצב הרקע והכפתור לכל התאים אחרי טעינת הדף
        function initScheduleEditorUi() {
            var ddl = document.getElementById('<%= ddlMovies.ClientID %>');
@@ -68,9 +114,14 @@
                ddl.setAttribute('data-selected-value', ddl.value);
            }
 
-           var checkboxes = document.querySelectorAll('.weekSchedule .checkbox__trigger[data-initial-checked]');
-           for (var i = 0; i < checkboxes.length; i++) {
-               updateCellPendingState(checkboxes[i]);
+           bindScheduleEditorEvents();
+
+           var cells = document.querySelectorAll('.weekSchedule td.schedule-day-cell[data-initial-checked]');
+           for (var i = 0; i < cells.length; i++) {
+               var cb = getScheduleCheckbox(cells[i]);
+               if (cb) {
+                   updateCellPendingState(cb);
+               }
            }
 
            updateUnsavedState();
@@ -91,30 +142,6 @@
            return false;
        }
 
-       // נקרא בלחיצה על צ'קבוקס בלוח — מסנכרן את המראה הירוק, הרקע והכפתור
-       function onScheduleCheckboxClick(checkbox) {
-           // עוטף ה-CSS של הצ'קבוקס המותאם (checkbox-wrapper-33)
-           var wrapper = checkbox.closest('.checkbox-wrapper-33');
-           if (wrapper) {
-               // האלמנט שמציג את סימן ה-V הירוק
-               var symbol = wrapper.querySelector('.checkbox__symbol');
-               if (symbol) {
-                   if (checkbox.checked) {
-                       // הקרנה נבחרה — מסמן את התא כפעיל (ירוק)
-                       wrapper.classList.add('checkbox-wrapper-33--checked');
-                       symbol.classList.add('checkbox__symbol--checked');
-                   } else {
-                       // ביטול בחירה — מחזיר למראה רגיל
-                       wrapper.classList.remove('checkbox-wrapper-33--checked');
-                       symbol.classList.remove('checkbox__symbol--checked');
-                   }
-               }
-           }
-
-           updateCellPendingState(checkbox);
-           updateUnsavedState();
-       }
-
        if (window.addEventListener) {
            window.addEventListener('load', initScheduleEditorUi);
        } else {
@@ -132,7 +159,7 @@
         <asp:Panel ID="pnlSchedule" runat="server" Visible="false"></asp:Panel>
 
 <div class="screenings-editor-actions">
-<asp:Button CssClass="login-btn hiddenBtn"
+<asp:Button CssClass="login-btn schedule-update-btn"
     ID="btnAddScreening"
     runat="server"
     Text="עדכן הקרנות"
