@@ -89,7 +89,7 @@ namespace Shipping
 
                     if (existing != null)
                     {
-                        var cb = CreateScheduleCheckBox(
+                        cell.Controls.Add(CreateScheduleCheckBox(
                             movieId,
                             currentDayStart,
                             currentDayEnd,
@@ -97,16 +97,12 @@ namespace Shipping
                             existing.ScreeningId,
                             existing.Hall,
                             isChecked: true,
-                            isEnabled: !isPast);
-                        cell.Controls.Add(cb);
+                            isEnabled: !isPast));
                     }
-                    else if (isPast)
+                    else
                     {
-                        cell.Text = "❌";
-                    }
-                    else if (AnyHallAvailable(currentDayStart, currentDayEnd))
-                    {
-                        var cb = CreateScheduleCheckBox(
+                        bool canSchedule = !isPast && AnyHallAvailable(currentDayStart, currentDayEnd);
+                        cell.Controls.Add(CreateScheduleCheckBox(
                             movieId,
                             currentDayStart,
                             currentDayEnd,
@@ -114,12 +110,7 @@ namespace Shipping
                             screeningId: 0,
                             hallId: 0,
                             isChecked: false,
-                            isEnabled: true);
-                        cell.Controls.Add(cb);
-                    }
-                    else
-                    {
-                        cell.Text = "❌";
+                            isEnabled: canSchedule));
                     }
 
                     if (highlightedCells.Contains(cellKey))
@@ -139,7 +130,7 @@ namespace Shipping
             btnAddScreening.CssClass = "btnAddS showBtn";
         }
 
-        private static CheckBox CreateScheduleCheckBox(
+        private static Control CreateScheduleCheckBox(
             int movieId,
             DateTime start,
             DateTime end,
@@ -152,10 +143,10 @@ namespace Shipping
             var cb = new CheckBox
             {
                 ID = "cb_" + cellKey,
-                CssClass = "schedule-checkbox",
                 Checked = isChecked,
                 Enabled = isEnabled,
-                EnableViewState = true
+                EnableViewState = true,
+                CssClass = "checkbox__trigger visuallyhidden"
             };
 
             cb.Attributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
@@ -165,7 +156,21 @@ namespace Shipping
             if (isEnabled)
                 cb.Attributes["onclick"] = "showUpdateButton();";
 
-            return cb;
+            var wrapper = new Panel { CssClass = "checkbox-wrapper-33" };
+            var label = new System.Web.UI.HtmlControls.HtmlGenericControl("label");
+            label.Attributes["class"] = "checkbox";
+
+            var symbol = new System.Web.UI.HtmlControls.HtmlGenericControl("span");
+            symbol.Attributes["class"] = "checkbox__symbol";
+            symbol.InnerHtml =
+                @"<svg aria-hidden=""true"" class=""icon-checkbox"" width=""28px"" height=""28px"" viewBox=""0 0 28 28"" version=""1"" xmlns=""http://www.w3.org/2000/svg"">" +
+                @"<path d=""M4 14l8 7L24 7""></path></svg>";
+
+            label.Controls.Add(cb);
+            label.Controls.Add(symbol);
+            wrapper.Controls.Add(label);
+
+            return wrapper;
         }
 
         private static string BuildCellKey(int movieId, DateTime start) =>
@@ -249,11 +254,8 @@ namespace Shipping
                             if (!cell.HasControls())
                                 continue;
 
-                            foreach (Control c in cell.Controls)
-                            {
-                                if (c is CheckBox cb)
-                                    ProcessCheckboxChange(cb, movieTitle, culture, added, removed, changedCellKeys, errors);
-                            }
+                            foreach (CheckBox cb in FindScheduleCheckBoxes(cell))
+                                ProcessCheckboxChange(cb, movieTitle, culture, added, removed, changedCellKeys, errors);
                         }
                     }
                 }
@@ -287,6 +289,18 @@ namespace Shipping
             {
                 lblMessage.Text = "לא בוצעו שינויים.";
                 lblMessage.CssClass = "editorMsg";
+            }
+        }
+
+        private static IEnumerable<CheckBox> FindScheduleCheckBoxes(Control root)
+        {
+            if (root is CheckBox cb && root.ID != null && root.ID.StartsWith("cb_"))
+                yield return cb;
+
+            foreach (Control child in root.Controls)
+            {
+                foreach (CheckBox nested in FindScheduleCheckBoxes(child))
+                    yield return nested;
             }
         }
 
