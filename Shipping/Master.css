@@ -1627,6 +1627,26 @@ input[type="checkbox"] {
     text-align: center;
     margin-top: 8px;
 }
+
+.screenings-editor-actions input.login-btn.showBtn,
+.screenings-editor-actions input.login-btn.hiddenBtn {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.screenings-editor-actions input.login-btn.showBtn {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+    margin-top: 25px !important;
+    margin-bottom: 16px !important;
+}
+
+.screenings-editor-actions input.login-btn.hiddenBtn {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 /* -------- SIGN UP -------- */
 .signup-container {
     text-align: center;

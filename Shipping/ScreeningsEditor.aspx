@@ -5,7 +5,7 @@
    <script type="text/javascript">
        // בודק אם יש צ'קבוקסים שסטטוסם שונה מהמצב השמור בשרת
        function hasUnsavedScheduleChanges() {
-           var checkboxes = document.querySelectorAll('.weekSchedule input[type="checkbox"][data-initial-checked]');
+           var checkboxes = document.querySelectorAll('.weekSchedule .checkbox__trigger[data-initial-checked]');
            for (var i = 0; i < checkboxes.length; i++) {
                var cb = checkboxes[i];
                var initialChecked = cb.getAttribute('data-initial-checked') === 'true';
@@ -17,20 +17,29 @@
        }
 
        // מציג/מסתיר את כפתור "עדכן הקרנות" לפי קיום שינויים שלא נשמרו
-       function updateUnsavedState() {
+       function setUpdateButtonVisible(visible) {
            var btn = document.getElementById('<%= btnAddScreening.ClientID %>');
+           if (!btn) return;
+
+           if (visible) {
+               btn.classList.remove('hiddenBtn');
+               btn.classList.add('showBtn', 'login-btn');
+               btn.style.opacity = '1';
+               btn.style.pointerEvents = 'auto';
+               btn.style.transform = 'translateY(0)';
+           } else {
+               btn.classList.remove('showBtn');
+               btn.classList.add('hiddenBtn', 'login-btn');
+               btn.style.opacity = '0';
+               btn.style.pointerEvents = 'none';
+           }
+       }
+
+       function updateUnsavedState() {
            var lbl = document.getElementById('<%= lblMessage.ClientID %>');
            var hasChanges = hasUnsavedScheduleChanges();
 
-           if (btn) {
-               if (hasChanges) {
-                   btn.classList.remove('hiddenBtn');
-                   btn.classList.add('showBtn', 'login-btn');
-               } else {
-                   btn.classList.remove('showBtn');
-                   btn.classList.add('hiddenBtn');
-               }
-           }
+           setUpdateButtonVisible(hasChanges);
 
            if (lbl && hasChanges) {
                lbl.innerHTML = "";
@@ -59,7 +68,7 @@
                ddl.setAttribute('data-selected-value', ddl.value);
            }
 
-           var checkboxes = document.querySelectorAll('.weekSchedule input[type="checkbox"][data-initial-checked]');
+           var checkboxes = document.querySelectorAll('.weekSchedule .checkbox__trigger[data-initial-checked]');
            for (var i = 0; i < checkboxes.length; i++) {
                updateCellPendingState(checkboxes[i]);
            }
@@ -86,20 +95,20 @@
        function onScheduleCheckboxClick(checkbox) {
            // עוטף ה-CSS של הצ'קבוקס המותאם (checkbox-wrapper-33)
            var wrapper = checkbox.closest('.checkbox-wrapper-33');
-           if (!wrapper) return;
-
-           // האלמנט שמציג את סימן ה-V הירוק
-           var symbol = wrapper.querySelector('.checkbox__symbol');
-           if (!symbol) return;
-
-           if (checkbox.checked) {
-               // הקרנה נבחרה — מסמן את התא כפעיל (ירוק)
-               wrapper.classList.add('checkbox-wrapper-33--checked');
-               symbol.classList.add('checkbox__symbol--checked');
-           } else {
-               // ביטול בחירה — מחזיר למראה רגיל
-               wrapper.classList.remove('checkbox-wrapper-33--checked');
-               symbol.classList.remove('checkbox__symbol--checked');
+           if (wrapper) {
+               // האלמנט שמציג את סימן ה-V הירוק
+               var symbol = wrapper.querySelector('.checkbox__symbol');
+               if (symbol) {
+                   if (checkbox.checked) {
+                       // הקרנה נבחרה — מסמן את התא כפעיל (ירוק)
+                       wrapper.classList.add('checkbox-wrapper-33--checked');
+                       symbol.classList.add('checkbox__symbol--checked');
+                   } else {
+                       // ביטול בחירה — מחזיר למראה רגיל
+                       wrapper.classList.remove('checkbox-wrapper-33--checked');
+                       symbol.classList.remove('checkbox__symbol--checked');
+                   }
+               }
            }
 
            updateCellPendingState(checkbox);

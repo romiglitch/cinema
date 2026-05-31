@@ -153,12 +153,12 @@ namespace Shipping
                 CssClass = "checkbox__trigger visuallyhidden"
             };
 
-            cb.Attributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
-            cb.Attributes["data-initial-checked"] = isChecked ? "true" : "false";
-            cb.Attributes["data-cell-key"] = cellKey;
+            cb.InputAttributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
+            cb.InputAttributes["data-initial-checked"] = isChecked ? "true" : "false";
+            cb.InputAttributes["data-cell-key"] = cellKey;
 
             if (isEnabled)
-                cb.Attributes["onclick"] = "onScheduleCheckboxClick(this);";
+                cb.InputAttributes["onchange"] = "onScheduleCheckboxClick(this);";
 
             var wrapperClass = "checkbox-wrapper-33";
             if (isChecked)
@@ -321,13 +321,14 @@ namespace Shipping
             List<string> removed,
             List<string> errors)
         {
-            bool initiallyChecked = cb.Attributes["data-initial-checked"] == "true";
+            bool initiallyChecked = string.Equals(
+                cb.InputAttributes["data-initial-checked"], "true", StringComparison.OrdinalIgnoreCase);
             bool currentlyChecked = cb.Checked;
 
             if (initiallyChecked == currentlyChecked)
                 return;
 
-            string data = cb.Attributes["data-info"];
+            string data = cb.InputAttributes["data-info"];
             if (string.IsNullOrEmpty(data))
                 return;
 
