@@ -17,6 +17,16 @@
                lbl.innerHTML = "";
            }
        }
+
+       function onScheduleCheckboxClick(checkbox) {
+           showUpdateButton();
+           var wrapper = checkbox.closest('.checkbox-wrapper-33');
+           if (!wrapper) return;
+           if (checkbox.checked)
+               wrapper.classList.add('checkbox-wrapper-33--checked');
+           else
+               wrapper.classList.remove('checkbox-wrapper-33--checked');
+       }
    </script>
 
   <div class="signup-form" style=" margin-top: 80px;">

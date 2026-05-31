@@ -1335,6 +1335,11 @@ button.admin-buttons {
     .weekSchedule td, .weekSchedule th {
         border: 1px solid #aaa;
         padding: 10px;
+        vertical-align: middle;
+    }
+
+    .weekSchedule td:not(:first-child) {
+        text-align: center;
     }
 
     .weekSchedule td.schedule-cell-updated {
@@ -1346,14 +1351,17 @@ button.admin-buttons {
         --s-small: 1.2em;
         --border-width: 1px;
         --c-primary: #6dff6d;
+        --c-disabled: #6b6b6b;
+        --c-disabled-border: #4a4a4a;
         --c-primary-20-percent-opacity: rgb(109 255 109 / 20%);
         --c-primary-10-percent-opacity: rgb(109 255 109 / 10%);
         --t-base: 0.4s;
         --t-fast: 0.2s;
         --e-in: ease-in;
         --e-out: cubic-bezier(.11,.29,.18,.98);
-        display: flex;
+        display: inline-flex;
         justify-content: center;
+        align-items: center;
     }
 
     .weekSchedule .checkbox-wrapper-33 .visuallyhidden {
@@ -1375,34 +1383,44 @@ button.admin-buttons {
     }
 
     .weekSchedule .checkbox-wrapper-33 .checkbox {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         margin: 0;
+        cursor: pointer;
     }
 
     .weekSchedule .checkbox-wrapper-33 .checkbox__symbol {
         display: inline-flex;
-        border: var(--border-width) solid var(--c-primary);
+        align-items: center;
+        justify-content: center;
+        border: var(--border-width) solid var(--c-disabled-border);
+        background-color: rgba(255, 255, 255, 0.04);
         position: relative;
-        border-radius: 0.1em;
+        border-radius: 0.45em;
         width: 1.5em;
         height: 1.5em;
-        transition: box-shadow var(--t-base) var(--e-out), background-color var(--t-base);
+        transition: box-shadow var(--t-base) var(--e-out), background-color var(--t-base), border-color var(--t-base);
+        box-shadow: none;
+    }
+
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .checkbox__symbol {
+        border-color: var(--c-primary);
+        background-color: transparent;
         box-shadow: 0 0 0 0 var(--c-primary-10-percent-opacity);
     }
 
     .weekSchedule .checkbox-wrapper-33 .checkbox__symbol:after {
         content: "";
         position: absolute;
-        top: 0.5em;
-        left: 0.5em;
+        top: 50%;
+        left: 50%;
         width: 0.25em;
         height: 0.25em;
         background-color: var(--c-primary-20-percent-opacity);
         opacity: 0;
         border-radius: 3em;
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
         transform-origin: 50% 50%;
     }
 
@@ -1416,36 +1434,51 @@ button.admin-buttons {
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-miterlimit: 10;
-        color: var(--c-primary);
-        display: inline-block;
+        color: var(--c-disabled);
+        display: block;
+        pointer-events: none;
     }
 
     .weekSchedule .checkbox-wrapper-33 .icon-checkbox path {
-        transition: stroke-dashoffset var(--t-fast) var(--e-in);
-        stroke-dasharray: 30px, 31px;
-        stroke-dashoffset: 31px;
+        stroke: var(--c-disabled);
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0;
+        transform: scale(0.6);
+        transform-origin: center;
+        transition: opacity var(--t-fast) var(--e-out), transform var(--t-base) var(--e-out);
     }
 
-    .weekSchedule .checkbox-wrapper-33 .checkbox__trigger:checked + .checkbox__symbol:after {
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .icon-checkbox,
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .icon-checkbox path {
+        color: var(--c-primary);
+        stroke: var(--c-primary);
+    }
+
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .checkbox__trigger:checked + .checkbox__symbol:after,
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled).checkbox-wrapper-33--checked .checkbox__symbol:after {
         animation: ripple-33 1.5s var(--e-out);
     }
 
-    .weekSchedule .checkbox-wrapper-33 .checkbox__trigger:checked + .checkbox__symbol .icon-checkbox path {
-        transition: stroke-dashoffset var(--t-base) var(--e-out);
-        stroke-dashoffset: 0px;
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .checkbox__trigger:checked + .checkbox__symbol .icon-checkbox path,
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled).checkbox-wrapper-33--checked .icon-checkbox path {
+        opacity: 1;
+        transform: scale(1);
     }
 
-    .weekSchedule .checkbox-wrapper-33 .checkbox__trigger:focus + .checkbox__symbol {
+    .weekSchedule .checkbox-wrapper-33:not(.checkbox-wrapper-33--disabled) .checkbox__trigger:focus + .checkbox__symbol {
         box-shadow: 0 0 0 0.25em var(--c-primary-20-percent-opacity);
     }
 
-    .weekSchedule .checkbox-wrapper-33 .checkbox__trigger:disabled + .checkbox__symbol {
-        opacity: 0.45;
+    .weekSchedule .checkbox-wrapper-33.checkbox-wrapper-33--disabled .checkbox {
         cursor: not-allowed;
     }
 
-    .weekSchedule .checkbox-wrapper-33 .checkbox__trigger:disabled:checked + .checkbox__symbol .icon-checkbox path {
-        stroke-dashoffset: 0px;
+    .weekSchedule .checkbox-wrapper-33.checkbox-wrapper-33--disabled.checkbox-wrapper-33--checked .icon-checkbox path {
+        opacity: 1;
+        transform: scale(1);
     }
 
     @keyframes ripple-33 {

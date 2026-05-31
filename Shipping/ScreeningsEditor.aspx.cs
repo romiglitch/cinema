@@ -154,9 +154,15 @@ namespace Shipping
             cb.Attributes["data-cell-key"] = cellKey;
 
             if (isEnabled)
-                cb.Attributes["onclick"] = "showUpdateButton();";
+                cb.Attributes["onclick"] = "onScheduleCheckboxClick(this);";
 
-            var wrapper = new Panel { CssClass = "checkbox-wrapper-33" };
+            var wrapperClass = "checkbox-wrapper-33";
+            if (isChecked)
+                wrapperClass += " checkbox-wrapper-33--checked";
+            if (!isEnabled)
+                wrapperClass += " checkbox-wrapper-33--disabled";
+
+            var wrapper = new Panel { CssClass = wrapperClass };
             var label = new System.Web.UI.HtmlControls.HtmlGenericControl("label");
             label.Attributes["class"] = "checkbox";
 
