@@ -1,0 +1,11 @@
+-- Normalize screenings for movie 1594 (מייקל) only.
+--
+-- Open NormalizeAllScreenings.sql, set at the top:
+--   DECLARE @MovieIdFilter int = 1594;
+-- then run the full script.
+--
+-- Valid grid for מייקל (Duration 127 -> rounded 130 -> slot 165 min):
+--   09:00 - 11:45 | 11:45 - 14:30 | 14:30 - 17:15 | 17:15 - 20:00 | 20:00 - 22:45
+--
+-- Optional (same transaction, after normalization):
+--   UPDATE dbo.Movie SET Duration = 130 WHERE Id = 1594;  -- 130 + 35 = 165

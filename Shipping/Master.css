@@ -1581,7 +1581,7 @@ input[type="checkbox"] {
 .signup-form input.btnAddS.showBtn {
     opacity: 1;
     pointer-events: auto;
-    margin: 25px auto 0 auto !important;
+    margin: 25px auto 16px auto !important;
     transform: translateY(0);
 }
 
@@ -1610,12 +1610,18 @@ input[type="checkbox"] {
     transform: translateY(0);
 }
 .editorMsg {
-    margin-top:-20px;
+    margin-top: 12px;
     text-align: center;
     font-size: 15px;
-    color: #6dff6d; /* או הצבע שבחרת */
+    color: #6dff6d;
     letter-spacing: 0.4px;
     display: block;
+    clear: both;
+}
+
+.screenings-editor-actions {
+    text-align: center;
+    margin-top: 8px;
 }
 /* -------- SIGN UP -------- */
 .signup-container {
