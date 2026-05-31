@@ -3,27 +3,87 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
    <script type="text/javascript">
-       // מציג את כפתור "עדכן הקרנות" ומנקה הודעות משוב קודמות אחרי שינוי בלוח
-       function showUpdateButton() {
+       // בודק אם יש צ'קבוקסים שסטטוסם שונה מהמצב השמור בשרת
+       function hasUnsavedScheduleChanges() {
+           var checkboxes = document.querySelectorAll('.weekSchedule input[type="checkbox"][data-initial-checked]');
+           for (var i = 0; i < checkboxes.length; i++) {
+               var cb = checkboxes[i];
+               var initialChecked = cb.getAttribute('data-initial-checked') === 'true';
+               if (cb.checked !== initialChecked) {
+                   return true;
+               }
+           }
+           return false;
+       }
+
+       // מציג/מסתיר את כפתור "עדכן הקרנות" לפי קיום שינויים שלא נשמרו
+       function updateUnsavedState() {
            var btn = document.getElementById('<%= btnAddScreening.ClientID %>');
            var lbl = document.getElementById('<%= lblMessage.ClientID %>');
+           var hasChanges = hasUnsavedScheduleChanges();
 
            if (btn) {
-               // מסיר הסתרה ומחיל את עיצוב כפתור ההתחברות כדי שהכפתור יופיע מתחת ללוח
-               btn.classList.remove('hiddenBtn');
-               btn.classList.add('showBtn', 'login-btn');
+               if (hasChanges) {
+                   btn.classList.remove('hiddenBtn');
+                   btn.classList.add('showBtn', 'login-btn');
+               } else {
+                   btn.classList.remove('showBtn');
+                   btn.classList.add('hiddenBtn');
+               }
            }
 
-           if (lbl) {
-               // מנקה הודעה מהשמירה הקודמת (למשל "לא בוצעו שינויים")
+           if (lbl && hasChanges) {
                lbl.innerHTML = "";
            }
        }
 
-       // נקרא בלחיצה על צ'קבוקס בלוח — מסנכרן את המראה הירוק ומציג את כפתור השמירה
-       function onScheduleCheckboxClick(checkbox) {
-           showUpdateButton();
+       // מסמן/מסיר רקע בהיר לתא עם שינוי שלא נשמר
+       function updateCellPendingState(checkbox) {
+           var cell = checkbox.closest('td.schedule-day-cell');
+           if (!cell) return;
 
+           var initialChecked = checkbox.getAttribute('data-initial-checked') === 'true';
+           var isChanged = checkbox.checked !== initialChecked;
+
+           if (isChanged) {
+               cell.classList.add('schedule-cell-pending');
+           } else {
+               cell.classList.remove('schedule-cell-pending');
+           }
+       }
+
+       // מסנכרן את מצב הרקע והכפתור לכל התאים אחרי טעינת הדף
+       function initScheduleEditorUi() {
+           var ddl = document.getElementById('<%= ddlMovies.ClientID %>');
+           if (ddl) {
+               ddl.setAttribute('data-selected-value', ddl.value);
+           }
+
+           var checkboxes = document.querySelectorAll('.weekSchedule input[type="checkbox"][data-initial-checked]');
+           for (var i = 0; i < checkboxes.length; i++) {
+               updateCellPendingState(checkboxes[i]);
+           }
+
+           updateUnsavedState();
+       }
+
+       // לפני מעבר לסרט אחר — מאשר ביטול שינויים שלא נשמרו
+       function onMovieSelectionChanging(select) {
+           if (hasUnsavedScheduleChanges()) {
+               var confirmed = confirm('יש שינויים שלא נשמרו בהקרנות. האם לבטל אותם ולעבור לסרט אחר?');
+               if (!confirmed) {
+                   select.value = select.getAttribute('data-selected-value');
+                   return false;
+               }
+           }
+
+           select.setAttribute('data-selected-value', select.value);
+           __doPostBack('<%= ddlMovies.UniqueID %>', '');
+           return false;
+       }
+
+       // נקרא בלחיצה על צ'קבוקס בלוח — מסנכרן את המראה הירוק, הרקע והכפתור
+       function onScheduleCheckboxClick(checkbox) {
            // עוטף ה-CSS של הצ'קבוקס המותאם (checkbox-wrapper-33)
            var wrapper = checkbox.closest('.checkbox-wrapper-33');
            if (!wrapper) return;
@@ -41,11 +101,20 @@
                wrapper.classList.remove('checkbox-wrapper-33--checked');
                symbol.classList.remove('checkbox__symbol--checked');
            }
+
+           updateCellPendingState(checkbox);
+           updateUnsavedState();
+       }
+
+       if (window.addEventListener) {
+           window.addEventListener('load', initScheduleEditorUi);
+       } else {
+           window.attachEvent('onload', initScheduleEditorUi);
        }
    </script>
 
   <div class="signup-form" style=" margin-top: 80px;">
-    <div style="text-align:center">  <asp:DropDownList CssClass= ID="ddlMovies" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlMovies_SelectedIndexChanged"></asp:DropDownList>
+    <div style="text-align:center">  <asp:DropDownList CssClass= ID="ddlMovies" runat="server" AutoPostBack="false" OnSelectedIndexChanged="ddlMovies_SelectedIndexChanged"></asp:DropDownList>
 </div>
 <asp:DropDownList ID="ddlTimes" runat="server" Visible="false"></asp:DropDownList>
 

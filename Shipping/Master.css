@@ -1361,6 +1361,10 @@ button.admin-buttons {
         background-color: rgba(255, 255, 255, 0.2);
     }
 
+    .weekSchedule td.schedule-cell-pending {
+        background-color: rgba(255, 255, 255, 0.12);
+    }
+
     .weekSchedule .checkbox-wrapper-33 {
         --s-xsmall: 0.625em;
         --s-small: 1.2em;

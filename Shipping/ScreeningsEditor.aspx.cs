@@ -41,10 +41,8 @@ namespace Shipping
         {
             base.OnPreRender(e);
 
-            bool scheduleVisible = pnlSchedule.Visible && ddlMovies.SelectedIndex > 0;
-            btnAddScreening.CssClass = scheduleVisible
-                ? "login-btn showBtn"
-                : "login-btn hiddenBtn";
+            btnAddScreening.CssClass = "login-btn hiddenBtn";
+            ddlMovies.Attributes["onchange"] = "return onMovieSelectionChanging(this);";
         }
 
         private void RebuildScheduleTable(int movieId)
@@ -60,7 +58,6 @@ namespace Shipping
             DateTime startOfVisibleWeek = today.AddDays(-daysSinceSunday);
 
             var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek);
-            var highlightedCells = ViewState["UpdatedCellKeys"] as List<string> ?? new List<string>();
 
             Table tbl = new Table();
             tbl.CssClass = "weekSchedule";
@@ -123,9 +120,6 @@ namespace Shipping
                             isChecked: false,
                             isEnabled: canSchedule));
                     }
-
-                    if (highlightedCells.Contains(cellKey))
-                        cell.CssClass += " schedule-cell-updated";
 
                     row.Cells.Add(cell);
                 }
@@ -229,7 +223,6 @@ namespace Shipping
         protected void ddlMovies_SelectedIndexChanged(object sender, EventArgs e)
         {
             lblMessage.Text = "";
-            ViewState["UpdatedCellKeys"] = null;
 
             if (ddlMovies.SelectedIndex == 0)
             {
@@ -254,7 +247,6 @@ namespace Shipping
             var culture = new CultureInfo("he-IL");
             var added = new List<string>();
             var removed = new List<string>();
-            var changedCellKeys = new List<string>();
             var errors = new List<string>();
 
             foreach (Control row in pnlSchedule.Controls)
@@ -273,13 +265,12 @@ namespace Shipping
                                 continue;
 
                             foreach (CheckBox cb in FindScheduleCheckBoxes(cell))
-                                ProcessCheckboxChange(cb, movieTitle, culture, added, removed, changedCellKeys, errors);
+                                ProcessCheckboxChange(cb, movieTitle, culture, added, removed, errors);
                         }
                     }
                 }
             }
 
-            ViewState["UpdatedCellKeys"] = changedCellKeys;
             RebuildScheduleTable(movieId);
 
             if (added.Count > 0 || removed.Count > 0)
@@ -328,7 +319,6 @@ namespace Shipping
             CultureInfo culture,
             List<string> added,
             List<string> removed,
-            List<string> changedCellKeys,
             List<string> errors)
         {
             bool initiallyChecked = cb.Attributes["data-initial-checked"] == "true";
@@ -347,10 +337,6 @@ namespace Shipping
             DateTime start = DateTime.Parse(parts[2]);
             DateTime end = DateTime.Parse(parts[3]);
             int hallId = int.Parse(parts[4]);
-
-            string cellKey = cb.Attributes["data-cell-key"];
-            if (!string.IsNullOrEmpty(cellKey))
-                changedCellKeys.Add(cellKey);
 
             if (!initiallyChecked && currentlyChecked)
             {
