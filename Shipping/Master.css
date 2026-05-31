@@ -1336,6 +1336,60 @@ button.admin-buttons {
         border: 1px solid #aaa;
         padding: 10px;
     }
+
+    /* צ'קבוקסים מרובעים בעריכת לוח הקרנות (לא עיגול דמוי רדיו) */
+    .weekSchedule input.schedule-checkbox {
+        -webkit-appearance: checkbox;
+        -moz-appearance: checkbox;
+        appearance: checkbox;
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        accent-color: #3f8ded;
+        vertical-align: middle;
+    }
+
+    .weekSchedule input.schedule-checkbox:checked::after {
+        content: none;
+    }
+
+    .weekSchedule input.schedule-checkbox:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+    .weekSchedule td.schedule-cell-updated {
+        background-color: rgba(255, 214, 102, 0.45);
+    }
+
+.editorMsgSuccess {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(46, 125, 50, 0.18);
+    border: 1px solid rgba(109, 255, 109, 0.45);
+    color: #b8ffb8;
+    text-align: right;
+    direction: rtl;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.editorMsgSuccess strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #6dff6d;
+    font-size: 16px;
+}
+
+.editorMsgSuccess .editorMsg-item {
+    display: block;
+    margin-top: 4px;
+}
 /* עיצוב של ה-checkbox שיהפוך אותו לדמוי רדיו */
 input[type="checkbox"] {
     -webkit-appearance: none; /* מסתיר את עיצוב ה-checkBox ב-Chrome ו-Safari */

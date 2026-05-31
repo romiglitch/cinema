@@ -1,24 +1,22 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Master.Master" AutoEventWireup="true" CodeBehind="ScreeningsEditor.aspx.cs" Inherits="Shipping.ScreeningsEditor" %>
-
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
    <script type="text/javascript">
-       function showAddButton(radio) {
+       // מציג את כפתור "עדכן הקרנות" ומנקה הודעות קודמות בכל שינוי צ'קבוקס
+       function showUpdateButton() {
            var btn = document.getElementById('<%= btnAddScreening.ClientID %>');
            var lbl = document.getElementById('<%= lblMessage.ClientID %>');
 
            if (btn) {
                btn.classList.remove('hiddenBtn');
                btn.classList.add('showBtn');
-               btn.setAttribute('data-info', radio.getAttribute('data-info'));
            }
 
            if (lbl) {
-               lbl.innerHTML = ""; // מנקה הודעה קודמת
+               lbl.innerHTML = "";
            }
        }
-
    </script>
 
   <div class="signup-form" style=" margin-top: 80px;">
@@ -33,7 +31,7 @@
 <asp:Button CssClass="btnAddS hiddenBtn"
     ID="btnAddScreening"
     runat="server"
-    Text="הוסף הקרנה"
+    Text="עדכן הקרנות"
     OnClick="btnAddScreening_Click" />
 
 <div style="margin-top:10px; text-align:center;">

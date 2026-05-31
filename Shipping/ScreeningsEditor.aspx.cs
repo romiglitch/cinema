@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
-using System.Web;
+using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
-using System.Configuration;
-using System.Drawing;
-using System.Globalization;
 using DALLlilbrary;
 
 namespace Shipping
@@ -21,7 +20,7 @@ namespace Shipping
             if (Session["category"] != "admin")
                 Response.Redirect("Login.aspx");
 
-            if (!IsPostBack) //בטעינה ראשונית בלבד טוען את רשימת הסרטים והאולמות
+            if (!IsPostBack)
             {
                 string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                 LoadMovies(con);
@@ -29,43 +28,34 @@ namespace Shipping
             }
         }
 
-        protected void Page_Init(object sender, EventArgs e)//כשהעמוד נוצר בזיכרון אבל עדיין לא היה פייג' לואד
+        protected void Page_Init(object sender, EventArgs e)
         {
-            // DDLבדיקה שנבחר סרט ב
-            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID]))//Request.Form מכיוון שהעמוד עדיין לא נבנה ניגשים לנתונים עם
+            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID]))
             {
-                int movieId;
-                if (int.TryParse(Request.Form[ddlMovies.UniqueID], out movieId))
-                {
-                    //בנייה מחדש של הטבלה מיד עם טעינת הדף כדי שהצ'קבוקסים בתוך הטבלה ייווצרו בזיכרון
+                if (int.TryParse(Request.Form[ddlMovies.UniqueID], out int movieId))
                     RebuildScheduleTable(movieId);
-                }
             }
         }
 
-
         private void RebuildScheduleTable(int movieId)
         {
-            // חישוב אורך הסרט כולל הפסקות ועיגול זמנים
             int slotMinutes = GetRoundedDuration(movieId);
-            // יצירת רשימת טווחי זמן לאורך יום אחד
             var dailySlots = GenerateSequentialSchedule(slotMinutes);
 
-            // הגדרת מערך הימים לתצוגה בכותרת הטבלה
             string[] days = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
             var culture = new CultureInfo("he-IL");
 
-            // יום ראשון של השבוע הנוכחי (השבוע שמכיל את היום)
             DateTime today = DateTime.Today;
             int daysSinceSunday = ((int)today.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
             DateTime startOfVisibleWeek = today.AddDays(-daysSinceSunday);
 
-            //יצירת הטבלה שתציג את כל ההקרנות
+            var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek);
+            var highlightedCells = ViewState["UpdatedCellKeys"] as List<string> ?? new List<string>();
+
             Table tbl = new Table();
             tbl.CssClass = "weekSchedule";
             tbl.Attributes.Add("dir", "rtl");
 
-            // יצירת שורת הכותרת של הטבלה
             TableHeaderRow hr = new TableHeaderRow();
             hr.Cells.Add(new TableHeaderCell { Text = "שעה" });
 
@@ -81,69 +71,352 @@ namespace Shipping
 
             tbl.Rows.Add(hr);
 
-            // מעבר על כל טווח שעות (שורה בטבלה)
             foreach (var slot in dailySlots)
             {
                 TableRow row = new TableRow();
-                // הוספת עמודת השעה מצד ימין
                 row.Cells.Add(new TableCell { Text = $"{slot.Start:HH:mm} - {slot.End:HH:mm}" });
 
-                // מעבר על 7 ימי השבוע עבור כל טווח שעות
                 for (int i = 0; i < 7; i++)
                 {
-                    // חישוב התאריך והזמן המדויק עבור התא הספציפי בטבלה
                     DateTime currentDayStart = startOfVisibleWeek.AddDays(i).Add(slot.Start.TimeOfDay);
                     DateTime currentDayEnd = startOfVisibleWeek.AddDays(i).Add(slot.End.TimeOfDay);
+                    string cellKey = BuildCellKey(movieId, currentDayStart);
+                    string slotKey = currentDayStart.ToString("yyyyMMddHHmm");
 
                     TableCell cell = new TableCell();
-                    // ❌ = מועבר (עבר) או שאין אולם פנוי לטווח השעות
                     bool isPast = currentDayStart <= DateTime.Now;
-                    bool hallFree = AnyHallAvailable(currentDayStart, currentDayEnd);
+                    existingBySlot.TryGetValue(slotKey, out ExistingScreening existing);
 
-                    if (!isPast && hallFree)
+                    if (existing != null)
                     {
-                        // יצירת תיבת סימון אם הזמן פנוי
-                        CheckBox cb = new CheckBox();
-                        cb.ID = $"cb_{movieId}_{currentDayStart:yyyyMMddHHmm}";//יחודי לכל צ'ק בוקס ID בניית 
-                        cb.CssClass = "circleCheck";//הגדרת עיצוב
-                        cb.EnableViewState = true; //עבור הפקד ViewState מפעיל
-                                                   //שומר על מצב הסימון בין טעינות דף
-
-                        //בשביל שנוכל אחכ לקרוא את המידע ולשמור אותו במסד HTMLשמירת נתוני ההקרנה ב
-                        cb.Attributes["data-info"] = $"{movieId}|{currentDayStart:yyyy-MM-dd HH:mm}|{currentDayEnd:yyyy-MM-dd HH:mm}";
-                        // הצגת כפתור ההוספה ברגע שצ'ק בוקס נבחר
-                        cb.Attributes.Add("onclick", "showAddButton(this);");
-                        //הכנסת אובייקט הצ'ק בוקס לטבלה
+                        var cb = CreateScheduleCheckBox(
+                            movieId,
+                            currentDayStart,
+                            currentDayEnd,
+                            cellKey,
+                            existing.ScreeningId,
+                            existing.Hall,
+                            isChecked: true,
+                            isEnabled: !isPast);
+                        cell.Controls.Add(cb);
+                    }
+                    else if (isPast)
+                    {
+                        cell.Text = "❌";
+                    }
+                    else if (AnyHallAvailable(currentDayStart, currentDayEnd))
+                    {
+                        var cb = CreateScheduleCheckBox(
+                            movieId,
+                            currentDayStart,
+                            currentDayEnd,
+                            cellKey,
+                            screeningId: 0,
+                            hallId: 0,
+                            isChecked: false,
+                            isEnabled: true);
                         cell.Controls.Add(cb);
                     }
                     else
                     {
                         cell.Text = "❌";
                     }
+
+                    if (highlightedCells.Contains(cellKey))
+                        cell.CssClass = "schedule-cell-updated";
+
                     row.Cells.Add(cell);
                 }
+
                 tbl.Rows.Add(row);
             }
 
-            // ניקוי הפאנל מהטבלה הישנה והוספת הטבלה המעודכנת
             pnlSchedule.Controls.Clear();
             pnlSchedule.Controls.Add(tbl);
             pnlSchedule.Visible = true;
+
+            btnAddScreening.Text = "עדכן הקרנות";
+            btnAddScreening.CssClass = "btnAddS showBtn";
         }
 
-        protected void Btn_Click(object sender, EventArgs e)
+        private static CheckBox CreateScheduleCheckBox(
+            int movieId,
+            DateTime start,
+            DateTime end,
+            string cellKey,
+            int screeningId,
+            int hallId,
+            bool isChecked,
+            bool isEnabled)
         {
-            Session.Abandon();
-            Response.Redirect("HomePage.aspx");
+            var cb = new CheckBox
+            {
+                ID = "cb_" + cellKey,
+                CssClass = "schedule-checkbox",
+                Checked = isChecked,
+                Enabled = isEnabled,
+                EnableViewState = true
+            };
+
+            cb.Attributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
+            cb.Attributes["data-initial-checked"] = isChecked ? "true" : "false";
+            cb.Attributes["data-cell-key"] = cellKey;
+
+            if (isEnabled)
+                cb.Attributes["onclick"] = "showUpdateButton();";
+
+            return cb;
         }
+
+        private static string BuildCellKey(int movieId, DateTime start) =>
+            $"{movieId}_{start:yyyyMMddHHmm}";
+
+        private Dictionary<string, ExistingScreening> LoadMovieScreeningsForWeek(int movieId, DateTime weekStart)
+        {
+            var result = new Dictionary<string, ExistingScreening>();
+            string query = @"
+                SELECT ScreeningId, Hall, StartTime, EndTime
+                FROM Screening
+                WHERE MovieId = @MovieId
+                  AND StartTime >= @WeekStart
+                  AND StartTime < @WeekEnd";
+
+            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            DAL d1 = new DAL(con, query, "Screening");
+            d1.Params.Add(new SqlParameter("@MovieId", movieId));
+            d1.Params.Add(new SqlParameter("@WeekStart", weekStart));
+            d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(7)));
+
+            foreach (DataRow row in d1.GetTableWithParams().Rows)
+            {
+                var start = (DateTime)row["StartTime"];
+                result[start.ToString("yyyyMMddHHmm")] = new ExistingScreening
+                {
+                    ScreeningId = Convert.ToInt32(row["ScreeningId"]),
+                    Hall = Convert.ToInt32(row["Hall"]),
+                    StartTime = start,
+                    EndTime = (DateTime)row["EndTime"]
+                };
+            }
+
+            return result;
+        }
+
+        protected void ddlMovies_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lblMessage.Text = "";
+            ViewState["UpdatedCellKeys"] = null;
+            btnAddScreening.CssClass = "btnAddS hiddenBtn";
+
+            if (ddlMovies.SelectedIndex == 0)
+            {
+                pnlSchedule.Visible = false;
+                return;
+            }
+
+            RebuildScheduleTable(int.Parse(ddlMovies.SelectedValue));
+        }
+
+        protected void btnAddScreening_Click(object sender, EventArgs e)
+        {
+            if (ddlMovies.SelectedIndex == 0)
+            {
+                lblMessage.Text = "אנא בחר סרט.";
+                lblMessage.CssClass = "editorMsg";
+                return;
+            }
+
+            int movieId = int.Parse(ddlMovies.SelectedValue);
+            string movieTitle = ddlMovies.SelectedItem.Text;
+            var culture = new CultureInfo("he-IL");
+            var added = new List<string>();
+            var removed = new List<string>();
+            var changedCellKeys = new List<string>();
+            var errors = new List<string>();
+
+            foreach (Control row in pnlSchedule.Controls)
+            {
+                if (row is Table tbl)
+                {
+                    foreach (TableRow tr in tbl.Rows)
+                    {
+                        if (tr is TableHeaderRow)
+                            continue;
+
+                        for (int i = 1; i < tr.Cells.Count; i++)
+                        {
+                            TableCell cell = tr.Cells[i];
+                            if (!cell.HasControls())
+                                continue;
+
+                            foreach (Control c in cell.Controls)
+                            {
+                                if (c is CheckBox cb)
+                                    ProcessCheckboxChange(cb, movieTitle, culture, added, removed, changedCellKeys, errors);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ViewState["UpdatedCellKeys"] = changedCellKeys;
+            RebuildScheduleTable(movieId);
+
+            if (added.Count > 0 || removed.Count > 0)
+            {
+                var sb = new StringBuilder();
+                sb.Append("<div class=\"editorMsgSuccess\">");
+                sb.Append("<strong>ההקרנות עודכנו בהצלחה</strong>");
+
+                foreach (string line in added)
+                    sb.Append($"<span class=\"editorMsg-item\">{line}</span>");
+
+                foreach (string line in removed)
+                    sb.Append($"<span class=\"editorMsg-item\">{line}</span>");
+
+                sb.Append("</div>");
+                lblMessage.Text = sb.ToString();
+                lblMessage.CssClass = "";
+            }
+            else if (errors.Count > 0)
+            {
+                lblMessage.Text = string.Join("<br>", errors);
+                lblMessage.CssClass = "editorMsg";
+            }
+            else
+            {
+                lblMessage.Text = "לא בוצעו שינויים.";
+                lblMessage.CssClass = "editorMsg";
+            }
+        }
+
+        private void ProcessCheckboxChange(
+            CheckBox cb,
+            string movieTitle,
+            CultureInfo culture,
+            List<string> added,
+            List<string> removed,
+            List<string> changedCellKeys,
+            List<string> errors)
+        {
+            bool initiallyChecked = cb.Attributes["data-initial-checked"] == "true";
+            bool currentlyChecked = cb.Checked;
+
+            if (initiallyChecked == currentlyChecked)
+                return;
+
+            string data = cb.Attributes["data-info"];
+            if (string.IsNullOrEmpty(data))
+                return;
+
+            string[] parts = data.Split('|');
+            int screeningId = int.Parse(parts[0]);
+            int movieId = int.Parse(parts[1]);
+            DateTime start = DateTime.Parse(parts[2]);
+            DateTime end = DateTime.Parse(parts[3]);
+            int hallId = int.Parse(parts[4]);
+
+            string cellKey = cb.Attributes["data-cell-key"];
+            if (!string.IsNullOrEmpty(cellKey))
+                changedCellKeys.Add(cellKey);
+
+            if (!initiallyChecked && currentlyChecked)
+            {
+                if (IsMovieAlreadyScheduled(movieId, start, end))
+                {
+                    errors.Add($"כבר קיימת הקרנה לסרט {movieTitle} ב-{FormatSlotWhen(start, end, culture)}.");
+                    return;
+                }
+
+                hallId = FindAvailableHall(start, end);
+                if (hallId == -1)
+                {
+                    errors.Add($"אין אולם פנוי ב-{FormatSlotWhen(start, end, culture)}.");
+                    return;
+                }
+
+                InsertScreening(movieId, hallId, start, end);
+                added.Add($"נוספה: {movieTitle}, אולם {hallId}, {FormatSlotWhen(start, end, culture)}");
+            }
+            else if (initiallyChecked && !currentlyChecked)
+            {
+                if (screeningId <= 0)
+                    return;
+
+                if (!TryDeleteScreening(screeningId, out string deleteError))
+                {
+                    errors.Add(deleteError);
+                    return;
+                }
+
+                removed.Add($"בוטלה: {movieTitle}, אולם {hallId}, {FormatSlotWhen(start, end, culture)}");
+            }
+        }
+
+        private static string FormatSlotWhen(DateTime start, DateTime end, CultureInfo culture)
+        {
+            string day = start.ToString("dddd dd/MM/yyyy", culture);
+            return $"{day}, {start:HH:mm}–{end:HH:mm}";
+        }
+
+        private void InsertScreening(int movieId, int hallId, DateTime start, DateTime end)
+        {
+            string query = @"
+                INSERT INTO Screening (MovieId, Hall, StartTime, EndTime, SeatesBought)
+                VALUES (@MovieId, @Hall, @StartTime, @EndTime, 0)";
+
+            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            DAL d = new DAL(con, query, "Screening");
+            d.Params.Add(new SqlParameter("@MovieId", movieId));
+            d.Params.Add(new SqlParameter("@Hall", hallId));
+            d.Params.Add(new SqlParameter("@StartTime", start));
+            d.Params.Add(new SqlParameter("@EndTime", end));
+            d.ExecuteScalarDalPar();
+        }
+
+        private bool TryDeleteScreening(int screeningId, out string error)
+        {
+            error = null;
+            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+            using (var conn = new SqlConnection(con))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(
+                    "SELECT ISNULL(SeatesBought, 0) FROM Screening WHERE ScreeningId = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", screeningId);
+                    object seats = cmd.ExecuteScalar();
+                    if (seats == null)
+                    {
+                        error = "ההקרנה לא נמצאה.";
+                        return false;
+                    }
+
+                    if (Convert.ToInt32(seats) > 0)
+                    {
+                        error = "לא ניתן לבטל הקרנה שכבר נמכרו לה כרטיסים.";
+                        return false;
+                    }
+                }
+
+                using (var cmd = new SqlCommand("DELETE FROM Screening WHERE ScreeningId = @Id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Id", screeningId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            return true;
+        }
+
         private void LoadMovies(string con)
         {
             DAL dAL = new DAL(con, "SELECT Id, Title FROM Movie", "Movie");
-            ddlMovies.DataSource = dAL.GetData();//ddl מגדיר את הנתונים כמקור המידע של
+            ddlMovies.DataSource = dAL.GetData();
             ddlMovies.DataTextField = "Title";
-            ddlMovies.DataValueField = "Id";//הערך שישלח לשרת
+            ddlMovies.DataValueField = "Id";
             ddlMovies.DataBind();
-
             ddlMovies.Items.Insert(0, "אנא בחר סרט");
         }
 
@@ -155,253 +428,110 @@ namespace Shipping
             ddlHalls.DataValueField = "HallId";
             ddlHalls.DataBind();
             ddlHalls.Items.Insert(0, "אולם");
-
         }
 
-
-        protected void ddlMovies_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            lblMessage.Text = "";
-
-            // הסתרת כפתור ההוספה עד שיבחר צ'ק בוקס חדש
-            btnAddScreening.CssClass = "btnAddS hiddenBtn";
-
-            if (ddlMovies.SelectedIndex == 0)//בדיקת בחירה תקינה
-                return;
-
-            int movieId = int.Parse(ddlMovies.SelectedValue);
-            RebuildScheduleTable(movieId);//חישוב אורך הסרט, בדיקת אולמות פנויים ויצירת טבלה עבור הסרט הספציפי
-        }
-
-        protected void RadioSlot_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rb = (RadioButton)sender; // זיהוי הפקד הספציפי ששלח את האירוע
-            string data = rb.Attributes["data-info"]; // שליפת מחרוזת המידע הנסתרת
-
-            // פירוק המחרוזת לשלושה חלקים
-            string[] parts = data.Split('|');
-
-            int movieId = int.Parse(parts[0]); // מזהה הסרט
-            DateTime start = DateTime.Parse(parts[1]); // זמן תחילת ההקרנה
-            DateTime end = DateTime.Parse(parts[2]); // זמן סיום ההקרנה
-
-            int hallId = FindAvailableHall(start, end);
-
-            if (hallId == -1)
-            {
-                lblMessage.Text = "אין אולם פנוי בשעה זו.";
-                lblMessage.ForeColor = System.Drawing.Color.Red;
-                return;
-            }
-
-            string query = @"
-        INSERT INTO Screening (MovieId, Hall, StartTime, EndTime)
-        VALUES (@MovieId, @Hall, @StartTime, @EndTime)
-    ";
-
-            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            DAL d = new DAL(con, query, "Screening");
-
-            d.Params.Add(new SqlParameter("@MovieId", movieId));
-            d.Params.Add(new SqlParameter("@Hall", hallId));
-            d.Params.Add(new SqlParameter("@StartTime", start));
-            d.Params.Add(new SqlParameter("@EndTime", end));
-
-            d.ExecuteScalarDalPar();
-
-            // שמירת פרטי הבחירה בזיכרון של הדף כדי שיהיו זמינים בלחיצה על כפתור האישור הסופי
-            ViewState["SelectedMovie"] = parts[0];
-            ViewState["SelectedStart"] = parts[1];
-            ViewState["SelectedEnd"] = parts[2];
-
-            // שינוי מצב הכפתור לגלוי כדי שהמשתמש יוכל לאשר סופית
-            btnAddScreening.Visible = true;
-
-            lblMessage.Text = "בחרת הקרנה. לחץ על 'הוסף הקרנה' כדי לאשר.";
-            lblMessage.ForeColor = System.Drawing.Color.Black;
-        }
-
-        //של האולם הספציפי שנמצא פנוי IDה
         private int FindAvailableHall(DateTime newStart, DateTime newEnd)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            string query = "SELECT HallId FROM Halls";
+            DAL d1 = new DAL(con, "SELECT HallId FROM Halls", "Halls");
 
-            DAL d1 = new DAL(con, query, "Halls");
-            DataTable halls = d1.GetData();
-
-            foreach (DataRow row in halls.Rows)
+            foreach (DataRow row in d1.GetData().Rows)
             {
                 int hallId = Convert.ToInt32(row["HallId"]);
-
                 if (IsHallAvailable(hallId, newStart, newEnd))
-                    return hallId; // מחזיר את האולם הפנוי הראשון
+                    return hallId;
             }
 
-            return -1; // אין אף אולם פנוי
+            return -1;
         }
-
 
         private int GetMovieDuration(int movieId)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            string query = "SELECT Duration FROM Movie WHERE Id=" + movieId;
-            DAL dAL = new DAL(con, query, "Movie");
-            DataTable dt = dAL.GetData();
-            return Convert.ToInt32(dt.Rows[0]["Duration"]);
+            DAL dAL = new DAL(con, "SELECT Duration FROM Movie WHERE Id=" + movieId, "Movie");
+            return Convert.ToInt32(dAL.GetData().Rows[0]["Duration"]);
         }
+
         private int GetRoundedDuration(int movieId)
         {
             int duration = GetMovieDuration(movieId);
             int remainder = duration % 5;
             if (remainder != 0)
-                duration += (5 - remainder); // עיגול למעלה
+                duration += (5 - remainder);
 
-            return duration + 20 + 15; // ניקיון + הפסקה
+            return duration + 20 + 15;
         }
-        //אופציות אפשריות להקרנת הסרט בהתחשב האורך שלו
+
         private List<(DateTime Start, DateTime End)> GenerateSequentialSchedule(int totalMinutes)
         {
-            List<(DateTime, DateTime)> schedule = new List<(DateTime, DateTime)>();
-
-            DateTime start = DateTime.Today.AddHours(9); // 09:00
-            DateTime dayEnd = DateTime.Today.AddDays(1); // 00:00
+            var schedule = new List<(DateTime, DateTime)>();
+            DateTime start = DateTime.Today.AddHours(9);
+            DateTime dayEnd = DateTime.Today.AddDays(1);
 
             while (start.AddMinutes(totalMinutes) <= dayEnd)
             {
                 DateTime end = start.AddMinutes(totalMinutes);
                 schedule.Add((start, end));
-
-                // ההתחלה הבאה אחרי המעבר המלא
                 start = end;
             }
 
             return schedule;
         }
 
-        //האם קיים אולם פנוי כלשהו
         private bool AnyHallAvailable(DateTime newStart, DateTime newEnd)
         {
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            string query = "SELECT HallId FROM Halls";
-            DAL d1 = new DAL(con, query, "Halls");
-            // מביא את כל האולמות
-            DataTable halls = d1.GetData();
+            DAL d1 = new DAL(con, "SELECT HallId FROM Halls", "Halls");
 
-            foreach (DataRow row in halls.Rows)
+            foreach (DataRow row in d1.GetData().Rows)
             {
-                int hallId = Convert.ToInt32(row["HallId"]);
-
-                if (IsHallAvailable(hallId, newStart, newEnd))
+                if (IsHallAvailable(Convert.ToInt32(row["HallId"]), newStart, newEnd))
                     return true;
             }
 
-            return false; // אין אף אולם פנוי
+            return false;
         }
+
+        private bool IsMovieAlreadyScheduled(int movieId, DateTime newStart, DateTime newEnd)
+        {
+            string query = @"
+                SELECT COUNT(*)
+                FROM Screening
+                WHERE MovieId = @MovieId
+                  AND (@NewStart < EndTime AND @NewEnd > StartTime)";
+
+            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            DAL d1 = new DAL(con, query, "Screening");
+            d1.Params.Add(new SqlParameter("@MovieId", movieId));
+            d1.Params.Add(new SqlParameter("@NewStart", newStart));
+            d1.Params.Add(new SqlParameter("@NewEnd", newEnd));
+
+            return Convert.ToInt32(d1.ExecuteScalarDalPar()) > 0;
+        }
+
         private bool IsHallAvailable(int hallId, DateTime newStart, DateTime newEnd)
         {
             string query = @"
-        SELECT COUNT(*)
-        FROM Screening
-        WHERE Hall = @Hall
-          AND (@NewStart < EndTime AND @NewEnd > StartTime)
-    ";
+                SELECT COUNT(*)
+                FROM Screening
+                WHERE Hall = @Hall
+                  AND (@NewStart < EndTime AND @NewEnd > StartTime)";
 
             string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
             DAL d1 = new DAL(con, query, "Screening");
             d1.Params.Add(new SqlParameter("@Hall", hallId));
             d1.Params.Add(new SqlParameter("@NewStart", newStart));
             d1.Params.Add(new SqlParameter("@NewEnd", newEnd));
 
-            int count = Convert.ToInt32(d1.ExecuteScalarDalPar());
-            return count == 0;
+            return Convert.ToInt32(d1.ExecuteScalarDalPar()) == 0;
         }
 
-        protected void btnAddScreening_Click(object sender, EventArgs e)
+        private sealed class ExistingScreening
         {
-            int panelCount = pnlSchedule.Controls.Count;
-
-            List<string> added = new List<string>(); // רשימה שתשמור את פרטי ההקרנות שנוספו בהצלחה כדי להציג למשתמש
-
-            foreach (Control row in pnlSchedule.Controls) // סריקת הפאנל שמכיל את הטבלה
-            {
-                if (row is Table tbl) // מוודא שאנחנו עובדים על הטבלה
-                {
-                    foreach (TableRow tr in tbl.Rows) // מעבר על כל שורה בטבלה
-                    {
-                        if (tr is TableHeaderRow) 
-                            continue; // דילוג על שורת הכותרת (ימי השבוע)
-
-                        for (int i = 1; i < tr.Cells.Count; i++) // רץ על כל העמודות (מדלג על עמודה 0 שהיא שעת ההתחלה)
-                        {
-                            TableCell cell = tr.Cells[i];
-                            if (!cell.HasControls()) 
-                                continue; // אם התא ריק (למשל אולם תפוס), מדלגים
-
-                            foreach (Control c in cell.Controls) // בודק מה יש בתוך התא
-                            {
-                                if (c is CheckBox cb && cb.Checked) // אם מצאנו צ'קבוקס והוא מסומן (V)
-                                {
-                                    // HTMLשליפת המידע שהצמדנו ב
-                                    string data = cb.Attributes["data-info"];
-                                    string[] parts = data.Split('|');
-
-                                    int movieId = int.Parse(parts[0]);
-                                    DateTime start = DateTime.Parse(parts[1]);
-                                    DateTime end = DateTime.Parse(parts[2]);
-
-                                    int hallId = FindAvailableHall(start, end);
-                                    if (hallId != -1)
-                                    {
-                                        string query = @"
-                                        INSERT INTO Screening (MovieId, Hall, StartTime, EndTime)
-                                        VALUES (@MovieId, @Hall, @StartTime, @EndTime)
-                                    ";
-
-                                        string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-                                        DAL d = new DAL(con, query, "Screening");
-
-                                        d.Params.Add(new SqlParameter("@MovieId", movieId));
-                                        d.Params.Add(new SqlParameter("@Hall", hallId));
-                                        d.Params.Add(new SqlParameter("@StartTime", start));
-                                        d.Params.Add(new SqlParameter("@EndTime", end));
-
-                                        d.ExecuteScalarDalPar();
-
-                                        //של ישראל (Culture) הגדרת אובייקט תרבות  
-                                        var culture = new System.Globalization.CultureInfo("he-IL");
-
-                                        // המרה של תאריך ההתחלה לשם היום בעברית
-                                        string dayName = start.ToString("dddd", culture);
-
-                                        // הוספה לרשימה בפורמט עברי
-                                        added.Add($"{start:HH:mm} - {end:HH:mm} ביום {dayName}");
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-            }
-
-            if (added.Count > 0)
-            {
-                lblMessage.ForeColor = System.Drawing.Color.Green;
-                // איחוד כל ההקרנות לרשימה אחת עם ירידת שורה
-                lblMessage.Text = ":הקרנות נוספו בהצלחה<br>" + string.Join("<br>", added);
-            }
-            else
-            {
-                lblMessage.Text = "לא נבחרו הקרנות או שאין אולם פנוי.";
-            }
-
-            // הסתרת כפתור הוספה
-            btnAddScreening.CssClass = "btnAddS hiddenBtn";
-
-
-             }
+            public int ScreeningId { get; set; }
+            public int Hall { get; set; }
+            public DateTime StartTime { get; set; }
+            public DateTime EndTime { get; set; }
         }
+    }
 }
