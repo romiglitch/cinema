@@ -1345,9 +1345,9 @@ button.admin-buttons {
         --s-xsmall: 0.625em;
         --s-small: 1.2em;
         --border-width: 1px;
-        --c-primary: #5F11E8;
-        --c-primary-20-percent-opacity: rgb(95 17 232 / 20%);
-        --c-primary-10-percent-opacity: rgb(95 17 232 / 10%);
+        --c-primary: #6dff6d;
+        --c-primary-20-percent-opacity: rgb(109 255 109 / 20%);
+        --c-primary-10-percent-opacity: rgb(109 255 109 / 10%);
         --t-base: 0.4s;
         --t-fast: 0.2s;
         --e-in: ease-in;
