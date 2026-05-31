@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 
 using System.Configuration;
 using System.Drawing;
+using System.Globalization;
 using DALLlilbrary;
 
 namespace Shipping
@@ -52,6 +53,12 @@ namespace Shipping
 
             // הגדרת מערך הימים לתצוגה בכותרת הטבלה
             string[] days = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
+            var culture = new CultureInfo("he-IL");
+
+            // יום ראשון של השבוע הנוכחי (השבוע שמכיל את היום)
+            DateTime today = DateTime.Today;
+            int daysSinceSunday = ((int)today.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
+            DateTime startOfVisibleWeek = today.AddDays(-daysSinceSunday);
 
             //יצירת הטבלה שתציג את כל ההקרנות
             Table tbl = new Table();
@@ -60,21 +67,19 @@ namespace Shipping
 
             // יצירת שורת הכותרת של הטבלה
             TableHeaderRow hr = new TableHeaderRow();
-            hr.Cells.Add(new TableHeaderCell { Text = "שעה" }); // עמודה ראשונה: פירוט השעות
+            hr.Cells.Add(new TableHeaderCell { Text = "שעה" });
 
-            // הוספת שמות הימים ככותרות לשאר העמודות
-            foreach (string day in days)
-                hr.Cells.Add(new TableHeaderCell { Text = day });
+            for (int i = 0; i < 7; i++)
+            {
+                DateTime dayDate = startOfVisibleWeek.AddDays(i);
+                var dayHeader = new TableHeaderCell();
+                dayHeader.Controls.Add(new LiteralControl(
+                    $"<span class=\"schedule-day-name\">{days[i]}</span><br />" +
+                    $"<span class=\"schedule-day-date\">{dayDate.ToString("dd/MM", culture)}</span>"));
+                hr.Cells.Add(dayHeader);
+            }
 
             tbl.Rows.Add(hr);
-
-
-            //  מציאת התאריך של היום הנוכחי
-            DateTime today = DateTime.Today;
-            //  חישוב כמה ימים חסרים עד ליום ראשון הקרוב
-            int daysUntilSunday = ((int)DayOfWeek.Sunday - (int)today.DayOfWeek + 7) % 7;
-            // קביעת "נקודת האפס" של הטבלה - יום ראשון בשעה 00:00
-            DateTime startOfVisibleWeek = today.AddDays(daysUntilSunday);
 
             // מעבר על כל טווח שעות (שורה בטבלה)
             foreach (var slot in dailySlots)
@@ -91,10 +96,11 @@ namespace Shipping
                     DateTime currentDayEnd = startOfVisibleWeek.AddDays(i).Add(slot.End.TimeOfDay);
 
                     TableCell cell = new TableCell();
-                    // בדיקה האם יש אולם פנוי בתאריך ובשעות האלו
-                    bool available = AnyHallAvailable(currentDayStart, currentDayEnd);
+                    // ❌ = מועבר (עבר) או שאין אולם פנוי לטווח השעות
+                    bool isPast = currentDayStart <= DateTime.Now;
+                    bool hallFree = AnyHallAvailable(currentDayStart, currentDayEnd);
 
-                    if (available)
+                    if (!isPast && hallFree)
                     {
                         // יצירת תיבת סימון אם הזמן פנוי
                         CheckBox cb = new CheckBox();
@@ -112,7 +118,6 @@ namespace Shipping
                     }
                     else
                     {
-                        // אם אין אולם פנוי, מציגים איקס
                         cell.Text = "❌";
                     }
                     row.Cells.Add(cell);

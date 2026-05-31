@@ -1315,6 +1315,21 @@ button.admin-buttons {
         background: #2c3e50;
         color: white;
         padding: 10px;
+        vertical-align: middle;
+    }
+
+    .weekSchedule .schedule-day-name {
+        display: block;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .weekSchedule .schedule-day-date {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.75);
     }
 
     .weekSchedule td, .weekSchedule th {
