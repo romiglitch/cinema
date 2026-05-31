@@ -37,6 +37,14 @@ namespace Shipping
             }
         }
 
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            bool scheduleVisible = pnlSchedule.Visible && ddlMovies.SelectedIndex > 0;
+            btnAddScreening.CssClass = scheduleVisible
+                ? "signup-btn screenings-update-btn showBtn"
+                : "signup-btn screenings-update-btn hiddenBtn";
+        }
+
         private void RebuildScheduleTable(int movieId)
         {
             int slotMinutes = GetRoundedDuration(movieId);
@@ -128,7 +136,6 @@ namespace Shipping
             pnlSchedule.Visible = true;
 
             btnAddScreening.Text = "עדכן הקרנות";
-            btnAddScreening.CssClass = "login-btn showBtn";
         }
 
         private static Control CreateScheduleCheckBox(
@@ -221,7 +228,6 @@ namespace Shipping
         {
             lblMessage.Text = "";
             ViewState["UpdatedCellKeys"] = null;
-            btnAddScreening.CssClass = "login-btn hiddenBtn";
 
             if (ddlMovies.SelectedIndex == 0)
             {
