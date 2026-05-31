@@ -45,7 +45,7 @@
  
         <asp:Panel ID="pnlSchedule" runat="server" Visible="false"></asp:Panel>
 
-<asp:Button CssClass="btnAddS hiddenBtn"
+<asp:Button CssClass="login-btn hiddenBtn"
     ID="btnAddScreening"
     runat="server"
     Text="עדכן הקרנות"

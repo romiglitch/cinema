@@ -1338,12 +1338,21 @@ button.admin-buttons {
         vertical-align: middle;
     }
 
-    .weekSchedule td:not(:first-child) {
+    .weekSchedule td.schedule-day-cell {
         text-align: center;
+        vertical-align: middle;
+    }
+
+    .weekSchedule td.schedule-day-cell .checkbox-wrapper-33 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .weekSchedule td.schedule-cell-updated {
-        background-color: rgba(255, 214, 102, 0.45);
+        background-color: rgba(255, 255, 255, 0.2);
     }
 
     .weekSchedule .checkbox-wrapper-33 {
@@ -1359,7 +1368,6 @@ button.admin-buttons {
         --t-fast: 0.2s;
         --e-in: ease-in;
         --e-out: cubic-bezier(.11,.29,.18,.98);
-        display: inline-flex;
         justify-content: center;
         align-items: center;
     }
@@ -1383,9 +1391,10 @@ button.admin-buttons {
     }
 
     .weekSchedule .checkbox-wrapper-33 .checkbox {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
         margin: 0;
         cursor: pointer;
     }
@@ -1537,26 +1546,24 @@ input[type="checkbox"] {
     input[type="checkbox"]:hover {
         border-color: #000;
     }
-input.btnAddS {
-    display: block; /* הופך אותו לאלמנט בלוק */
-    margin: 15px auto 0 auto; /* מרכז אופקית ומוסיף רווח למעלה */
-    text-align: center !important; /* מרכז */
-    background-color: #e6e6e6 !important;
-    color: #1c1c1c !important;
-    border: 1px solid #cfcfcf !important;
-    padding: 8px 18px !important; /* קטן יותר */
-    border-radius: 6px !important;
-    font-size: 14px !important; /* טקסט קטן יותר */
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+.signup-form input.login-btn.hiddenBtn {
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    margin: 0 auto !important;
 }
-    input.btnAddS:hover {
-        background-color: #d0d0d0 !important;
-        color: #1c1c1c !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-        transform: none !important;
-    }
+
+.signup-form input.login-btn.showBtn {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    margin: 25px auto 0 auto !important;
+}
+
+.signup-form input.login-btn.showBtn:hover {
+    transform: scale(1.05);
+}
 
 .hiddenBtn {
     opacity: 0;

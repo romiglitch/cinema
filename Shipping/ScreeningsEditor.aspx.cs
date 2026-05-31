@@ -84,6 +84,7 @@ namespace Shipping
                     string slotKey = currentDayStart.ToString("yyyyMMddHHmm");
 
                     TableCell cell = new TableCell();
+                    cell.CssClass = "schedule-day-cell";
                     bool isPast = currentDayStart <= DateTime.Now;
                     existingBySlot.TryGetValue(slotKey, out ExistingScreening existing);
 
@@ -114,7 +115,7 @@ namespace Shipping
                     }
 
                     if (highlightedCells.Contains(cellKey))
-                        cell.CssClass = "schedule-cell-updated";
+                        cell.CssClass += " schedule-cell-updated";
 
                     row.Cells.Add(cell);
                 }
@@ -127,7 +128,7 @@ namespace Shipping
             pnlSchedule.Visible = true;
 
             btnAddScreening.Text = "עדכן הקרנות";
-            btnAddScreening.CssClass = "btnAddS showBtn";
+            btnAddScreening.CssClass = "login-btn showBtn";
         }
 
         private static Control CreateScheduleCheckBox(
@@ -220,7 +221,7 @@ namespace Shipping
         {
             lblMessage.Text = "";
             ViewState["UpdatedCellKeys"] = null;
-            btnAddScreening.CssClass = "btnAddS hiddenBtn";
+            btnAddScreening.CssClass = "login-btn hiddenBtn";
 
             if (ddlMovies.SelectedIndex == 0)
             {
