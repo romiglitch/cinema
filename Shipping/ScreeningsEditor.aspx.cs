@@ -37,12 +37,14 @@ namespace Shipping
             }
         }
 
-        protected void Page_PreRender(object sender, EventArgs e)
+        protected override void OnPreRender(EventArgs e)
         {
+            base.OnPreRender(e);
+
             bool scheduleVisible = pnlSchedule.Visible && ddlMovies.SelectedIndex > 0;
             btnAddScreening.CssClass = scheduleVisible
-                ? "signup-btn screenings-update-btn showBtn"
-                : "signup-btn screenings-update-btn hiddenBtn";
+                ? "login-btn showBtn"
+                : "login-btn hiddenBtn";
         }
 
         private void RebuildScheduleTable(int movieId)
