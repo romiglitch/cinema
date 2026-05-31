@@ -49,9 +49,10 @@
     <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
       <HintPath>..\packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
     </Reference>
-    <Reference Include="DALLlilbrary">
-      <HintPath>..\DALLlilbrary\bin\Debug\DALLlilbrary.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\DALLlilbrary\DALLlilbrary.csproj">
+      <Project>{DD4C7D94-FA50-413B-A598-00646A3A318B}</Project>
+      <Name>DALLlilbrary</Name>
+    </ProjectReference>
     <Reference Include="Google.Apis, Version=1.73.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.73.0\lib\net462\Google.Apis.dll</HintPath>
     </Reference>
