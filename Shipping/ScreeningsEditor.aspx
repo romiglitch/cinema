@@ -22,10 +22,17 @@
            showUpdateButton();
            var wrapper = checkbox.closest('.checkbox-wrapper-33');
            if (!wrapper) return;
-           if (checkbox.checked)
+
+           var symbol = wrapper.querySelector('.checkbox__symbol');
+           if (!symbol) return;
+
+           if (checkbox.checked) {
                wrapper.classList.add('checkbox-wrapper-33--checked');
-           else
+               symbol.classList.add('checkbox__symbol--checked');
+           } else {
                wrapper.classList.remove('checkbox-wrapper-33--checked');
+               symbol.classList.remove('checkbox__symbol--checked');
+           }
        }
    </script>
 
