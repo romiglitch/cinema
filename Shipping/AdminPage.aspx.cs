@@ -57,7 +57,8 @@ namespace Shipping
                 for (int day = 0; day < 7; day++)
                 {
                     DateTime currentDate = DateTime.Today.AddDays(day).Date;// (חישוב היום עליו עובדים כרגע (אליו מוסיפים הקרנות
-                    DateTime globalTime = currentDate.AddHours(10); // מתחילים ב-10:00 בבוקר
+                    DateTime dayStart = currentDate.AddHours(9); // שעת הבסיס לחישוב סלוטים
+                    DateTime globalTime = dayStart; // מתחילים ב-9:00 בבוקר
 
                     while (globalTime < currentDate.AddDays(1).AddHours(1)) // רץ עד 1 בלילה
                     {
@@ -80,7 +81,14 @@ namespace Shipping
                                         if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))//globalTimeהשעה בלבד מ :TimeOfDay
                                         {
                                             int duration = GetMovieDuration(movieId);
-                                            DateTime endTime = globalTime.AddMinutes(duration + 40); // זמן הסרט + ניקיון
+                                            int slotInterval = GetSlotInterval(duration);
+
+                                            // בדיקה שהשעה הנוכחית מיושרת לסלוט של הסרט הזה
+                                            int minutesSinceStart = (int)(globalTime - dayStart).TotalMinutes;
+                                            if (minutesSinceStart % slotInterval != 0)
+                                                continue;
+
+                                            DateTime endTime = globalTime.AddMinutes(slotInterval);
 
                                             // בדיקה שאין לסרט הקרנה חופפת בכל אולם אחר
                                             if (IsMovieOverlapping(movieId, globalTime, endTime))
@@ -192,6 +200,13 @@ namespace Shipping
                 }
             }
             return ids;
+        }
+
+        // חישוב אורך סלוט: עיגול כלפי מעלה של (אורך הסרט + 30 דקות ניקיון) לרבע שעה הקרוב
+        // לדוגמה: סרט של 100 דקות → ceil(130/15)*15 = 135 דקות → סלוטים ב-9:00, 11:15, 13:30...
+        private int GetSlotInterval(int duration)
+        {
+            return (int)(Math.Ceiling((duration + 30) / 15.0) * 15);
         }
 
         private int GetMovieDuration(int movieId)
