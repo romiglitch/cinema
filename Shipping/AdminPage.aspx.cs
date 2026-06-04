@@ -53,6 +53,8 @@ namespace Shipping
                 List<int> movieIds = GetAllMovieIds();
                 Random rnd = new Random();
                 int numberOfHalls = 10;
+                int maxScreeningsPerMovie = 10;
+                Dictionary<int, int> movieScreeningCount = new Dictionary<int, int>();
 
                 for (int day = 0; day < 7; day++)
                 {
@@ -74,6 +76,10 @@ namespace Shipping
 
                                 foreach (int movieId in shuffledMovies)
                                 {
+                                    // בדיקה שהסרט לא הגיע למכסה המקסימלית
+                                    if (movieScreeningCount.ContainsKey(movieId) && movieScreeningCount[movieId] >= maxScreeningsPerMovie)
+                                        continue;
+
                                     // בדיקה האם הסרט כבר שובץ בשעה הזו באולם אחר
                                     if (!moviesUsedInThisSlot.Contains(movieId))
                                     {
@@ -95,6 +101,11 @@ namespace Shipping
                                                 continue;
 
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
+
+                                            // עדכון מונה הקרנות לסרט
+                                            if (!movieScreeningCount.ContainsKey(movieId))
+                                                movieScreeningCount[movieId] = 0;
+                                            movieScreeningCount[movieId]++;
 
                                             // מסמנים שהסרט תפוס לשעה הזו בשאר האולמות
                                             moviesUsedInThisSlot.Add(movieId);
