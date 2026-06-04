@@ -54,6 +54,7 @@ namespace Shipping
                 Random rnd = new Random();
                 int numberOfHalls = 10;
                 int maxScreeningsPerMovie = 10;
+                int totalScreenings = 0;
                 Dictionary<int, int> movieScreeningCount = new Dictionary<int, int>();
 
                 for (int day = 0; day < 7; day++)
@@ -102,10 +103,11 @@ namespace Shipping
 
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
 
-                                            // עדכון מונה הקרנות לסרט
+                                            // עדכון מוני הקרנות
                                             if (!movieScreeningCount.ContainsKey(movieId))
                                                 movieScreeningCount[movieId] = 0;
                                             movieScreeningCount[movieId]++;
+                                            totalScreenings++;
 
                                             // מסמנים שהסרט תפוס לשעה הזו בשאר האולמות
                                             moviesUsedInThisSlot.Add(movieId);
@@ -119,7 +121,7 @@ namespace Shipping
                         globalTime = globalTime.AddMinutes(5);
                     }
                 }
-                lblAdminStatus.Text = "הלוח נוצר בהצלחה ובצורה נקייה!";
+                lblAdminStatus.Text = $"הלוח נוצר בהצלחה! {totalScreenings} הקרנות שובצו ל-{movieScreeningCount.Count} סרטים.";
             }
             // catchברגע שיש שגיאה כלשהי עוברים אוטומטית ל
             catch (Exception ex)
