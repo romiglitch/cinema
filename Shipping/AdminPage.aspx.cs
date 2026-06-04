@@ -82,6 +82,10 @@ namespace Shipping
                                             int duration = GetMovieDuration(movieId);
                                             DateTime endTime = globalTime.AddMinutes(duration + 40); // זמן הסרט + ניקיון
 
+                                            // בדיקה שאין לסרט הקרנה חופפת בכל אולם אחר
+                                            if (IsMovieOverlapping(movieId, globalTime, endTime))
+                                                continue;
+
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
 
                                             // מסמנים שהסרט תפוס לשעה הזו בשאר האולמות
@@ -111,6 +115,22 @@ namespace Shipping
                 Debug.WriteLine("Stack Trace: " + ex.StackTrace);
             }
         }
+        private bool IsMovieOverlapping(int movieId, DateTime start, DateTime end)
+        {
+            string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(cs))
+            {
+                string query = @"SELECT COUNT(*) FROM Screening 
+                    WHERE MovieId = @mid AND @start < EndTime AND @end > StartTime";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@mid", movieId);
+                cmd.Parameters.AddWithValue("@start", start);
+                cmd.Parameters.AddWithValue("@end", end);
+                conn.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
         private bool IsHallEmptyNow(int hall, DateTime time)
         {
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;

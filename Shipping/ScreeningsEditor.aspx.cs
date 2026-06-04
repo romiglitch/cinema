@@ -347,9 +347,11 @@ namespace Shipping
 
             if (!initiallyChecked && currentlyChecked)
             {
+                CleanupOverlappingUnsoldScreenings(movieId, start, end);
+
                 if (IsMovieAlreadyScheduled(movieId, start, end))
                 {
-                    errors.Add($"כבר קיימת הקרנה לסרט {movieTitle} ב-{FormatSlotWhen(start, end, culture)}.");
+                    errors.Add($"כבר קיימת הקרנה לסרט {movieTitle} ב-{FormatSlotWhen(start, end, culture)} שכבר נמכרו לה כרטיסים.");
                     return;
                 }
 
@@ -384,6 +386,22 @@ namespace Shipping
             return $"{day}, {start:HH:mm}–{end:HH:mm}";
         }
 
+        private void CleanupOverlappingUnsoldScreenings(int movieId, DateTime start, DateTime end)
+        {
+            string query = @"
+                DELETE FROM Screening 
+                WHERE MovieId = @MovieId 
+                  AND SeatesBought = 0
+                  AND (@Start < EndTime AND @End > StartTime)";
+
+            string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            DAL d = new DAL(con, query, "Screening");
+            d.Params.Add(new SqlParameter("@MovieId", movieId));
+            d.Params.Add(new SqlParameter("@Start", start));
+            d.Params.Add(new SqlParameter("@End", end));
+            d.ExecuteNonQueryDalPar();
+        }
+
         private void InsertScreening(int movieId, int hallId, DateTime start, DateTime end)
         {
             string query = @"
@@ -396,7 +414,7 @@ namespace Shipping
             d.Params.Add(new SqlParameter("@Hall", hallId));
             d.Params.Add(new SqlParameter("@StartTime", start));
             d.Params.Add(new SqlParameter("@EndTime", end));
-            d.ExecuteScalarDalPar();
+            d.ExecuteNonQueryDalPar();
         }
 
         private bool TryDeleteScreening(int screeningId, out string error)
