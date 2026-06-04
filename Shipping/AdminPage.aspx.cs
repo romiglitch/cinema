@@ -115,8 +115,8 @@ namespace Shipping
                                 }
                             }
                         }
-                        // מקדמים את הזמן ב-15 דקות ובודקים שוב את כל האולמות
-                        globalTime = globalTime.AddMinutes(15);
+                        // מקדמים את הזמן ב-5 דקות ובודקים שוב את כל האולמות
+                        globalTime = globalTime.AddMinutes(5);
                     }
                 }
                 lblAdminStatus.Text = "הלוח נוצר בהצלחה ובצורה נקייה!";
@@ -213,11 +213,12 @@ namespace Shipping
             return ids;
         }
 
-        // חישוב אורך סלוט: עיגול כלפי מעלה של (אורך הסרט + 30 דקות ניקיון) לרבע שעה הקרוב
-        // לדוגמה: סרט של 100 דקות → ceil(130/15)*15 = 135 דקות → סלוטים ב-9:00, 11:15, 13:30...
+        // חישוב אורך סלוט: עיגול אורך הסרט כלפי מעלה ל-5 דקות + 35 דקות ניקיון ופרסומות
+        // לדוגמה: סרט של 100 דקות → 100+35 = 135 → סלוטים ב-9:00, 11:15, 13:30...
+        // סרט של 119 דקות → 120+35 = 155 → סלוטים ב-9:00, 11:35, 14:10, 16:45, 19:20
         private int GetSlotInterval(int duration)
         {
-            return (int)(Math.Ceiling((duration + 30) / 15.0) * 15);
+            return (int)(Math.Ceiling(duration / 5.0) * 5) + 35;
         }
 
         private int GetMovieDuration(int movieId)
