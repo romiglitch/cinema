@@ -40,7 +40,7 @@
                         <asp:Repeater ID="RptShowtimes" runat="server">
                             <ItemTemplate>
                                 <a href='Ticketing.aspx?screeningId=<%# Eval("Id") %>' class="time-slot">
-                                    <%# ((DateTime)Eval("start_time")).ToString("HH:mm") %>
+                                    <%# Eval("display_time") %>
                                 </a>
                             </ItemTemplate>
                         </asp:Repeater>

@@ -53,10 +53,14 @@ namespace Shipping
 
 
         // שולפת מבסיס הנתונים את כל ההקרנות בתאריך הנבחר ומקבצת אותן לפי שם הסרט
+        // יום קולנוע נמשך מ-09:00 עד ~03:00 למחרת, כך שהקרנות אחרי חצות שייכות ליום הנבחר
         private void LoadMoviesByDate(DateTime date)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             List<Film> films = new List<Film>();
+
+            DateTime scheduleStart = date.AddHours(9);
+            DateTime scheduleEnd = date.AddDays(1).AddHours(9);
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -64,14 +68,15 @@ namespace Shipping
     SELECT m.Title, s.StartTime, s.ScreeningID
     FROM Screening s
     JOIN Movie m ON s.MovieId = m.Id
-    WHERE CAST(s.StartTime AS DATE) = @SelectedDate
+    WHERE s.StartTime >= @ScheduleStart AND s.StartTime < @ScheduleEnd
     ORDER BY m.Title, s.StartTime";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("@SelectedDate", date);
+                    cmd.Parameters.AddWithValue("@ScheduleStart", scheduleStart);
+                    cmd.Parameters.AddWithValue("@ScheduleEnd", scheduleEnd);
                     conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader();//שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
+                    SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
@@ -79,23 +84,29 @@ namespace Shipping
                        DateTime showTime = reader.GetDateTime(1);
                        int screeningId = reader.GetInt32(2);
 
-                        // קיבוץ ההקרנות לפי שם הסרט - אם הסרט כבר קיים ברשימה, מוסיפים לו שעת הקרנה
-                        var film = films.Find(f => f.film_name == title);//חיפוש ברשימה שיצרנו אם הסרט עליו כרגע עוברים קיים בה
+                        var film = films.Find(f => f.film_name == title);
                         if (film == null)
                         {
-                            film = new Film { film_name = title, showtimes = new List<Showtime>() };//מוסיפים אותו לרשימה אם לא
+                            film = new Film { film_name = title, showtimes = new List<Showtime>() };
                             films.Add(film);
                         }
 
-                        film.showtimes.Add(new Showtime//אם כן מוסיפים לו את הקרנה
+                        string displayTime;
+                        if (showTime.Date > date.Date)
+                            displayTime = $"{showTime.Hour + 24}:{showTime.Minute:D2}";
+                        else
+                            displayTime = showTime.ToString("HH:mm");
+
+                        film.showtimes.Add(new Showtime
                         {
                             Id = screeningId,
-                            start_time = showTime
+                            start_time = showTime,
+                            display_time = displayTime
                         });
                     }
                 }
             }
-            // קישור הנתונים לרשימת הסרטים בדף
+
             DLMoviesByDate.DataSource = films;
             DLMoviesByDate.DataBind();
         }
@@ -164,6 +175,7 @@ namespace Shipping
         {
             public int Id { get; set; } // מזהה ייחודי של ההקרנה לצורך בחירת מושבים
             public DateTime start_time { get; set; }
+            public string display_time { get; set; }
         }
     }
 }
