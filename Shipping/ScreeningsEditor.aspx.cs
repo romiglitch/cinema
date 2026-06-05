@@ -57,12 +57,10 @@ namespace Shipping
             int slotMinutes = GetRoundedDuration(movieId);
             var dailySlots = GenerateSequentialSchedule(slotMinutes);
 
-            string[] days = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
+            string[] dayNames = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
             var culture = new CultureInfo("he-IL");
 
-            DateTime today = DateTime.Today;
-            int daysSinceSunday = ((int)today.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
-            DateTime startOfVisibleWeek = today.AddDays(-daysSinceSunday);
+            DateTime startOfVisibleWeek = DateTime.Today;
 
             var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek);
 
@@ -76,9 +74,10 @@ namespace Shipping
             for (int i = 0; i < 7; i++)
             {
                 DateTime dayDate = startOfVisibleWeek.AddDays(i);
+                int dayIndex = ((int)dayDate.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
                 var dayHeader = new TableHeaderCell();
                 dayHeader.Controls.Add(new LiteralControl(
-                    $"<span class=\"schedule-day-name\">{days[i]}</span><br />" +
+                    $"<span class=\"schedule-day-name\">{dayNames[dayIndex]}</span><br />" +
                     $"<span class=\"schedule-day-date\">{dayDate.ToString("dd/MM", culture)}</span>"));
                 hr.Cells.Add(dayHeader);
             }
@@ -88,12 +87,13 @@ namespace Shipping
             foreach (var slot in dailySlots)
             {
                 TableRow row = new TableRow();
-                row.Cells.Add(new TableCell { Text = $"{slot.Start:HH:mm} - {slot.End:HH:mm}" });
+                row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin)}" });
 
                 for (int i = 0; i < 7; i++)
                 {
-                    DateTime currentDayStart = startOfVisibleWeek.AddDays(i).Add(slot.Start.TimeOfDay);
-                    DateTime currentDayEnd = startOfVisibleWeek.AddDays(i).Add(slot.End.TimeOfDay);
+                    DateTime dayBase = startOfVisibleWeek.AddDays(i).AddHours(9);
+                    DateTime currentDayStart = dayBase.AddMinutes(slot.StartMin);
+                    DateTime currentDayEnd = dayBase.AddMinutes(slot.EndMin);
                     string cellKey = BuildCellKey(movieId, currentDayStart);
                     string slotKey = currentDayStart.ToString("yyyyMMddHHmm");
 
@@ -209,7 +209,7 @@ namespace Shipping
             DAL d1 = new DAL(con, query, "Screening");
             d1.Params.Add(new SqlParameter("@MovieId", movieId));
             d1.Params.Add(new SqlParameter("@WeekStart", weekStart));
-            d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(7)));
+            d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(8)));
 
             foreach (DataRow row in d1.GetTableWithParams().Rows)
             {
@@ -505,20 +505,26 @@ namespace Shipping
             return duration + 20 + 15;
         }
 
-        private List<(DateTime Start, DateTime End)> GenerateSequentialSchedule(int totalMinutes)
+        private List<(int StartMin, int EndMin)> GenerateSequentialSchedule(int totalMinutes)
         {
-            var schedule = new List<(DateTime, DateTime)>();
-            DateTime start = DateTime.Today.AddHours(9);
-            DateTime dayEnd = DateTime.Today.AddDays(1);
+            var schedule = new List<(int, int)>();
+            int offset = 0;
+            int maxStartOffset = 16 * 60; // סלוטים מתחילים עד 01:00 (16 שעות אחרי 09:00)
 
-            while (start.AddMinutes(totalMinutes) <= dayEnd)
+            while (offset < maxStartOffset)
             {
-                DateTime end = start.AddMinutes(totalMinutes);
-                schedule.Add((start, end));
-                start = end;
+                schedule.Add((offset, offset + totalMinutes));
+                offset += totalMinutes;
             }
 
             return schedule;
+        }
+
+        private static string FormatScheduleTime(int minutesFrom9)
+        {
+            int hour = 9 + minutesFrom9 / 60;
+            int min = minutesFrom9 % 60;
+            return $"{hour:D2}:{min:D2}";
         }
 
         private bool AnyHallAvailable(DateTime newStart, DateTime newEnd)
