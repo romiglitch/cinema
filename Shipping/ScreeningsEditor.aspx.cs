@@ -87,7 +87,7 @@ namespace Shipping
             foreach (var slot in dailySlots)
             {
                 TableRow row = new TableRow();
-                row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin)}" });
+                row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin, isEndTime: true)}" });
 
                 for (int i = 0; i < 7; i++)
                 {
@@ -520,10 +520,12 @@ namespace Shipping
             return schedule;
         }
 
-        private static string FormatScheduleTime(int minutesFrom9)
+        private static string FormatScheduleTime(int minutesFrom9, bool isEndTime = false)
         {
             int hour = 9 + minutesFrom9 / 60;
             int min = minutesFrom9 % 60;
+            if (isEndTime && hour > 24)
+                hour -= 24;
             return $"{hour:D2}:{min:D2}";
         }
 
