@@ -39,20 +39,20 @@ namespace Shipping
             }
         }
 
-        // נקרא לפני שהדף נשלח לדפדפן - ניהול מצב כפתור העדכון
+        //ddlנקרא ברגע שבוחרים סרט ב        
         protected override void OnPreRender(EventArgs e)
         {
-            base.OnPreRender(e);
+            base.OnPreRender(e);//מסיים את העיבוד המובנה של הדף
 
             bool scheduleReady = pnlSchedule.Visible && ddlMovies.SelectedIndex > 0; // האם הטבלה מוצגת וסרט נבחר
-            btnAddScreening.CssClass = "login-btn schedule-update-btn";
-            btnAddScreening.Enabled = scheduleReady;
+            btnAddScreening.CssClass = "login-btn schedule-update-btn";//עיצוב כפתור העדכון
+            btnAddScreening.Enabled = scheduleReady; // הפעלת כפתור מצד שרת
 
             if (scheduleReady)
-                btnAddScreening.Attributes["disabled"] = "disabled"; // כפתור מושבת בהתחלה - מופעל ע"י JavaScript כשיש שינויים
+                btnAddScreening.Attributes["disabled"] = "disabled"; // כפתור מושבת בהתחלה אם אין שינויים
             else
                 btnAddScreening.Attributes.Remove("disabled");
-            ddlMovies.Attributes["onchange"] = "return onMovieSelectionChanging(this);"; // אירוע JavaScript לשינוי סרט
+            ddlMovies.Attributes["onchange"] = "return onMovieSelectionChanging(this);"; //javaScriptשב onMovieSelectionChanging תקרא הפונקציה  ddlכאשר משנים סרט ב
         }
 
         // בניית טבלת הסלוטים השבועית לסרט הנבחר
