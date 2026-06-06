@@ -53,15 +53,15 @@ namespace Shipping
                 List<int> movieIds = GetAllMovieIds();
                 Random rnd = new Random();
                 int numberOfHalls = 10;
-                int maxScreeningsPerMovie = 10;
-                int totalScreenings = 0;
-                Dictionary<int, int> movieScreeningCount = new Dictionary<int, int>();
+                int maxScreeningsPerMovie = 10; // מגבלה: עד 10 הקרנות לכל סרט בשבוע
+                int totalScreenings = 0; // מונה כמה הקרנות נוצרו בסה"כ
+                Dictionary<int, int> movieScreeningCount = new Dictionary<int, int>(); // מילון שסופר כמה הקרנות שובצו לכל סרט
 
                 for (int day = 0; day < 7; day++)
                 {
                     DateTime currentDate = DateTime.Today.AddDays(day).Date;// (חישוב היום עליו עובדים כרגע (אליו מוסיפים הקרנות
-                    DateTime dayStart = currentDate.AddHours(9); // שעת הבסיס לחישוב סלוטים
-                    DateTime globalTime = dayStart; // מתחילים ב-9:00 בבוקר
+                    DateTime dayStart = currentDate.AddHours(9); // שעת הבסיס לחישוב סלוטים - כל הסלוטים מחושבים כהפרש מ-9:00
+                    DateTime globalTime = dayStart; // השעה הנוכחית שעליה עובדים, מתקדמת ב-5 דקות כל סיבוב
 
                     while (globalTime < currentDate.AddDays(1).AddHours(1)) // רץ עד 1 בלילה
                     {
@@ -77,7 +77,7 @@ namespace Shipping
 
                                 foreach (int movieId in shuffledMovies)
                                 {
-                                    // בדיקה שהסרט לא הגיע למכסה המקסימלית
+                                    // בדיקה שהסרט לא הגיע למכסה המקסימלית - אם כבר שובצו לו 10 הקרנות, עוברים לסרט הבא
                                     if (movieScreeningCount.ContainsKey(movieId) && movieScreeningCount[movieId] >= maxScreeningsPerMovie)
                                         continue;
 
@@ -87,15 +87,17 @@ namespace Shipping
                                         //(בדיקת שאין חוסר התאמה בין סוג הסרט לשעה (ילדים/אימה
                                         if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))//globalTimeהשעה בלבד מ :TimeOfDay
                                         {
-                                            int duration = GetMovieDuration(movieId);
-                                            int slotInterval = GetSlotInterval(duration);
+                                            int duration = GetMovieDuration(movieId); // אורך הסרט בדקות
+                                            int slotInterval = GetSlotInterval(duration); // אורך הסלוט כולל זמן ניקיון ופרסומות
 
-                                            // בדיקה שהשעה הנוכחית מיושרת לסלוט של הסרט הזה
+                                            // בדיקת יישור לסלוט: כל סרט מתחיל רק בשעות קבועות שתלויות באורך הסלוט שלו
+                                            // לדוגמה: סרט עם סלוט של 135 דק' יתחיל רק ב-9:00, 11:15, 13:30 וכו'
+                                            // החישוב: כמה דקות עברו מ-9:00? אם זה לא כפולה של אורך הסלוט - זו לא שעת התחלה חוקית
                                             int minutesSinceStart = (int)(globalTime - dayStart).TotalMinutes;
                                             if (minutesSinceStart % slotInterval != 0)
                                                 continue;
 
-                                            DateTime endTime = globalTime.AddMinutes(slotInterval);
+                                            DateTime endTime = globalTime.AddMinutes(slotInterval); // שעת הסיום = שעת ההתחלה + אורך הסלוט
 
                                             // בדיקה שאין לסרט הקרנה חופפת בכל אולם אחר
                                             if (IsMovieOverlapping(movieId, globalTime, endTime))
@@ -103,7 +105,7 @@ namespace Shipping
 
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
 
-                                            // עדכון מוני הקרנות
+                                            // עדכון מוני הקרנות - מוסיפים 1 למונה של הסרט הספציפי ולמונה הכללי
                                             if (!movieScreeningCount.ContainsKey(movieId))
                                                 movieScreeningCount[movieId] = 0;
                                             movieScreeningCount[movieId]++;
@@ -118,9 +120,11 @@ namespace Shipping
                             }
                         }
                         // מקדמים את הזמן ב-5 דקות ובודקים שוב את כל האולמות
+                        // צעד של 5 דקות כי אורכי הסלוטים הם כפולות של 5 (למשל 125, 130, 135, 150, 155...)
                         globalTime = globalTime.AddMinutes(5);
                     }
                 }
+                // הצגת הודעת סיכום עם מספר ההקרנות שנוצרו ומספר הסרטים ששובצו
                 lblAdminStatus.Text = $"הלוח נוצר בהצלחה! {totalScreenings} הקרנות שובצו ל-{movieScreeningCount.Count} סרטים.";
             }
             // catchברגע שיש שגיאה כלשהי עוברים אוטומטית ל

@@ -57,10 +57,10 @@ namespace Shipping
             int slotMinutes = GetRoundedDuration(movieId);
             var dailySlots = GenerateSequentialSchedule(slotMinutes);
 
-            string[] dayNames = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
+            string[] dayNames = { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" }; // שמות הימים בעברית לפי אינדקס (0=ראשון)
             var culture = new CultureInfo("he-IL");
 
-            DateTime startOfVisibleWeek = DateTime.Today;
+            DateTime startOfVisibleWeek = DateTime.Today; // הטבלה מתחילה מהיום (לא מתחילת השבוע הקלנדרי)
 
             var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek);
 
@@ -74,7 +74,7 @@ namespace Shipping
             for (int i = 0; i < 7; i++)
             {
                 DateTime dayDate = startOfVisibleWeek.AddDays(i);
-                int dayIndex = ((int)dayDate.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
+                int dayIndex = ((int)dayDate.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7; // חישוב אינדקס שם היום מתוך המערך (0=ראשון, 6=שבת)
                 var dayHeader = new TableHeaderCell();
                 dayHeader.Controls.Add(new LiteralControl(
                     $"<span class=\"schedule-day-name\">{dayNames[dayIndex]}</span><br />" +
@@ -87,10 +87,14 @@ namespace Shipping
             foreach (var slot in dailySlots)
             {
                 TableRow row = new TableRow();
+                // הצגת שעות הסלוט - שעת התחלה אחרי חצות מוצגת כ-24:00, שעת סיום מוצגת בפורמט רגיל (02:30)
                 row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin, isEndTime: true)}" });
 
                 for (int i = 0; i < 7; i++)
                 {
+                    // חישוב התאריך והשעה האמיתיים של הסלוט ביום הספציפי
+                    // נקודת הבסיס היא 09:00 של אותו יום, והסלוט מחושב כהפרש בדקות ממנה
+                    // כך סלוט של 900 דקות מ-09:00 = חצות (24:00), שחוצה בצורה נכונה ליום הבא
                     DateTime dayBase = startOfVisibleWeek.AddDays(i).AddHours(9);
                     DateTime currentDayStart = dayBase.AddMinutes(slot.StartMin);
                     DateTime currentDayEnd = dayBase.AddMinutes(slot.EndMin);
@@ -209,7 +213,7 @@ namespace Shipping
             DAL d1 = new DAL(con, query, "Screening");
             d1.Params.Add(new SqlParameter("@MovieId", movieId));
             d1.Params.Add(new SqlParameter("@WeekStart", weekStart));
-            d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(8)));
+            d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(8))); // 8 ימים כדי לכלול גם הקרנות שחוצות חצות ביום האחרון
 
             foreach (DataRow row in d1.GetTableWithParams().Rows)
             {
@@ -495,21 +499,26 @@ namespace Shipping
             return Convert.ToInt32(dAL.GetData().Rows[0]["Duration"]);
         }
 
+        // חישוב אורך הסלוט: עיגול אורך הסרט כלפי מעלה ל-5 דקות + 35 דקות (20 ניקיון + 15 פרסומות)
+        // לדוגמה: סרט של 119 דק' → עיגול ל-120 + 35 = 155 דק' → סלוטים ב-9:00, 11:35, 14:10...
         private int GetRoundedDuration(int movieId)
         {
             int duration = GetMovieDuration(movieId);
-            int remainder = duration % 5;
+            int remainder = duration % 5; // בדיקה כמה דקות חסרות לכפולה הקרובה של 5
             if (remainder != 0)
-                duration += (5 - remainder);
+                duration += (5 - remainder); // עיגול כלפי מעלה לכפולה של 5
 
-            return duration + 20 + 15;
+            return duration + 20 + 15; // אורך הסרט המעוגל + 20 דקות ניקיון + 15 דקות פרסומות = אורך הסלוט
         }
 
+        // יצירת רשימת סלוטים רציפים ליום אחד, כהפרשי דקות מ-09:00
+        // לדוגמה: סרט עם סלוט של 150 דקות → (0,150), (150,300), (300,450)... = 09:00, 11:30, 14:00...
+        // הסלוט האחרון יכול לחצות את חצות (למשל 24:00-02:30)
         private List<(int StartMin, int EndMin)> GenerateSequentialSchedule(int totalMinutes)
         {
             var schedule = new List<(int, int)>();
             int offset = 0;
-            int maxStartOffset = 16 * 60; // סלוטים מתחילים עד 01:00 (16 שעות אחרי 09:00)
+            int maxStartOffset = 16 * 60; // סלוטים מתחילים עד 01:00 (16 שעות = 960 דקות אחרי 09:00)
 
             while (offset < maxStartOffset)
             {
@@ -520,13 +529,16 @@ namespace Shipping
             return schedule;
         }
 
+        // המרת הפרש דקות מ-09:00 לפורמט שעה להצגה
+        // שעת התחלה אחרי חצות מוצגת כ-24:00 (מוסכמה של לוח קולנוע - סוף יום ההקרנות)
+        // שעת סיום אחרי חצות מוצגת בפורמט רגיל (02:30) כדי לא לבלבל את הצופה
         private static string FormatScheduleTime(int minutesFrom9, bool isEndTime = false)
         {
-            int hour = 9 + minutesFrom9 / 60;
-            int min = minutesFrom9 % 60;
-            if (isEndTime && hour > 24)
+            int hour = 9 + minutesFrom9 / 60; // חישוב השעה: 9 + מספר שעות שלמות מתוך הדקות
+            int min = minutesFrom9 % 60; // חישוב הדקות: השארית מחלוקה ב-60
+            if (isEndTime && hour > 24) // לשעת סיום: מחזירים לפורמט רגיל (26 → 02)
                 hour -= 24;
-            return $"{hour:D2}:{min:D2}";
+            return $"{hour:D2}:{min:D2}"; // D2 = תמיד שתי ספרות (09:00 ולא 9:00)
         }
 
         private bool AnyHallAvailable(DateTime newStart, DateTime newEnd)

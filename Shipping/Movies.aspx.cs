@@ -59,6 +59,8 @@ namespace Shipping
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             List<Film> films = new List<Film>();
 
+            // יום קולנוע מתחיל ב-09:00 ונגמר ב-09:00 למחרת
+            // כך הקרנות אחרי חצות (למשל 24:00) נכללות ביום שבו התחילו ולא ביום שלמחרת
             DateTime scheduleStart = date.AddHours(9);
             DateTime scheduleEnd = date.AddDays(1).AddHours(9);
 
@@ -91,11 +93,13 @@ namespace Shipping
                             films.Add(film);
                         }
 
+                        // הקרנה שהתאריך שלה הוא למחרת (חצתה את חצות) מוצגת בפורמט 24:00
+                        // לדוגמה: הקרנה ב-00:00 של 06/06 שייכת ליום 05/06 ומוצגת כ-24:00
                         string displayTime;
-                        if (showTime.Date > date.Date)
-                            displayTime = $"{showTime.Hour + 24}:{showTime.Minute:D2}";
+                        if (showTime.Date > date.Date) // Date מחזיר רק את חלק התאריך ללא השעה
+                            displayTime = $"{showTime.Hour + 24}:{showTime.Minute:D2}"; // 0+24=24 → "24:00"
                         else
-                            displayTime = showTime.ToString("HH:mm");
+                            displayTime = showTime.ToString("HH:mm"); // פורמט רגיל לשעות לפני חצות
 
                         film.showtimes.Add(new Showtime
                         {
@@ -174,8 +178,8 @@ namespace Shipping
         public class Showtime
         {
             public int Id { get; set; } // מזהה ייחודי של ההקרנה לצורך בחירת מושבים
-            public DateTime start_time { get; set; }
-            public string display_time { get; set; }
+            public DateTime start_time { get; set; } // השעה האמיתית (DateTime) לצורך מיון ושאילתות
+            public string display_time { get; set; } // השעה לתצוגה - "24:00" במקום "00:00" להקרנות אחרי חצות
         }
     }
 }
