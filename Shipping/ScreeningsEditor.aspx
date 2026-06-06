@@ -162,7 +162,6 @@
 </div>
 <asp:DropDownList ID="ddlTimes" runat="server" Visible="false"></asp:DropDownList>
 
-<asp:DropDownList ID="ddlHalls" runat="server" Visible="false"></asp:DropDownList>
  
         <asp:Panel ID="pnlSchedule" runat="server" Visible="false"></asp:Panel>
 

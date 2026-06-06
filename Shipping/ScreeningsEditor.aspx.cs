@@ -26,7 +26,6 @@ namespace Shipping
             {
                 string con = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
                 LoadMovies(con); // מילוי תפריט הסרטים
-                LoadHalls(con); // מילוי תפריט האולמות
             }
         }
 
@@ -506,16 +505,6 @@ namespace Shipping
             ddlMovies.Items.Insert(0, "אנא בחר סרט"); // הוספת פריט ברירת מחדל במקום הראשון
         }
 
-        // מילוי תפריט האולמות מטבלת Halls
-        private void LoadHalls(string con)
-        {
-            DAL dAL = new DAL(con, "SELECT HallId FROM Halls", "Halls");
-            ddlHalls.DataSource = dAL.GetData();
-            ddlHalls.DataTextField = "HallId";
-            ddlHalls.DataValueField = "HallId";
-            ddlHalls.DataBind();
-            ddlHalls.Items.Insert(0, "אולם");
-        }
 
         // חיפוש אולם פנוי בטווח זמן מסוים - עובר על כל האולמות ומחזיר את הראשון שפנוי
         // מחזיר -1 אם כל האולמות תפוסים
