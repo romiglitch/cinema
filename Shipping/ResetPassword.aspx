@@ -3,6 +3,10 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <script type="text/javascript">
+        var cvNewPasswordId = '<%= CVNewPassword.ClientID %>';
+    </script>
+    <script type="text/javascript" src="js/ResetPassword.js"></script>
     <%-- קונטיינר חיצוני שממרכז את הכרטיס בדיוק באמצע הדף --%>
     <div class="forgot-password-container" dir="rtl">
         
@@ -66,8 +70,4 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        var cvNewPasswordId = '<%= CVNewPassword.ClientID %>';
-    </script>
-    <script type="text/javascript" src="js/ResetPassword.js"></script>
 </asp:Content>

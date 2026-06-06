@@ -4,6 +4,11 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
+    <script type="text/javascript">
+        var txtPasswordId = '<%= TxtPassword.ClientID %>';
+        var cvPasswordId = '<%= CVPassword.ClientID %>';
+    </script>
+    <script type="text/javascript" src="js/Signup.js"></script>
     <div class="signup-container">
         <h1>הרשמה</h1>
 
@@ -94,9 +99,4 @@
             </table>
         </div>
     </div>
-    <script type="text/javascript">
-        var txtPasswordId = '<%= TxtPassword.ClientID %>';
-        var cvPasswordId = '<%= CVPassword.ClientID %>';
-    </script>
-    <script type="text/javascript" src="js/Signup.js"></script>
 </asp:Content>
