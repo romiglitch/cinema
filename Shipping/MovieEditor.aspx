@@ -8,7 +8,7 @@
 
     <div class="signup-form" style=" margin-top: 80px;">
 
-        <h1>Hello admin</h1>
+        <h1>שלום מנהל</h1>
         <%--חצים--%>
         <div style="text-align: center; margin-top: 20px;">
             <asp:Button  ID="Button1" runat="server" CssClass="page-btn" Text="&#8592;" OnClick="btnPrev_Click" />

@@ -44,7 +44,7 @@ namespace Shipping
             if (!string.IsNullOrEmpty(ddlDates.SelectedValue)) // נבחר תאריך אמיתי (לא "בחר תאריך")
             {
                 DateTime selectedDate = DateTime.Parse(ddlDates.SelectedValue); // המרת הטקסט לאובייקט DateTime
-                LoadMoviesByDate(selectedDate); // שליפת ההקרנות מבסיס הנתונים והצגתן בדף
+                LoadMoviesByDate(selectedDate); // שליחת התאריך הנבחר לפונקציה ששולפת מהמסד את ההקרנות ומציגה אותן בדף
             }
             else
             {
@@ -56,20 +56,19 @@ namespace Shipping
 
 
         // שולפת מבסיס הנתונים את כל ההקרנות בתאריך הנבחר ומקבצת אותן לפי שם הסרט
-        // יום קולנוע נמשך מ-09:00 עד ~03:00 למחרת, כך שהקרנות אחרי חצות שייכות ליום הנבחר
         private void LoadMoviesByDate(DateTime date)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            List<Film> films = new List<Film>();
+            List<Film> films = new List<Film>();//יצירת רשימה ריקה של סרטים
 
             // יום קולנוע מתחיל ב-09:00 ונגמר ב-09:00 למחרת
             // כך הקרנות אחרי חצות (למשל 24:00) נכללות ביום שבו התחילו ולא ביום שלמחרת
-            DateTime scheduleStart = date.AddHours(9);
-            DateTime scheduleEnd = date.AddDays(1).AddHours(9);
+            DateTime scheduleStart = date.AddHours(9);//שעת התחלה של  ההקרנות בתאריך שבחרנו (9:00)
+            DateTime scheduleEnd = date.AddDays(1).AddHours(9);//שעת סיום של ההקרנות בתאריך שבחרנו (9:00 למחרת)
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                // שאילתה ששולפת את כל ההקרנות בטווח הזמן של יום הקולנוע
+                // שאילתה ששולפת את כל ההקרנות בטווח הזמן של היום שבחרנו
                 // JOIN עם טבלת Movie כדי לקבל את שם הסרט
                 // המיון לפי שם הסרט ואז לפי שעת ההתחלה - כך הקרנות של אותו סרט מקובצות יחד
                 string query = @"
@@ -85,7 +84,7 @@ namespace Shipping
                     cmd.Parameters.AddWithValue("@ScheduleStart", scheduleStart);
                     cmd.Parameters.AddWithValue("@ScheduleEnd", scheduleEnd);
                     conn.Open();
-                    SqlDataReader reader = cmd.ExecuteReader(); // ביצוע השאילתה וקבלת תוצאות שורה-שורה
+                    SqlDataReader reader = cmd.ExecuteReader(); // שמירת התוצאות באובייקט קורא שמאפשר לעבור עליהן שורה אחר שורה
 
                     while (reader.Read()) // מעבר על כל שורת תוצאה (כל הקרנה)
                     {
@@ -93,18 +92,18 @@ namespace Shipping
                        DateTime showTime = reader.GetDateTime(1); // עמודה 1 = שעת ההתחלה
                        int screeningId = reader.GetInt32(2); // עמודה 2 = מזהה ההקרנה
 
-                        // קיבוץ ההקרנות לפי שם הסרט: חיפוש אם הסרט כבר קיים ברשימה
-                        var film = films.Find(f => f.film_name == title);
-                        if (film == null) // סרט חדש שעוד לא ברשימה - יצירת אובייקט Film חדש
+                        //קיבוץ ההקרנות לפי שם הסרט
+                        var film = films.Find(f => f.film_name == title);//בודק עבור כל סרט ברשימה אם השם שלו שווה לשם הסרט שאנחנו בודקים (אם הוא כבר קיים ברשימה)
+                        if (film == null) //אם הסרט לא קיים ברשימה מוסיפים אותו 
                         {
-                            film = new Film { film_name = title, showtimes = new List<Showtime>() };
+                            film = new Film { film_name = title, showtimes = new List<Showtime>() };//יצירת אובייקט סרט חדש ברשימה עם השם שלו ורשימת ההקרנות שלו
                             films.Add(film);
                         }
 
                         // הקרנה שהתאריך שלה הוא למחרת (חצתה את חצות) מוצגת בפורמט 24:00
                         // לדוגמה: הקרנה ב-00:00 של 06/06 שייכת ליום 05/06 ומוצגת כ-24:00
                         string displayTime;
-                        if (showTime.Date > date.Date) // Date מחזיר רק את חלק התאריך ללא השעה
+                        if (showTime.Date > date.Date) // אם התאריך של ההקרנה גדול מהתאריך שבחרנו (אחרי התאריך שבחרנו) אז מציגים את השעה בפורמט 24:00
                             displayTime = $"{showTime.Hour + 24}:{showTime.Minute:D2}"; // 0+24=24 → "24:00"
                         else
                             displayTime = showTime.ToString("HH:mm"); // פורמט רגיל לשעות לפני חצות
@@ -113,7 +112,7 @@ namespace Shipping
                         film.showtimes.Add(new Showtime
                         {
                             Id = screeningId, // מזהה ההקרנה - משמש בקישור לדף בחירת המושבים
-                            start_time = showTime, // השעה האמיתית - לצורך מיון
+                            start_time = showTime, // שעת ההתחלה - השעה האמיתית מהמסד נתונים - לצורך מיון
                             display_time = displayTime // השעה לתצוגה - "24:00" להקרנות אחרי חצות
                         });
                     }
