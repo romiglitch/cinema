@@ -29,11 +29,10 @@ namespace Shipping
             }
         }
 
-        // נקרא לפני Page_Load - בונה מחדש את טבלת הסלוטים כדי שהצ'קבוקסים יהיו זמינים ב-PostBack
-        // חייב להיות ב-Page_Init כי פקדים דינמיים צריכים להיווצר לפני שלב טעינת ה-ViewState
+        // PostBackבונה מחדש את טבלת הזמנים כדי שהצ׳קבוקסים יהיו זמינים ב - PageLoadנקרא לפני 
         protected void Page_Init(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID])) // בדיקה שנבחר סרט בטופס
+            if (!string.IsNullOrEmpty(Request.Form[ddlMovies.UniqueID])) //יש מזהה ייחודי ddlאם נבחר סרט בטופס, ל
             {
                 if (int.TryParse(Request.Form[ddlMovies.UniqueID], out int movieId))
                     RebuildScheduleTable(movieId); // בנייה מחדש של הטבלה עם הסלוטים של הסרט
@@ -69,7 +68,7 @@ namespace Shipping
 
             DateTime startOfVisibleWeek = DateTime.Today; // הטבלה מתחילה מהיום (לא מתחילת השבוע הקלנדרי)
 
-            var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek); // שליפת כל ההקרנות הקיימות של הסרט בשבוע הנוכחי
+            var existingBySlot = LoadMovieScreeningsForWeek(movieId, startOfVisibleWeek); // שליפת כל ההקרנות הקיימות של הסרט עד לעוד שבוע מהיום
 
             // בניית הטבלה - כותרת ימים + שורות סלוטים
             Table tbl = new Table();
@@ -77,46 +76,44 @@ namespace Shipping
             tbl.Attributes.Add("dir", "rtl"); // כיוון ימין לשמאל לעברית
 
             TableHeaderRow hr = new TableHeaderRow(); // שורת הכותרת עם שמות הימים
-            hr.Cells.Add(new TableHeaderCell { Text = "שעה" }); // עמודה ראשונה = טווח השעות
+            hr.Cells.Add(new TableHeaderCell { Text = "שעה" }); // עמודה ראשונה שתציג את טווח השעות
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 7; i++)//עבור כל יום בשבוע הקרוב
             {
                 DateTime dayDate = startOfVisibleWeek.AddDays(i);
                 int dayIndex = ((int)dayDate.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7; // חישוב אינדקס שם היום מתוך המערך (0=ראשון, 6=שבת)
-                var dayHeader = new TableHeaderCell();
-                dayHeader.Controls.Add(new LiteralControl(
+                var dayHeader = new TableHeaderCell();//(בניית עמודה חדשה בשורת הכותרת (תציג את שם היום ותאריך היום
+                dayHeader.Controls.Add(new LiteralControl(//מוסיף לעמודה תוכן טקסטואלי שמציג את שם היום ותאריך היום
                     $"<span class=\"schedule-day-name\">{dayNames[dayIndex]}</span><br />" +
                     $"<span class=\"schedule-day-date\">{dayDate.ToString("dd/MM", culture)}</span>"));
-                hr.Cells.Add(dayHeader);
+                hr.Cells.Add(dayHeader);//מוסיף את העמודה לשורת הכותרת
             }
 
-            tbl.Rows.Add(hr);
+            tbl.Rows.Add(hr);//מוסיף את שורת הכותרת לטבלה
 
-            foreach (var slot in dailySlots)
+
+            foreach (var slot in dailySlots)//עבור כל סלוט ביום
             {
                 TableRow row = new TableRow();
                 // הצגת שעות הסלוט - שעת התחלה אחרי חצות מוצגת כ-24:00, שעת סיום מוצגת בפורמט רגיל (02:30)
                 row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin, isEndTime: true)}" });
 
-                for (int i = 0; i < 7; i++)
+                for (int i = 0; i < 7; i++)//עבור כל סלוט עובר על ימי השבוע
                 {
-                    // חישוב התאריך והשעה האמיתיים של הסלוט ביום הספציפי
-                    // נקודת הבסיס היא 09:00 של אותו יום, והסלוט מחושב כהפרש בדקות ממנה
-                    // כך סלוט של 900 דקות מ-09:00 = חצות (24:00), שחוצה בצורה נכונה ליום הבא
-                    DateTime dayBase = startOfVisibleWeek.AddDays(i).AddHours(9);
-                    DateTime currentDayStart = dayBase.AddMinutes(slot.StartMin);
-                    DateTime currentDayEnd = dayBase.AddMinutes(slot.EndMin);
-                    string cellKey = BuildCellKey(movieId, currentDayStart); // מפתח ייחודי לזיהוי הצ'קבוקס (סרט+תאריך+שעה)
-                    string slotKey = currentDayStart.ToString("yyyyMMddHHmm"); // מפתח לחיפוש אם קיימת הקרנה בסלוט הזה
+                    DateTime dayBase = startOfVisibleWeek.AddDays(i).AddHours(9);//מתחילים מהיום הראשון ב9
+                    DateTime currentDayStart = dayBase.AddMinutes(slot.StartMin);//מחשבים את השעה ההתחלתית של הסלוט הנוכחי
+                    DateTime currentDayEnd = dayBase.AddMinutes(slot.EndMin);//מחשבים את השעה הסופית של הסלוט הנוכחי
+                    string cellKey = BuildCellKey(movieId, currentDayStart); // מפתח ייחודי לזיהוי הצ'קבוקס (המפתח מכיל מזהה+תאריך+שעה)
+                    string slotKey = currentDayStart.ToString("yyyyMMddHHmm"); //(תאריך ושעה בפורמט yyyyMMddHHmm) יצירת מפתח ייחודי לזיהוי הסלוט  
 
-                    TableCell cell = new TableCell();
+                    TableCell cell = new TableCell();//בניית תא חדש בטבלה עבור הצ'קבוקס
                     cell.CssClass = "schedule-day-cell";
-                    bool isPast = currentDayStart <= DateTime.Now; // סלוט שעבר - לא ניתן לערוך אותו
-                    existingBySlot.TryGetValue(slotKey, out ExistingScreening existing); // חיפוש אם יש הקרנה קיימת בסלוט
-                    bool initiallyChecked = existing != null; // true אם כבר קיימת הקרנה
+                    bool isPast = currentDayStart <= DateTime.Now; //בדיקה אם הסלוט עבר
+                    existingBySlot.TryGetValue(slotKey, out ExistingScreening existing); //(הקרנה קיימת) יש ערך (slotKey) בדיקה בעזרת המילון אם למפתח
+                    bool initiallyChecked = existing != null; //לא ריק - קיימת הקרנה existing אם
                     cell.Attributes["data-initial-checked"] = initiallyChecked ? "true" : "false"; // שמירת המצב ההתחלתי לזיהוי שינויים
 
-                    if (existing != null) // קיימת הקרנה - צ'קבוקס מסומן
+                    if (existing != null) // קיימת הקרנה - הצ'קבוקס יופיע מסומן
                     {
                         cell.Controls.Add(CreateScheduleCheckBox(
                             movieId,
@@ -128,9 +125,9 @@ namespace Shipping
                             isChecked: true,
                             isEnabled: !isPast)); // ניתן לביטול רק אם ההקרנה עדיין לא עברה
                     }
-                    else // לא קיימת הקרנה - צ'קבוקס לא מסומן
+                    else // לא קיימת הקרנה - הצ'קבוקס יופיע בלי סימון
                     {
-                        bool canSchedule = !isPast && AnyHallAvailable(currentDayStart, currentDayEnd); // ניתן להוסיף רק אם יש אולם פנוי והסלוט עתידי
+                        bool canSchedule = !isPast && AnyHallAvailable(currentDayStart, currentDayEnd); 
                         cell.Controls.Add(CreateScheduleCheckBox(
                             movieId,
                             currentDayStart,
@@ -139,13 +136,13 @@ namespace Shipping
                             screeningId: 0, // אין הקרנה קיימת
                             hallId: 0, // אולם ייבחר אוטומטית בעת ההוספה
                             isChecked: false,
-                            isEnabled: canSchedule));
+                            isEnabled: canSchedule));// ניתן להוספה רק אם יש אולם פנוי והסלוט עתידי
                     }
 
-                    row.Cells.Add(cell);
+                    row.Cells.Add(cell);//מוסיף את התא לשורה ומתקדם ליום הבא
                 }
 
-                tbl.Rows.Add(row);
+                tbl.Rows.Add(row);//מוסיף את השורה לטבלה ומתקדם לסלוט הבא
             }
 
             pnlSchedule.Controls.Clear(); // ניקוי טבלה קודמת אם קיימת
@@ -155,8 +152,6 @@ namespace Shipping
             btnAddScreening.Text = "עדכן הקרנות";
         }
 
-        // יצירת צ'קבוקס עם עיצוב מותאם (wrapper + label + symbol) לתא בטבלת הסלוטים
-        // הנתונים על ההקרנה (מזהה, סרט, שעות, אולם) נשמרים ב-data-info של הצ'קבוקס
         private static Control CreateScheduleCheckBox(
             int movieId,
             DateTime start,
@@ -167,7 +162,7 @@ namespace Shipping
             bool isChecked,
             bool isEnabled)
         {
-            var cb = new CheckBox
+            var cb = new CheckBox//בניית צקבוקס עם כל המידע עליו
             {
                 ID = "cb_" + cellKey,
                 Checked = isChecked,
@@ -175,22 +170,20 @@ namespace Shipping
                 EnableViewState = true,
                 CssClass = "checkbox__trigger visuallyhidden"
             };
-
-            // שמירת נתוני ההקרנה כמחרוזת מופרדת ב-| בתוך data-info של הצ'קבוקס
             // בעת לחיצה על "עדכן הקרנות", הנתונים האלה נקראים ב-ProcessCheckboxChange
-            cb.InputAttributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";
+            cb.InputAttributes["data-info"] = $"{screeningId}|{movieId}|{start:yyyy-MM-dd HH:mm}|{end:yyyy-MM-dd HH:mm}|{hallId}";//של הצ׳קבוקס data-infoשמירת נתוני ההקרנה כמחרוזת ב
             cb.InputAttributes["data-initial-checked"] = isChecked ? "true" : "false"; // המצב ההתחלתי - להשוואה אם היה שינוי
             cb.InputAttributes["data-cell-key"] = cellKey; // מפתח ייחודי לזיהוי התא
 
             var wrapperClass = "checkbox-wrapper-33";
             if (isChecked)
-                wrapperClass += " checkbox-wrapper-33--checked";
+                wrapperClass += " checkbox-wrapper-33--checked";//מוסיף עיצוב של תא שיש בו הקרנה
             if (!isEnabled)
-                wrapperClass += " checkbox-wrapper-33--disabled";
+                wrapperClass += " checkbox-wrapper-33--disabled";//מוסיף עיצוב של תא שלא ניתן לבחור אותו
 
             var wrapper = new Panel { CssClass = wrapperClass };
             var label = new System.Web.UI.HtmlControls.HtmlGenericControl("label");
-            label.Attributes["class"] = "checkbox";
+            label.Attributes["class"] = "checkbox";//על כל צ׳קבוקס יש לייבל עם קלאס מתאים
 
             var symbol = new System.Web.UI.HtmlControls.HtmlGenericControl("span");
             var symbolClass = "checkbox__symbol";
@@ -199,7 +192,7 @@ namespace Shipping
             if (!isEnabled)
                 symbolClass += " checkbox__symbol--disabled";
             symbol.Attributes["class"] = symbolClass;
-            symbol.InnerHtml = @"<span class=""checkbox__check"" aria-hidden=""true"">&#10003;</span>";
+            symbol.InnerHtml = @"<span class=""checkbox__check"" aria-hidden=""true"">&#10003;</span>";//שם וי במידה ויש הקרנה
 
             label.Controls.Add(cb);
             label.Controls.Add(symbol);
@@ -213,8 +206,8 @@ namespace Shipping
             $"{movieId}_{start:yyyyMMddHHmm}";
 
         // שליפת כל ההקרנות הקיימות של סרט מסוים בשבוע הנוכחי
-        // מחזירה מילון: מפתח = תאריך+שעה (yyyyMMddHHmm), ערך = פרטי ההקרנה
-        // המילון משמש לבדיקה מהירה אם קיימת הקרנה בסלוט מסוים
+        // מחזיר עצם (מילון) שמציג טבלה עם שתי עמודות (מפתח וערך) - המילון משמש לבדיקה מהירה אם קיימת הקרנה בסלוט מסוים
+        //  המציג את פרטי ההקרה ExistingScreening ערך הוא עצם מטיפוס  ,yyyyMMddHHmm מפתח הוא מחרוזת שמציגה תאריך ושעה בפורמט  
         private Dictionary<string, ExistingScreening> LoadMovieScreeningsForWeek(int movieId, DateTime weekStart)
         {
             var result = new Dictionary<string, ExistingScreening>();
@@ -231,10 +224,10 @@ namespace Shipping
             d1.Params.Add(new SqlParameter("@WeekStart", weekStart));
             d1.Params.Add(new SqlParameter("@WeekEnd", weekStart.AddDays(8))); // 8 ימים כדי לכלול גם הקרנות שחוצות חצות ביום האחרון
 
-            foreach (DataRow row in d1.GetTableWithParams().Rows)
+            foreach (DataRow row in d1.GetTableWithParams().Rows)//מעבר על כל שורה בטבלה שנוצרה מהשאילתה
             {
                 var start = (DateTime)row["StartTime"];
-                result[start.ToString("yyyyMMddHHmm")] = new ExistingScreening
+                result[start.ToString("yyyyMMddHHmm")] = new ExistingScreening//עבור כל מפתח יחודי במילון (תאריך ההקרנה), נוצר ערך - עצם חדש של פרטי ההקרנה
                 {
                     ScreeningId = Convert.ToInt32(row["ScreeningId"]),
                     Hall = Convert.ToInt32(row["Hall"]),
@@ -243,7 +236,7 @@ namespace Shipping
                 };
             }
 
-            return result;
+            return result;//מחזיר את כל ההקרנות הקיימות של הסרט בשבוע הנוכחי בתור מילון
         }
 
         // אירוע שינוי סרט בתפריט - בונה את טבלת הסלוטים עבור הסרט שנבחר
@@ -292,7 +285,7 @@ namespace Shipping
                         for (int i = 1; i < tr.Cells.Count; i++) // מתחילים מ-1 כי תא 0 = שעות הסלוט
                         {
                             TableCell cell = tr.Cells[i];
-                            if (!cell.HasControls())
+                            if (!cell.HasControls())//בדיקה אם יש צ׳קבוקס בתא
                                 continue;
 
                             // חיפוש צ'קבוקסים בתוך התא (הם עטופים ב-wrapper)
@@ -386,7 +379,7 @@ namespace Shipping
                     errors.Add($"כבר קיימת הקרנה לסרט {movieTitle} ב-{FormatSlotWhen(start, end, culture)} שכבר נמכרו לה כרטיסים.");
                     return;
                 }
-
+//בדיקה הכרחית למקרה ולאתר יש יותר ממנהל אחד
                 hallId = FindAvailableHall(start, end); // חיפוש אולם פנוי בטווח הזמן
                 if (hallId == -1) // כל האולמות תפוסים
                 {
