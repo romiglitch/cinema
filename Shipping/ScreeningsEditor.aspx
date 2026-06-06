@@ -3,7 +3,7 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
    <script type="text/javascript">
-       // משתנים שתלויים בשרת — מועברים לקובץ JS החיצוני דרך משתנים גלובליים
+       // משתנים שתלויים בשרת — מועברים לקובץ ג׳אבסקריפט החיצוני דרך משתנים גלובליים
        var btnAddScreeningId = '<%= btnAddScreening.ClientID %>';
        var lblMessageId = '<%= lblMessage.ClientID %>';
        var ddlMoviesId = '<%= ddlMovies.ClientID %>';

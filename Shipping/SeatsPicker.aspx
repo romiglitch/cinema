@@ -6,6 +6,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
+       // משתנים שתלויים בשרת — מועברים לקובץ ג׳אבסקריפט החיצוני דרך משתנים גלובליים
     var maxSelect = <%= (Session["TotalTickets"] ?? 0) %>;
     var seatsPerRow = <%= (ViewState["SeatsPerRow"] ?? 0) %>;
 </script>

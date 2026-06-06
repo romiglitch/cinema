@@ -5,6 +5,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <script type="text/javascript">
+        // משתנים שתלויים בשרת — מועברים לקובץ ג׳אבסקריפט החיצוני דרך משתנים גלובליים
         var modalTrailerId = '<%= modalTrailer.ClientID %>';
     </script>
     <script type="text/javascript" src="js/MovieDetails.js"></script>

@@ -107,6 +107,7 @@
         </footer>
 
         <script type="text/javascript">
+      // משתנים שתלויים בשרת — מועברים לקובץ ג׳אבסקריפט החיצוני דרך משתנים גלובליים
             var txtChatPromptId = '<%= txtChatPrompt.ClientID %>';
         </script>
         <script type="text/javascript" src="js/Master.js"></script>
