@@ -165,30 +165,30 @@ namespace Shipping
                 ? string.Join(", ", seatNumbersOnly)
                 : (string.IsNullOrEmpty(rawSeats) ? "לא נבחרו מושבים" : rawSeats);//אם אין מושבים, במידה והמידע בסשן ריק תוצג הודעה
         
-            BankService bank = new BankService();//יצירת אובייקט בנק בשביל לבצע שליחת אימייל
-            decimal amount = 0;//יצירת משתנה דסימל לעבודה עם כסף ששומר על דיוק
+            decimal amount = 0;
             decimal.TryParse(litTotalPrice.Text, out amount);
 
-            if (bank.ProcessPayment(txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text))// בדיקה נוספת של פרטי האשראי
+            string paymentConnStr = ConfigurationManager.ConnectionStrings["PaymentConnectionString"].ConnectionString;
+            var paymentService = new Payment.PaymentService(paymentConnStr);
+            Payment.PaymentResult paymentResult = paymentService.ProcessPayment(
+                txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text, amount);
+
+            if (paymentResult.Success)
             {
                 try
                 {
-                    // שמירה לבסיס נתונים
                     SaveOrderToDatabase();
 
-                    //למשתמש לפני ששליחת המייל מתבצעת HTMLלא שולח את ה
-                    //לפני שהוא מראה למשתמש את התוצאה הסופית על המסך awaitמחכה לתוצאה של ה
                     RegisterAsyncTask(new PageAsyncTask(async () =>
                     {
                         try
                         {
                             EmailService mailService = new EmailService();
                             DateTime screeningDate;
-                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך הצליחה, נשמור אותה במשתנה
-                                                                                        
-                                screeningDate = DateTime.Now;//אם לא אז התאריך יהיה התאריך של היום
+                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))
+                                screeningDate = DateTime.Now;
 
-                            await mailService.SendOrderReceiptEmail(// בזמן שהמייל נשלח השרת מטפל במשתמשים אחרים
+                            await mailService.SendOrderReceiptEmail(
                                 userEmail,
                                 movieName,
                                 screeningDate,
@@ -210,13 +210,12 @@ namespace Shipping
                 catch (Exception ex)
                 {
                     lblMsg.Text = "מצטערים, חלה שגיאה בתהליך שמירת ההזמנה. אנא נסו שוב מאוחר יותר.";
-
                     Debug.WriteLine("Database/General Error: " + ex.ToString());
                 }
             }
             else
             {
-                lblMsg.Text = "התשלום נדחה. נא לבדוק את פרטי האשראי.";
+                lblMsg.Text = paymentResult.Message;
             }
         }
 
