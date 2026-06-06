@@ -4,22 +4,10 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <script>
-        function openTrailer() {
-            var iframe = document.getElementById("<%= modalTrailer.ClientID %>");
-            var videoSrc = iframe.getAttribute("data-src");
-
-            iframe.src = videoSrc; // טוען רק בלחיצה
-            document.getElementById("trailerModal").style.display = "block";
-        }
-
-        function closeTrailer() {
-            var iframe = document.getElementById("<%= modalTrailer.ClientID %>");
-
-            iframe.src = ""; // מאפס לגמרי = מפסיק וידאו
-            document.getElementById("trailerModal").style.display = "none";
-        }
+    <script type="text/javascript">
+        var modalTrailerId = '<%= modalTrailer.ClientID %>';
     </script>
+    <script type="text/javascript" src="js/MovieDetails.js"></script>
 
     <div class="movie-details-container">
 
