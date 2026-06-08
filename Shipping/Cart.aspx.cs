@@ -169,7 +169,11 @@ namespace Shipping
             decimal.TryParse(litTotalPrice.Text, out amount);// המרת הטקסט של המחיר הכולל למספר דצימלי - אם ההמרה נכשלת הסכום יישאר 0
 
             // פרויקט  עם מסד נתונים נפרד לכרטיסי חיוב - Payment חיבור לשירות התשלום
-            string paymentConnStr = ConfigurationManager.ConnectionStrings["PaymentConnectionString"].ConnectionString;
+            // בניית נתיב מלא לקובץ מסד הנתונים של התשלומים
+            string paymentDbRelativePath = ConfigurationManager.AppSettings["PaymentDbPath"];
+            string appDataPath = Server.MapPath("~/App_Data");
+            string paymentDbFullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(appDataPath, paymentDbRelativePath));
+            string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
             var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
             // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
             Payment.PaymentResult paymentResult = paymentService.ProcessPayment(
@@ -188,9 +192,9 @@ namespace Shipping
                             EmailService mailService = new EmailService();
                             DateTime screeningDate;
                             if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך נכשלה
-                                screeningDate = DateTime.Now;// נשתמש בתאריך הנוכחי כברירת מחדל כדי שהמייל עדיין יישלח עם תאריך תקין
+                                screeningDate = DateTime.Now;// נשתמש בתאריך הנוכחי כברירת מחדל כדי שהמייל עדיין יישלח עם תאריך אפשרי
 
-                            await mailService.SendOrderReceiptEmail(
+                            await mailService.SendOrderReceiptEmail( //מאפשר לטפל בפעולה זו בזמן שהשרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
                                 userEmail,
                                 movieName,
                                 screeningDate,
@@ -217,12 +221,12 @@ namespace Shipping
             }
             else
             {
-                // אם התשלום נכשל - הצגת הודעת השגיאה מהשירות (פרטים שגויים, יתרה לא מספיקה וכו')
+                // PaymentResult.csאם התשלום נכשל - הצגת הודעת השגיאה כפי שהוגדרה ב 
                 lblMsg.Text = paymentResult.Message;
             }
         }
 
-        private void SaveOrderToDatabase()
+        private void SaveOrderToDatabase()//שמירת ההזמנה במסד נתונים
         {
             string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
@@ -234,7 +238,7 @@ namespace Shipping
             string ticketPricesStr = Session["TicketPrices"] as string ?? "";//שמירת מחיר הכרטיסים כמחרוזת
 
             string[] seatsArray = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת האורכה
-                                                                                                                //כמערך בו כל איבר מציג כיסא
+                                                                                                                //(מושב|שורה|אולם) כמערך בו כל איבר מציג כיסא
             string[] typesArray = ticketTypesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             string[] pricesArray = ticketPricesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
