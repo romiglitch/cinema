@@ -169,10 +169,10 @@ namespace Shipping
             decimal.TryParse(litTotalPrice.Text, out amount);// המרת הטקסט של המחיר הכולל למספר דצימלי - אם ההמרה נכשלת הסכום יישאר 0
 
             // פרויקט  עם מסד נתונים נפרד לכרטיסי חיוב - Payment חיבור לשירות התשלום
-            // בניית נתיב מלא לקובץ מסד הנתונים של התשלומים
+            // בניית נתיב מלא לקובץ מסד הנתונים של התשלומים - ממוקם בתיקיית Payment ברמת הפתרון
             string paymentDbRelativePath = ConfigurationManager.AppSettings["PaymentDbPath"];
-            string appDataPath = Server.MapPath("~/App_Data");
-            string paymentDbFullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(appDataPath, paymentDbRelativePath));
+            string solutionRoot = Server.MapPath("~/..");
+            string paymentDbFullPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(solutionRoot, "Payment", "PaymentDb.mdf"));
             string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
             var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
             // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
