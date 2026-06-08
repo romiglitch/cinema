@@ -5,3 +5,4 @@ packages/
 [Oo]bj/
 .env
 App_Data/
+sql-bridge/applicationhost.runtime.config

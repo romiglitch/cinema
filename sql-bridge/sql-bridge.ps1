@@ -375,6 +375,12 @@ ORDER BY ORDINAL_POSITION
 
                     $appPath = Join-Path $repoRoot "Shipping"
 
+                    # Prepare custom applicationhost.config with correct physical path
+                    $templateConfig = Join-Path $PSScriptRoot "applicationhost.config"
+                    $runtimeConfig = Join-Path $PSScriptRoot "applicationhost.runtime.config"
+                    $configContent = (Get-Content $templateConfig -Raw) -replace '%SHIPPING_PATH%', $appPath
+                    Set-Content -Path $runtimeConfig -Value $configContent -Encoding UTF8
+
                     # Ensure URL reservation exists for remote access
                     $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
                     if ($aclCheck -notmatch "http://\*:50594/") {
@@ -383,10 +389,9 @@ ORDER BY ORDINAL_POSITION
 
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
-                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594 /trace:error"
+                    $pinfo.Arguments = "/config:`"$runtimeConfig`" /siteid:1 /trace:error"
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
-                    $pinfo.EnvironmentVariables["ASPNETCORE_URLS"] = "http://*:50594"
 
                     try {
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
@@ -470,6 +475,11 @@ ORDER BY ORDINAL_POSITION
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
 
+                        $templateConfig = Join-Path $PSScriptRoot "applicationhost.config"
+                        $runtimeConfig = Join-Path $PSScriptRoot "applicationhost.runtime.config"
+                        $configContent = (Get-Content $templateConfig -Raw) -replace '%SHIPPING_PATH%', $appPath
+                        Set-Content -Path $runtimeConfig -Value $configContent -Encoding UTF8
+
                         $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
                         if ($aclCheck -notmatch "http://\*:50594/") {
                             netsh http add urlacl url=http://*:50594/ user=Everyone 2>&1 | Out-Null
@@ -477,10 +487,9 @@ ORDER BY ORDINAL_POSITION
 
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
-                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594 /trace:error"
+                        $pinfo.Arguments = "/config:`"$runtimeConfig`" /siteid:1 /trace:error"
                         $pinfo.UseShellExecute = $false
                         $pinfo.CreateNoWindow = $true
-                        $pinfo.EnvironmentVariables["ASPNETCORE_URLS"] = "http://*:50594"
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
                         Start-Sleep -Seconds 2
 
