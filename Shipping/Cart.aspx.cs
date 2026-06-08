@@ -204,7 +204,7 @@ namespace Shipping
                                 ticketTypesStr
                             );
 
-                            Response.Redirect("Success.aspx");
+                            Response.Redirect("Success.aspx", false);
                         }
                         catch (Exception ex)
                         {
