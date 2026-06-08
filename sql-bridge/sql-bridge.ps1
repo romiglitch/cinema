@@ -111,8 +111,8 @@ function Run-Command {
     param([string]$Command, [string]$WorkingDir = $repoRoot)
 
     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-    $pinfo.FileName = "cmd.exe"
-    $pinfo.Arguments = "/c $Command"
+    $pinfo.FileName = "powershell.exe"
+    $pinfo.Arguments = "-NoProfile -NonInteractive -Command `"Set-Location '$WorkingDir'; $Command`""
     $pinfo.WorkingDirectory = $WorkingDir
     $pinfo.RedirectStandardOutput = $true
     $pinfo.RedirectStandardError = $true
@@ -319,7 +319,7 @@ ORDER BY ORDINAL_POSITION
                 "^/git-pull$" {
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
                     Write-Host "[$timestamp] POST /git-pull" -ForegroundColor Magenta
-                    $result = Run-Command "git pull" $repoRoot
+                    $result = Run-Command "git pull"
                     Write-Host "  git pull exit=$($result.exitCode)" -ForegroundColor $(if ($result.success) { "Green" } else { "Red" })
                     Send-Json $ctx @{
                         success = $result.success
@@ -340,7 +340,7 @@ ORDER BY ORDINAL_POSITION
 
                     # NuGet restore
                     if ($nugetPath -and (Test-Path $nugetPath)) {
-                        $nugetResult = Run-Command "`"$nugetPath`" restore `"$slnPath`"" $repoRoot
+                        $nugetResult = Run-Command "& '$nugetPath' restore '$slnPath'"
                         $steps += @{ step = "nuget-restore"; success = $nugetResult.success; output = ($nugetResult.stdout + $nugetResult.stderr).Trim() }
                         if (-not $nugetResult.success) {
                             Write-Host "  NuGet restore FAILED" -ForegroundColor Red
@@ -350,7 +350,7 @@ ORDER BY ORDINAL_POSITION
                     }
 
                     # MSBuild
-                    $buildResult = Run-Command "`"$msbuildPath`" `"$slnPath`" /p:Configuration=Debug /t:Build /v:minimal" $repoRoot
+                    $buildResult = Run-Command "& '$msbuildPath' '$slnPath' /p:Configuration=Debug /t:Build /v:minimal"
                     $steps += @{ step = "msbuild"; success = $buildResult.success; output = ($buildResult.stdout + $buildResult.stderr).Trim() }
 
                     $ok = $buildResult.success
@@ -422,7 +422,7 @@ ORDER BY ORDINAL_POSITION
 
                     # 1. git pull
                     Write-Host "  [1/3] git pull..." -ForegroundColor White
-                    $pullResult = Run-Command "git pull" $repoRoot
+                    $pullResult = Run-Command "git pull"
                     $steps += @{ step = "git-pull"; success = $pullResult.success; output = ($pullResult.stdout + $pullResult.stderr).Trim() }
                     if (-not $pullResult.success) {
                         Write-Host "    FAILED" -ForegroundColor Red
@@ -439,11 +439,11 @@ ORDER BY ORDINAL_POSITION
                     }
 
                     if ($nugetPath -and (Test-Path $nugetPath)) {
-                        $nugetResult = Run-Command "`"$nugetPath`" restore `"$slnPath`"" $repoRoot
+                        $nugetResult = Run-Command "& '$nugetPath' restore '$slnPath'"
                         $steps += @{ step = "nuget-restore"; success = $nugetResult.success; output = ($nugetResult.stdout + $nugetResult.stderr).Trim() }
                     }
 
-                    $buildResult = Run-Command "`"$msbuildPath`" `"$slnPath`" /p:Configuration=Debug /t:Build /v:minimal" $repoRoot
+                    $buildResult = Run-Command "& '$msbuildPath' '$slnPath' /p:Configuration=Debug /t:Build /v:minimal"
                     $steps += @{ step = "build"; success = $buildResult.success; output = ($buildResult.stdout + $buildResult.stderr).Trim() }
                     if (-not $buildResult.success) {
                         Write-Host "    FAILED" -ForegroundColor Red

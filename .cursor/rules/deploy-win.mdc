@@ -12,7 +12,7 @@ Run these steps in order. Stop if any step fails and report the error.
 ## Step 1 — Stop the app
 
 ```bash
-curl -sf -X POST http://100.94.185.70:8765/stop
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/stop
 ```
 
 Report whether the app was stopped or was already not running.
@@ -20,7 +20,7 @@ Report whether the app was stopped or was already not running.
 ## Step 2 — Pull latest changes
 
 ```bash
-curl -sf -X POST http://100.94.185.70:8765/git-pull
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/git-pull
 ```
 
 Show the git output. Fail if `success` is false.
@@ -28,7 +28,7 @@ Show the git output. Fail if `success` is false.
 ## Step 3 — Build the solution
 
 ```bash
-curl -sf --max-time 120 -X POST http://100.94.185.70:8765/build
+curl -s --max-time 120 -X POST -H "Content-Length: 0" http://100.94.185.70:8765/build
 ```
 
 Report success or show the build errors. Fail if `success` is false.
@@ -36,7 +36,7 @@ Report success or show the build errors. Fail if `success` is false.
 ## Step 4 — Start the app
 
 ```bash
-curl -sf -X POST http://100.94.185.70:8765/start
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/start
 ```
 
 Report the app URL and PID on success. Show the error on failure.
