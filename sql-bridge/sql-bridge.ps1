@@ -99,8 +99,9 @@ if (-not (Test-Path $nugetPath)) {
     $nugetPath = (Get-Command nuget -ErrorAction SilentlyContinue).Source
 }
 
-# Track IIS Express process
+# Track IIS Express processes (main app and TrailersWS)
 $script:iisProcess = $null
+$script:trailersProcess = $null
 
 Write-Host "  Repo:     $repoRoot"
 if ($msbuildPath) { Write-Host "  MSBuild:  $msbuildPath" -ForegroundColor Green }
@@ -367,22 +368,33 @@ ORDER BY ORDINAL_POSITION
                         continue
                     }
 
-                    # Stop existing instance first
+                    # Stop existing instances first
                     if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
                         $script:iisProcess.Kill()
                         $script:iisProcess.WaitForExit(5000)
                     }
+                    if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) {
+                        $script:trailersProcess.Kill()
+                        $script:trailersProcess.WaitForExit(5000)
+                    }
 
                     $appPath = Join-Path $repoRoot "Shipping"
+                    $trailersPath = Join-Path $repoRoot "TrailersWS"
 
-                    # Clean up ALL conflicting network rules
+                    # Clean up ALL conflicting network rules for both ports
                     netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
                     netsh http delete urlacl url=http://*:50594/ 2>$null
                     netsh http delete urlacl url=http://+:50594/ 2>$null
                     netsh http delete urlacl url=http://localhost:50594/ 2>$null
-                    # Ensure firewall allows incoming on 50594
+                    netsh interface portproxy delete v4tov4 listenport=51730 listenaddress=0.0.0.0 2>$null
+                    netsh http delete urlacl url=http://*:51730/ 2>$null
+                    netsh http delete urlacl url=http://+:51730/ 2>$null
+                    netsh http delete urlacl url=http://localhost:51730/ 2>$null
+                    # Ensure firewall allows incoming on both ports
                     netsh advfirewall firewall delete rule name="IIS Express 50594" 2>$null
                     netsh advfirewall firewall add rule name="IIS Express 50594" dir=in action=allow protocol=tcp localport=50594 2>$null
+                    netsh advfirewall firewall delete rule name="IIS Express 51730" 2>$null
+                    netsh advfirewall firewall add rule name="IIS Express 51730" dir=in action=allow protocol=tcp localport=51730 2>$null
 
                     # Find IIS Express default config
                     $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
@@ -394,14 +406,15 @@ ORDER BY ORDINAL_POSITION
                     $debug["configPath"] = $iisConfigPath
                     $debug["configExists"] = (Test-Path $iisConfigPath)
 
-                    # Find or create a site entry with *:50594: binding
+                    # Find or create site entries for both apps
                     $siteId = $null
+                    $trailersSiteId = $null
                     if (Test-Path $iisConfigPath) {
                         $xml = [xml](Get-Content $iisConfigPath)
                         $sitesNode = $xml.SelectSingleNode("//sites")
-
-                        # Look for existing site with port 50594
                         $sites = $xml.SelectNodes("//site")
+
+                        # Look for existing sites
                         foreach ($site in $sites) {
                             $bindings = $site.SelectNodes("bindings/binding[@protocol='http']")
                             foreach ($b in $bindings) {
@@ -409,22 +422,27 @@ ORDER BY ORDINAL_POSITION
                                 if ($info -match ":50594") {
                                     $b.SetAttribute("bindingInformation", "*:50594:")
                                     $siteId = $site.GetAttribute("id")
-                                    $debug["siteName"] = $site.GetAttribute("name")
-                                    $debug["action"] = "patched existing"
+                                    $debug["mainSite"] = "patched existing"
+                                }
+                                if ($info -match ":51730") {
+                                    $b.SetAttribute("bindingInformation", "*:51730:")
+                                    $trailersSiteId = $site.GetAttribute("id")
+                                    $debug["trailersSite"] = "patched existing"
                                 }
                             }
                         }
 
-                        # If no site found, create one
-                        if (-not $siteId -and $sitesNode) {
+                        # Create missing sites
+                        if ((-not $siteId -or -not $trailersSiteId) -and $sitesNode) {
                             $maxId = 0
                             foreach ($s in $sites) {
                                 $id = [int]$s.GetAttribute("id")
                                 if ($id -gt $maxId) { $maxId = $id }
                             }
-                            $newId = $maxId + 1
 
-                            $siteXml = @"
+                            if (-not $siteId) {
+                                $newId = $maxId + 1
+                                $siteXml = @"
     <site name="CinemaRemote" id="$newId">
         <application path="/" applicationPool="Clr4IntegratedAppPool">
             <virtualDirectory path="/" physicalPath="$appPath" />
@@ -434,18 +452,40 @@ ORDER BY ORDINAL_POSITION
         </bindings>
     </site>
 "@
-                            $fragment = $xml.CreateDocumentFragment()
-                            $fragment.InnerXml = $siteXml
-                            $sitesNode.AppendChild($fragment) | Out-Null
-                            $siteId = $newId
-                            $debug["action"] = "created new site"
-                            $debug["siteName"] = "CinemaRemote"
+                                $fragment = $xml.CreateDocumentFragment()
+                                $fragment.InnerXml = $siteXml
+                                $sitesNode.AppendChild($fragment) | Out-Null
+                                $siteId = $newId
+                                $maxId = $newId
+                                $debug["mainSite"] = "created new"
+                            }
+
+                            if (-not $trailersSiteId) {
+                                $newId = $maxId + 1
+                                $siteXml = @"
+    <site name="TrailersWS" id="$newId">
+        <application path="/" applicationPool="Clr4IntegratedAppPool">
+            <virtualDirectory path="/" physicalPath="$trailersPath" />
+        </application>
+        <bindings>
+            <binding protocol="http" bindingInformation="*:51730:" />
+        </bindings>
+    </site>
+"@
+                                $fragment = $xml.CreateDocumentFragment()
+                                $fragment.InnerXml = $siteXml
+                                $sitesNode.AppendChild($fragment) | Out-Null
+                                $trailersSiteId = $newId
+                                $debug["trailersSite"] = "created new"
+                            }
                         }
 
                         $xml.Save($iisConfigPath)
                     }
                     $debug["siteId"] = $siteId
+                    $debug["trailersSiteId"] = $trailersSiteId
 
+                    # Start main app
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
                     if ($siteId) {
@@ -455,17 +495,46 @@ ORDER BY ORDINAL_POSITION
                     }
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
-                    $debug["cmdLine"] = "$($pinfo.FileName) $($pinfo.Arguments)"
+                    $debug["mainCmdLine"] = "$($pinfo.FileName) $($pinfo.Arguments)"
+
+                    # Start TrailersWS
+                    $trailersInfo = New-Object System.Diagnostics.ProcessStartInfo
+                    $trailersInfo.FileName = $iisExpressPath
+                    if ($trailersSiteId) {
+                        $trailersInfo.Arguments = "/config:`"$iisConfigPath`" /siteid:$trailersSiteId"
+                    } else {
+                        $trailersInfo.Arguments = "/path:`"$trailersPath`" /port:51730"
+                    }
+                    $trailersInfo.UseShellExecute = $false
+                    $trailersInfo.CreateNoWindow = $true
+                    $debug["trailersCmdLine"] = "$($trailersInfo.FileName) $($trailersInfo.Arguments)"
 
                     try {
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
-                        Start-Sleep -Seconds 3
+                        Start-Sleep -Seconds 2
                         if ($script:iisProcess.HasExited) {
-                            $debug["exitCode"] = $script:iisProcess.ExitCode
-                            Send-Json $ctx @{ success = $false; error = "IIS Express exited immediately with code $($script:iisProcess.ExitCode)."; debug = $debug } 500
+                            $debug["mainExitCode"] = $script:iisProcess.ExitCode
+                            Send-Json $ctx @{ success = $false; error = "Main app exited immediately with code $($script:iisProcess.ExitCode)."; debug = $debug } 500
                         } else {
-                            Write-Host "  IIS Express started (PID $($script:iisProcess.Id), port 50594)" -ForegroundColor Green
-                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://100.94.185.70:50594/"; debug = $debug }
+                            Write-Host "  Main app started (PID $($script:iisProcess.Id), port 50594)" -ForegroundColor Green
+                            
+                            $script:trailersProcess = [System.Diagnostics.Process]::Start($trailersInfo)
+                            Start-Sleep -Seconds 2
+                            if ($script:trailersProcess.HasExited) {
+                                $debug["trailersExitCode"] = $script:trailersProcess.ExitCode
+                                Write-Host "  TrailersWS failed to start (exit code $($script:trailersProcess.ExitCode))" -ForegroundColor Yellow
+                            } else {
+                                Write-Host "  TrailersWS started (PID $($script:trailersProcess.Id), port 51730)" -ForegroundColor Green
+                            }
+
+                            Send-Json $ctx @{ 
+                                success = $true
+                                mainPid = $script:iisProcess.Id
+                                trailersPid = if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) { $script:trailersProcess.Id } else { $null }
+                                url = "http://100.94.185.70:50594/"
+                                trailersUrl = "http://100.94.185.70:51730/"
+                                debug = $debug
+                            }
                         }
                     } catch {
                         $debug["exception"] = $_.Exception.Message
@@ -477,20 +546,27 @@ ORDER BY ORDINAL_POSITION
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
                     Write-Host "[$timestamp] POST /stop" -ForegroundColor Magenta
 
-                    $stopped = $false
+                    $stoppedMain = $false
+                    $stoppedTrailers = $false
                     if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
                         $script:iisProcess.Kill()
                         $script:iisProcess.WaitForExit(5000)
-                        $stopped = $true
-                        Write-Host "  IIS Express stopped" -ForegroundColor Yellow
+                        $stoppedMain = $true
+                        Write-Host "  Main app stopped" -ForegroundColor Yellow
+                    }
+                    if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) {
+                        $script:trailersProcess.Kill()
+                        $script:trailersProcess.WaitForExit(5000)
+                        $stoppedTrailers = $true
+                        Write-Host "  TrailersWS stopped" -ForegroundColor Yellow
                     }
 
-                    # Also kill any other IIS Express instances for this port
+                    # Also kill any other IIS Express instances
                     Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue | ForEach-Object {
-                        $_.Kill(); $stopped = $true
+                        $_.Kill()
                     }
 
-                    Send-Json $ctx @{ success = $true; stopped = $stopped }
+                    Send-Json $ctx @{ success = $true; stopped = ($stoppedMain -or $stoppedTrailers); stoppedMain = $stoppedMain; stoppedTrailers = $stoppedTrailers }
                 }
 
                 "^/deploy$" {
@@ -530,32 +606,44 @@ ORDER BY ORDINAL_POSITION
                         continue
                     }
 
-                    # 3. Restart IIS Express
-                    Write-Host "  [3/3] restart app..." -ForegroundColor White
+                    # 3. Restart IIS Express (both apps)
+                    Write-Host "  [3/3] restart apps..." -ForegroundColor White
                     if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
                         $script:iisProcess.Kill()
                         $script:iisProcess.WaitForExit(5000)
+                    }
+                    if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) {
+                        $script:trailersProcess.Kill()
+                        $script:trailersProcess.WaitForExit(5000)
                     }
                     Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue | ForEach-Object { $_.Kill() }
 
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
+                        $trailersPath = Join-Path $repoRoot "TrailersWS"
 
-                        # Clean up ALL conflicting network rules
+                        # Clean up ALL conflicting network rules for both ports
                         netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
                         netsh http delete urlacl url=http://*:50594/ 2>$null
                         netsh http delete urlacl url=http://+:50594/ 2>$null
                         netsh http delete urlacl url=http://localhost:50594/ 2>$null
+                        netsh interface portproxy delete v4tov4 listenport=51730 listenaddress=0.0.0.0 2>$null
+                        netsh http delete urlacl url=http://*:51730/ 2>$null
+                        netsh http delete urlacl url=http://+:51730/ 2>$null
+                        netsh http delete urlacl url=http://localhost:51730/ 2>$null
                         netsh advfirewall firewall delete rule name="IIS Express 50594" 2>$null
                         netsh advfirewall firewall add rule name="IIS Express 50594" dir=in action=allow protocol=tcp localport=50594 2>$null
+                        netsh advfirewall firewall delete rule name="IIS Express 51730" 2>$null
+                        netsh advfirewall firewall add rule name="IIS Express 51730" dir=in action=allow protocol=tcp localport=51730 2>$null
 
                         $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
                         if (-not (Test-Path $iisConfigPath)) {
                             $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
                         }
 
-                        # Find or create a site entry with *:50594: binding
+                        # Find or create site entries for both apps
                         $siteId = $null
+                        $trailersSiteId = $null
                         if (Test-Path $iisConfigPath) {
                             $xml = [xml](Get-Content $iisConfigPath)
                             $sitesNode = $xml.SelectSingleNode("//sites")
@@ -568,16 +656,21 @@ ORDER BY ORDINAL_POSITION
                                         $b.SetAttribute("bindingInformation", "*:50594:")
                                         $siteId = $site.GetAttribute("id")
                                     }
+                                    if ($info -match ":51730") {
+                                        $b.SetAttribute("bindingInformation", "*:51730:")
+                                        $trailersSiteId = $site.GetAttribute("id")
+                                    }
                                 }
                             }
-                            if (-not $siteId -and $sitesNode) {
+                            if ((-not $siteId -or -not $trailersSiteId) -and $sitesNode) {
                                 $maxId = 0
                                 foreach ($s in $sites) {
                                     $id = [int]$s.GetAttribute("id")
                                     if ($id -gt $maxId) { $maxId = $id }
                                 }
-                                $newId = $maxId + 1
-                                $siteXml = @"
+                                if (-not $siteId) {
+                                    $newId = $maxId + 1
+                                    $siteXml = @"
     <site name="CinemaRemote" id="$newId">
         <application path="/" applicationPool="Clr4IntegratedAppPool">
             <virtualDirectory path="/" physicalPath="$appPath" />
@@ -587,14 +680,34 @@ ORDER BY ORDINAL_POSITION
         </bindings>
     </site>
 "@
-                                $fragment = $xml.CreateDocumentFragment()
-                                $fragment.InnerXml = $siteXml
-                                $sitesNode.AppendChild($fragment) | Out-Null
-                                $siteId = $newId
+                                    $fragment = $xml.CreateDocumentFragment()
+                                    $fragment.InnerXml = $siteXml
+                                    $sitesNode.AppendChild($fragment) | Out-Null
+                                    $siteId = $newId
+                                    $maxId = $newId
+                                }
+                                if (-not $trailersSiteId) {
+                                    $newId = $maxId + 1
+                                    $siteXml = @"
+    <site name="TrailersWS" id="$newId">
+        <application path="/" applicationPool="Clr4IntegratedAppPool">
+            <virtualDirectory path="/" physicalPath="$trailersPath" />
+        </application>
+        <bindings>
+            <binding protocol="http" bindingInformation="*:51730:" />
+        </bindings>
+    </site>
+"@
+                                    $fragment = $xml.CreateDocumentFragment()
+                                    $fragment.InnerXml = $siteXml
+                                    $sitesNode.AppendChild($fragment) | Out-Null
+                                    $trailersSiteId = $newId
+                                }
                             }
                             $xml.Save($iisConfigPath)
                         }
 
+                        # Start main app
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
                         if ($siteId) {
@@ -608,11 +721,31 @@ ORDER BY ORDINAL_POSITION
                         Start-Sleep -Seconds 2
 
                         if ($script:iisProcess.HasExited) {
-                            $steps += @{ step = "start"; success = $false; output = "IIS Express exited with code $($script:iisProcess.ExitCode)" }
+                            $steps += @{ step = "start"; success = $false; output = "Main app exited with code $($script:iisProcess.ExitCode)" }
                             Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "start" } 500
                             continue
                         }
-                        $steps += @{ step = "start"; success = $true; output = "IIS Express running on port 50594 (PID $($script:iisProcess.Id))" }
+
+                        # Start TrailersWS
+                        $trailersInfo = New-Object System.Diagnostics.ProcessStartInfo
+                        $trailersInfo.FileName = $iisExpressPath
+                        if ($trailersSiteId) {
+                            $trailersInfo.Arguments = "/config:`"$iisConfigPath`" /siteid:$trailersSiteId"
+                        } else {
+                            $trailersInfo.Arguments = "/path:`"$trailersPath`" /port:51730"
+                        }
+                        $trailersInfo.UseShellExecute = $false
+                        $trailersInfo.CreateNoWindow = $true
+                        $script:trailersProcess = [System.Diagnostics.Process]::Start($trailersInfo)
+                        Start-Sleep -Seconds 2
+
+                        $trailersStatus = if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) {
+                            "TrailersWS running on port 51730 (PID $($script:trailersProcess.Id))"
+                        } else {
+                            "TrailersWS failed to start"
+                        }
+
+                        $steps += @{ step = "start"; success = $true; output = "Main app running on port 50594 (PID $($script:iisProcess.Id)); $trailersStatus" }
                     } else {
                         $steps += @{ step = "start"; success = $false; output = "IIS Express not found." }
                         Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "start" } 500
@@ -625,13 +758,28 @@ ORDER BY ORDINAL_POSITION
 
                 "^/app-status$" {
                     Write-Host "[$timestamp] GET /app-status" -ForegroundColor DarkGray
-                    $running = $false
-                    $pid_val = $null
+                    $mainRunning = $false
+                    $mainPid = $null
+                    $trailersRunning = $false
+                    $trailersPid = $null
+                    
                     if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
-                        $running = $true
-                        $pid_val = $script:iisProcess.Id
+                        $mainRunning = $true
+                        $mainPid = $script:iisProcess.Id
                     }
-                    Send-Json $ctx @{ running = $running; pid = $pid_val; url = "http://localhost:50594/" }
+                    if ($script:trailersProcess -and -not $script:trailersProcess.HasExited) {
+                        $trailersRunning = $true
+                        $trailersPid = $script:trailersProcess.Id
+                    }
+                    
+                    Send-Json $ctx @{ 
+                        mainRunning = $mainRunning
+                        mainPid = $mainPid
+                        mainUrl = "http://localhost:50594/"
+                        trailersRunning = $trailersRunning
+                        trailersPid = $trailersPid
+                        trailersUrl = "http://localhost:51730/"
+                    }
                 }
 
                 default {
