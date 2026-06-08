@@ -394,39 +394,57 @@ ORDER BY ORDINAL_POSITION
                     $debug["configPath"] = $iisConfigPath
                     $debug["configExists"] = (Test-Path $iisConfigPath)
 
-                    # Bootstrap: run with /path: briefly to ensure site entry exists in config
-                    $bootstrapInfo = New-Object System.Diagnostics.ProcessStartInfo
-                    $bootstrapInfo.FileName = $iisExpressPath
-                    $bootstrapInfo.Arguments = "/path:`"$appPath`" /port:50594"
-                    $bootstrapInfo.UseShellExecute = $false
-                    $bootstrapInfo.CreateNoWindow = $true
-                    $bootstrapProc = [System.Diagnostics.Process]::Start($bootstrapInfo)
-                    Start-Sleep -Seconds 3
-                    if (-not $bootstrapProc.HasExited) { $bootstrapProc.Kill(); $bootstrapProc.WaitForExit(3000) }
-
-                    # Patch binding to accept any hostname, find site ID
+                    # Find or create a site entry with *:50594: binding
                     $siteId = $null
-                    $originalBinding = ""
                     if (Test-Path $iisConfigPath) {
                         $xml = [xml](Get-Content $iisConfigPath)
+                        $sitesNode = $xml.SelectSingleNode("//sites")
+
+                        # Look for existing site with port 50594
                         $sites = $xml.SelectNodes("//site")
                         foreach ($site in $sites) {
                             $bindings = $site.SelectNodes("bindings/binding[@protocol='http']")
                             foreach ($b in $bindings) {
                                 $info = $b.GetAttribute("bindingInformation")
-                                if ($info -match ":50594:") {
-                                    $originalBinding = $info
+                                if ($info -match ":50594") {
                                     $b.SetAttribute("bindingInformation", "*:50594:")
                                     $siteId = $site.GetAttribute("id")
                                     $debug["siteName"] = $site.GetAttribute("name")
+                                    $debug["action"] = "patched existing"
                                 }
                             }
                         }
+
+                        # If no site found, create one
+                        if (-not $siteId -and $sitesNode) {
+                            $maxId = 0
+                            foreach ($s in $sites) {
+                                $id = [int]$s.GetAttribute("id")
+                                if ($id -gt $maxId) { $maxId = $id }
+                            }
+                            $newId = $maxId + 1
+
+                            $siteXml = @"
+    <site name="CinemaRemote" id="$newId">
+        <application path="/" applicationPool="Clr4IntegratedAppPool">
+            <virtualDirectory path="/" physicalPath="$appPath" />
+        </application>
+        <bindings>
+            <binding protocol="http" bindingInformation="*:50594:" />
+        </bindings>
+    </site>
+"@
+                            $fragment = $xml.CreateDocumentFragment()
+                            $fragment.InnerXml = $siteXml
+                            $sitesNode.AppendChild($fragment) | Out-Null
+                            $siteId = $newId
+                            $debug["action"] = "created new site"
+                            $debug["siteName"] = "CinemaRemote"
+                        }
+
                         $xml.Save($iisConfigPath)
                     }
                     $debug["siteId"] = $siteId
-                    $debug["originalBinding"] = $originalBinding
-                    $debug["patchedBinding"] = "*:50594:"
 
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
@@ -536,30 +554,43 @@ ORDER BY ORDINAL_POSITION
                             $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
                         }
 
-                        # Bootstrap: run with /path: briefly to ensure site entry exists
-                        $bootstrapInfo = New-Object System.Diagnostics.ProcessStartInfo
-                        $bootstrapInfo.FileName = $iisExpressPath
-                        $bootstrapInfo.Arguments = "/path:`"$appPath`" /port:50594"
-                        $bootstrapInfo.UseShellExecute = $false
-                        $bootstrapInfo.CreateNoWindow = $true
-                        $bootstrapProc = [System.Diagnostics.Process]::Start($bootstrapInfo)
-                        Start-Sleep -Seconds 2
-                        if (-not $bootstrapProc.HasExited) { $bootstrapProc.Kill(); $bootstrapProc.WaitForExit(3000) }
-
-                        # Patch binding and get site ID
+                        # Find or create a site entry with *:50594: binding
                         $siteId = $null
                         if (Test-Path $iisConfigPath) {
                             $xml = [xml](Get-Content $iisConfigPath)
+                            $sitesNode = $xml.SelectSingleNode("//sites")
                             $sites = $xml.SelectNodes("//site")
                             foreach ($site in $sites) {
                                 $bindings = $site.SelectNodes("bindings/binding[@protocol='http']")
                                 foreach ($b in $bindings) {
                                     $info = $b.GetAttribute("bindingInformation")
-                                    if ($info -match ":50594:") {
+                                    if ($info -match ":50594") {
                                         $b.SetAttribute("bindingInformation", "*:50594:")
                                         $siteId = $site.GetAttribute("id")
                                     }
                                 }
+                            }
+                            if (-not $siteId -and $sitesNode) {
+                                $maxId = 0
+                                foreach ($s in $sites) {
+                                    $id = [int]$s.GetAttribute("id")
+                                    if ($id -gt $maxId) { $maxId = $id }
+                                }
+                                $newId = $maxId + 1
+                                $siteXml = @"
+    <site name="CinemaRemote" id="$newId">
+        <application path="/" applicationPool="Clr4IntegratedAppPool">
+            <virtualDirectory path="/" physicalPath="$appPath" />
+        </application>
+        <bindings>
+            <binding protocol="http" bindingInformation="*:50594:" />
+        </bindings>
+    </site>
+"@
+                                $fragment = $xml.CreateDocumentFragment()
+                                $fragment.InnerXml = $siteXml
+                                $sitesNode.AppendChild($fragment) | Out-Null
+                                $siteId = $newId
                             }
                             $xml.Save($iisConfigPath)
                         }
