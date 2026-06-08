@@ -1,9 +1,11 @@
 <#
 .SYNOPSIS
-    HTTP bridge for querying the Cinema SQL Server LocalDB from a remote machine.
+    HTTP bridge for querying the Cinema SQL Server LocalDB and managing
+    deployments from a remote machine.
 
 .DESCRIPTION
-    Starts an HTTP listener that accepts SQL queries via POST and returns JSON results.
+    Starts an HTTP listener that accepts SQL queries via POST, returns JSON results,
+    and provides deployment endpoints (git pull, build, start/stop IIS Express).
     Designed to run on the Windows machine where SQL Server LocalDB + Dtb.mdf live.
     Must be run as Administrator (HttpListener requires it for non-localhost prefixes).
 
@@ -61,6 +63,73 @@ try {
 } catch {
     Write-Host "ERROR: Cannot connect to database: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
+}
+
+# --- Resolve project paths ---
+$repoRoot = Split-Path $PSScriptRoot
+$slnPath = Join-Path $repoRoot "Shipping.sln"
+
+# Find MSBuild via vswhere
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+$msbuildPath = $null
+if (Test-Path $vswhere) {
+    $vsPath = & $vswhere -latest -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe" | Select-Object -First 1
+    if ($vsPath) { $msbuildPath = $vsPath }
+}
+if (-not $msbuildPath) {
+    $fallbacks = @(
+        "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe",
+        "${env:ProgramFiles}\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\MSBuild.exe",
+        "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+    )
+    foreach ($fb in $fallbacks) {
+        if (Test-Path $fb) { $msbuildPath = $fb; break }
+    }
+}
+
+# Find IIS Express
+$iisExpressPath = "${env:ProgramFiles}\IIS Express\iisexpress.exe"
+if (-not (Test-Path $iisExpressPath)) {
+    $iisExpressPath = "${env:ProgramFiles(x86)}\IIS Express\iisexpress.exe"
+}
+
+# Find NuGet
+$nugetPath = Join-Path $repoRoot ".nuget\NuGet.exe"
+if (-not (Test-Path $nugetPath)) {
+    $nugetPath = (Get-Command nuget -ErrorAction SilentlyContinue).Source
+}
+
+# Track IIS Express process
+$script:iisProcess = $null
+
+Write-Host "  Repo:     $repoRoot"
+if ($msbuildPath) { Write-Host "  MSBuild:  $msbuildPath" -ForegroundColor Green }
+else { Write-Host "  MSBuild:  NOT FOUND" -ForegroundColor Yellow }
+
+# --- Helper: run a shell command and capture output ---
+function Run-Command {
+    param([string]$Command, [string]$WorkingDir = $repoRoot)
+
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = "cmd.exe"
+    $pinfo.Arguments = "/c $Command"
+    $pinfo.WorkingDirectory = $WorkingDir
+    $pinfo.RedirectStandardOutput = $true
+    $pinfo.RedirectStandardError = $true
+    $pinfo.UseShellExecute = $false
+    $pinfo.CreateNoWindow = $true
+
+    $proc = [System.Diagnostics.Process]::Start($pinfo)
+    $stdout = $proc.StandardOutput.ReadToEnd()
+    $stderr = $proc.StandardError.ReadToEnd()
+    $proc.WaitForExit()
+
+    return @{
+        exitCode = $proc.ExitCode
+        stdout   = $stdout
+        stderr   = $stderr
+        success  = ($proc.ExitCode -eq 0)
+    }
 }
 
 # --- Helper: execute SQL and return result object ---
@@ -161,11 +230,19 @@ if ($localIP) {
     Write-Host "  Network:  http://${localIP}:$Port" -ForegroundColor Yellow
 }
 Write-Host ""
-Write-Host "Endpoints:" -ForegroundColor Cyan
+Write-Host "SQL Endpoints:" -ForegroundColor Cyan
 Write-Host "  POST /query          - Execute SQL (body: {`"sql`": `"SELECT ...`"})"
 Write-Host "  GET  /tables         - List all tables"
 Write-Host "  GET  /schema?table=X - Describe table columns"
 Write-Host "  GET  /ping           - Health check"
+Write-Host ""
+Write-Host "Deploy Endpoints:" -ForegroundColor Cyan
+Write-Host "  POST /git-pull       - Pull latest changes from remote"
+Write-Host "  POST /build          - Restore NuGet packages and build solution"
+Write-Host "  POST /start          - Start IIS Express for the Shipping app"
+Write-Host "  POST /stop           - Stop IIS Express"
+Write-Host "  POST /deploy         - Pull + build + restart (all in one)"
+Write-Host "  GET  /app-status     - Check if the app is running"
 Write-Host ""
 Write-Host "Press Ctrl+C to stop." -ForegroundColor DarkGray
 Write-Host ""
@@ -239,10 +316,190 @@ ORDER BY ORDINAL_POSITION
                     Send-Json $ctx $result
                 }
 
+                "^/git-pull$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /git-pull" -ForegroundColor Magenta
+                    $result = Run-Command "git pull" $repoRoot
+                    Write-Host "  git pull exit=$($result.exitCode)" -ForegroundColor $(if ($result.success) { "Green" } else { "Red" })
+                    Send-Json $ctx @{
+                        success = $result.success
+                        output  = ($result.stdout + $result.stderr).Trim()
+                    } $(if ($result.success) { 200 } else { 500 })
+                }
+
+                "^/build$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /build" -ForegroundColor Magenta
+
+                    if (-not $msbuildPath) {
+                        Send-Json $ctx @{ success = $false; error = "MSBuild not found on this machine." } 500
+                        continue
+                    }
+
+                    $steps = @()
+
+                    # NuGet restore
+                    if ($nugetPath -and (Test-Path $nugetPath)) {
+                        $nugetResult = Run-Command "`"$nugetPath`" restore `"$slnPath`"" $repoRoot
+                        $steps += @{ step = "nuget-restore"; success = $nugetResult.success; output = ($nugetResult.stdout + $nugetResult.stderr).Trim() }
+                        if (-not $nugetResult.success) {
+                            Write-Host "  NuGet restore FAILED" -ForegroundColor Red
+                            Send-Json $ctx @{ success = $false; steps = $steps } 500
+                            continue
+                        }
+                    }
+
+                    # MSBuild
+                    $buildResult = Run-Command "`"$msbuildPath`" `"$slnPath`" /p:Configuration=Debug /t:Build /v:minimal" $repoRoot
+                    $steps += @{ step = "msbuild"; success = $buildResult.success; output = ($buildResult.stdout + $buildResult.stderr).Trim() }
+
+                    $ok = $buildResult.success
+                    Write-Host "  Build $(if ($ok) { 'OK' } else { 'FAILED' })" -ForegroundColor $(if ($ok) { "Green" } else { "Red" })
+                    Send-Json $ctx @{ success = $ok; steps = $steps } $(if ($ok) { 200 } else { 500 })
+                }
+
+                "^/start$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /start" -ForegroundColor Magenta
+
+                    if (-not (Test-Path $iisExpressPath)) {
+                        Send-Json $ctx @{ success = $false; error = "IIS Express not found." } 500
+                        continue
+                    }
+
+                    # Stop existing instance first
+                    if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
+                        $script:iisProcess.Kill()
+                        $script:iisProcess.WaitForExit(5000)
+                    }
+
+                    $appPath = Join-Path $repoRoot "Shipping"
+                    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+                    $pinfo.FileName = $iisExpressPath
+                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                    $pinfo.UseShellExecute = $false
+                    $pinfo.CreateNoWindow = $true
+
+                    try {
+                        $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
+                        Start-Sleep -Seconds 2
+                        if ($script:iisProcess.HasExited) {
+                            Send-Json $ctx @{ success = $false; error = "IIS Express exited immediately with code $($script:iisProcess.ExitCode)." } 500
+                        } else {
+                            Write-Host "  IIS Express started (PID $($script:iisProcess.Id), port 50594)" -ForegroundColor Green
+                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://localhost:50594/" }
+                        }
+                    } catch {
+                        Send-Json $ctx @{ success = $false; error = $_.Exception.Message } 500
+                    }
+                }
+
+                "^/stop$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /stop" -ForegroundColor Magenta
+
+                    $stopped = $false
+                    if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
+                        $script:iisProcess.Kill()
+                        $script:iisProcess.WaitForExit(5000)
+                        $stopped = $true
+                        Write-Host "  IIS Express stopped" -ForegroundColor Yellow
+                    }
+
+                    # Also kill any other IIS Express instances for this port
+                    Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue | ForEach-Object {
+                        $_.Kill(); $stopped = $true
+                    }
+
+                    Send-Json $ctx @{ success = $true; stopped = $stopped }
+                }
+
+                "^/deploy$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /deploy (full pipeline)" -ForegroundColor Cyan
+
+                    $steps = @()
+
+                    # 1. git pull
+                    Write-Host "  [1/3] git pull..." -ForegroundColor White
+                    $pullResult = Run-Command "git pull" $repoRoot
+                    $steps += @{ step = "git-pull"; success = $pullResult.success; output = ($pullResult.stdout + $pullResult.stderr).Trim() }
+                    if (-not $pullResult.success) {
+                        Write-Host "    FAILED" -ForegroundColor Red
+                        Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "git-pull" } 500
+                        continue
+                    }
+
+                    # 2. NuGet restore + build
+                    Write-Host "  [2/3] build..." -ForegroundColor White
+                    if (-not $msbuildPath) {
+                        $steps += @{ step = "build"; success = $false; output = "MSBuild not found." }
+                        Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "build" } 500
+                        continue
+                    }
+
+                    if ($nugetPath -and (Test-Path $nugetPath)) {
+                        $nugetResult = Run-Command "`"$nugetPath`" restore `"$slnPath`"" $repoRoot
+                        $steps += @{ step = "nuget-restore"; success = $nugetResult.success; output = ($nugetResult.stdout + $nugetResult.stderr).Trim() }
+                    }
+
+                    $buildResult = Run-Command "`"$msbuildPath`" `"$slnPath`" /p:Configuration=Debug /t:Build /v:minimal" $repoRoot
+                    $steps += @{ step = "build"; success = $buildResult.success; output = ($buildResult.stdout + $buildResult.stderr).Trim() }
+                    if (-not $buildResult.success) {
+                        Write-Host "    FAILED" -ForegroundColor Red
+                        Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "build" } 500
+                        continue
+                    }
+
+                    # 3. Restart IIS Express
+                    Write-Host "  [3/3] restart app..." -ForegroundColor White
+                    if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
+                        $script:iisProcess.Kill()
+                        $script:iisProcess.WaitForExit(5000)
+                    }
+                    Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue | ForEach-Object { $_.Kill() }
+
+                    if (Test-Path $iisExpressPath) {
+                        $appPath = Join-Path $repoRoot "Shipping"
+                        $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+                        $pinfo.FileName = $iisExpressPath
+                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                        $pinfo.UseShellExecute = $false
+                        $pinfo.CreateNoWindow = $true
+                        $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
+                        Start-Sleep -Seconds 2
+
+                        if ($script:iisProcess.HasExited) {
+                            $steps += @{ step = "start"; success = $false; output = "IIS Express exited with code $($script:iisProcess.ExitCode)" }
+                            Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "start" } 500
+                            continue
+                        }
+                        $steps += @{ step = "start"; success = $true; output = "IIS Express running on port 50594 (PID $($script:iisProcess.Id))" }
+                    } else {
+                        $steps += @{ step = "start"; success = $false; output = "IIS Express not found." }
+                        Send-Json $ctx @{ success = $false; steps = $steps; failedAt = "start" } 500
+                        continue
+                    }
+
+                    Write-Host "  Deploy complete!" -ForegroundColor Green
+                    Send-Json $ctx @{ success = $true; steps = $steps; url = "http://localhost:50594/" }
+                }
+
+                "^/app-status$" {
+                    Write-Host "[$timestamp] GET /app-status" -ForegroundColor DarkGray
+                    $running = $false
+                    $pid_val = $null
+                    if ($script:iisProcess -and -not $script:iisProcess.HasExited) {
+                        $running = $true
+                        $pid_val = $script:iisProcess.Id
+                    }
+                    Send-Json $ctx @{ running = $running; pid = $pid_val; url = "http://localhost:50594/" }
+                }
+
                 default {
                     Send-Json $ctx @{
                         error = "Unknown endpoint: $path"
-                        endpoints = @("/query", "/tables", "/schema?table=X", "/ping")
+                        endpoints = @("/query", "/tables", "/schema?table=X", "/ping", "/git-pull", "/build", "/start", "/stop", "/deploy", "/app-status")
                     } 404
                 }
             }
