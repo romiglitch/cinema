@@ -53,6 +53,13 @@ if (-not (Test-Path $MdfPath)) {
 
 $connStr = "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=$MdfPath;Integrated Security=True"
 
+# Payment database connection string (resolved relative to repo root)
+$paymentMdfPath = Join-Path (Split-Path $PSScriptRoot) "Payment\PaymentDb.mdf"
+$paymentConnStr = $null
+if (Test-Path $paymentMdfPath) {
+    $paymentConnStr = "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=$paymentMdfPath;Integrated Security=True"
+}
+
 # --- Test database connection ---
 Write-Host "Testing connection to $MdfPath ..." -ForegroundColor Cyan
 try {
@@ -315,6 +322,56 @@ ORDER BY ORDINAL_POSITION
 
                     $result = Invoke-SqlQuery $sql
                     Send-Json $ctx $result
+                }
+
+                "^/query-payment$" {
+                    if ($req.HttpMethod -ne "POST") {
+                        Send-Json $ctx @{ error = "Use POST" } 405
+                        continue
+                    }
+                    if (-not $paymentConnStr) {
+                        Send-Json $ctx @{ error = "PaymentDb.mdf not found at $paymentMdfPath" } 500
+                        continue
+                    }
+                    $reader = New-Object System.IO.StreamReader($req.InputStream, $req.ContentEncoding)
+                    $body = $reader.ReadToEnd()
+                    $reader.Close()
+
+                    $payload = $body | ConvertFrom-Json
+                    $sql = $payload.sql
+
+                    if (-not $sql) {
+                        Send-Json $ctx @{ error = 'Missing "sql" field in request body' } 400
+                        continue
+                    }
+
+                    $preview = if ($sql.Length -gt 80) { $sql.Substring(0, 80) + "..." } else { $sql }
+                    Write-Host "[$timestamp] POST /query-payment: $preview" -ForegroundColor White
+
+                    $conn = New-Object System.Data.SqlClient.SqlConnection($paymentConnStr)
+                    $conn.Open()
+                    try {
+                        $cmd = $conn.CreateCommand()
+                        $cmd.CommandText = $sql
+                        $cmd.CommandTimeout = 30
+                        $adapter = New-Object System.Data.SqlClient.SqlDataAdapter($cmd)
+                        $table = New-Object System.Data.DataTable
+                        [void]$adapter.Fill($table)
+
+                        $rows = [System.Collections.ArrayList]::new()
+                        foreach ($row in $table.Rows) {
+                            $obj = [ordered]@{}
+                            foreach ($col in $table.Columns) {
+                                $val = $row[$col.ColumnName]
+                                if ($val -is [System.DBNull]) { $val = $null }
+                                $obj[$col.ColumnName] = $val
+                            }
+                            [void]$rows.Add($obj)
+                        }
+                        Send-Json $ctx @{ success = $true; rows = $rows.ToArray(); count = $rows.Count }
+                    } finally {
+                        $conn.Close()
+                    }
                 }
 
                 "^/git-pull$" {
