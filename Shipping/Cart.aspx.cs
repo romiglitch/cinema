@@ -165,28 +165,30 @@ namespace Shipping
                 ? string.Join(", ", seatNumbersOnly)
                 : (string.IsNullOrEmpty(rawSeats) ? "לא נבחרו מושבים" : rawSeats);//אם אין מושבים, במידה והמידע בסשן ריק תוצג הודעה
         
-            decimal amount = 0;
-            decimal.TryParse(litTotalPrice.Text, out amount);
+            decimal amount = 0;// משתנה דצימלי המאפשר לשמור על דיוק בחישובים כספיים
+            decimal.TryParse(litTotalPrice.Text, out amount);// המרת הטקסט של המחיר הכולל למספר דצימלי - אם ההמרה נכשלת הסכום יישאר 0
 
+            // פרויקט  עם מסד נתונים נפרד לכרטיסי חיוב - Payment חיבור לשירות התשלום
             string paymentConnStr = ConfigurationManager.ConnectionStrings["PaymentConnectionString"].ConnectionString;
-            var paymentService = new Payment.PaymentService(paymentConnStr);
+            var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
+            // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
             Payment.PaymentResult paymentResult = paymentService.ProcessPayment(
                 txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text, amount);
 
-            if (paymentResult.Success)
+            if (paymentResult.Success)// אם התשלום הצליח למשתנה paymentResult יהיה Success=true
             {
                 try
                 {
-                    SaveOrderToDatabase();
+                    SaveOrderToDatabase();//שמירת ההזמנה במסד נתונים
 
-                    RegisterAsyncTask(new PageAsyncTask(async () =>
+                    RegisterAsyncTask(new PageAsyncTask(async () => //יצירת פעולה אסינכרונית ששולחת מייל לאישור ההזמנה
                     {
                         try
                         {
                             EmailService mailService = new EmailService();
                             DateTime screeningDate;
-                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))
-                                screeningDate = DateTime.Now;
+                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך נכשלה
+                                screeningDate = DateTime.Now;// נשתמש בתאריך הנוכחי כברירת מחדל כדי שהמייל עדיין יישלח עם תאריך תקין
 
                             await mailService.SendOrderReceiptEmail(
                                 userEmail,
@@ -215,6 +217,7 @@ namespace Shipping
             }
             else
             {
+                // אם התשלום נכשל - הצגת הודעת השגיאה מהשירות (פרטים שגויים, יתרה לא מספיקה וכו')
                 lblMsg.Text = paymentResult.Message;
             }
         }

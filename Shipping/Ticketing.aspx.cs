@@ -100,7 +100,7 @@ namespace Shipping
         protected void btnContinue_Click(object sender, EventArgs e)
         {
             int totalTickets = 0;
-            decimal totalPrice = 0;
+            decimal totalPrice = 0;// משתנה דצימלי המאפשר לשמור על דיוק בחישובים כספיים
 
             List<string> ticketTypes = new List<string>();
             List<string> ticketPrices = new List<string>();
@@ -115,7 +115,7 @@ namespace Shipping
                 if (hfQty != null && hfPrice != null && hfType != null)
                 {
                     int qty = int.TryParse(hfQty.Value, out int q) ? q : 0;
-                    decimal price = decimal.TryParse(hfPrice.Value, out decimal p) ? p : 0;
+                    decimal price = decimal.TryParse(hfPrice.Value, out decimal p) ? p : 0;// משתנה דצימלי המאפשר לשמור על דיוק בחישובים כספיים
 
                     if (qty > 0)
                     {
