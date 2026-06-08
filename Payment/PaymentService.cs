@@ -84,7 +84,7 @@ namespace Payment
                     {
                         // שאילתה לחיפוש הכרטיס עם נעילת שורה למניעת חיוב כפול במקביל
                         string selectQuery = @"
-                            SELECT Id, Balance FROM DebitCards WITH (UPDLOCK, ROWLOCK)/נועלמניעת חיוב כפול במקביל
+                            SELECT Id, Balance FROM DebitCards WITH (UPDLOCK, ROWLOCK)
                             WHERE CardNumber = @cardNumber
                               AND CVC = @cvc
                               AND ExpirationDate = @expiry
