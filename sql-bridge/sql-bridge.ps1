@@ -375,15 +375,21 @@ ORDER BY ORDINAL_POSITION
 
                     $appPath = Join-Path $repoRoot "Shipping"
 
-                    # Clean up conflicting network rules from earlier attempts
+                    # Clean up ALL conflicting network rules
                     netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
                     netsh http delete urlacl url=http://*:50594/ 2>$null
+                    netsh http delete urlacl url=http://+:50594/ 2>$null
+                    netsh http delete urlacl url=http://localhost:50594/ 2>$null
 
                     # Find IIS Express default config
                     $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
                     if (-not (Test-Path $iisConfigPath)) {
                         $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
                     }
+
+                    $debug = @{}
+                    $debug["configPath"] = $iisConfigPath
+                    $debug["configExists"] = (Test-Path $iisConfigPath)
 
                     # Bootstrap: run with /path: briefly to ensure site entry exists in config
                     $bootstrapInfo = New-Object System.Diagnostics.ProcessStartInfo
@@ -392,11 +398,12 @@ ORDER BY ORDINAL_POSITION
                     $bootstrapInfo.UseShellExecute = $false
                     $bootstrapInfo.CreateNoWindow = $true
                     $bootstrapProc = [System.Diagnostics.Process]::Start($bootstrapInfo)
-                    Start-Sleep -Seconds 2
+                    Start-Sleep -Seconds 3
                     if (-not $bootstrapProc.HasExited) { $bootstrapProc.Kill(); $bootstrapProc.WaitForExit(3000) }
 
                     # Patch binding to accept any hostname, find site ID
                     $siteId = $null
+                    $originalBinding = ""
                     if (Test-Path $iisConfigPath) {
                         $xml = [xml](Get-Content $iisConfigPath)
                         $sites = $xml.SelectNodes("//site")
@@ -405,16 +412,18 @@ ORDER BY ORDINAL_POSITION
                             foreach ($b in $bindings) {
                                 $info = $b.GetAttribute("bindingInformation")
                                 if ($info -match ":50594:") {
+                                    $originalBinding = $info
                                     $b.SetAttribute("bindingInformation", "*:50594:")
                                     $siteId = $site.GetAttribute("id")
+                                    $debug["siteName"] = $site.GetAttribute("name")
                                 }
                             }
                         }
                         $xml.Save($iisConfigPath)
                     }
-
-                    # Add URL ACL for the wildcard binding so IIS Express can register it
-                    netsh http add urlacl url=http://*:50594/ user=Everyone 2>$null
+                    $debug["siteId"] = $siteId
+                    $debug["originalBinding"] = $originalBinding
+                    $debug["patchedBinding"] = "*:50594:"
 
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
@@ -425,18 +434,21 @@ ORDER BY ORDINAL_POSITION
                     }
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
+                    $debug["cmdLine"] = "$($pinfo.FileName) $($pinfo.Arguments)"
 
                     try {
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
-                        Start-Sleep -Seconds 2
+                        Start-Sleep -Seconds 3
                         if ($script:iisProcess.HasExited) {
-                            Send-Json $ctx @{ success = $false; error = "IIS Express exited immediately with code $($script:iisProcess.ExitCode)." } 500
+                            $debug["exitCode"] = $script:iisProcess.ExitCode
+                            Send-Json $ctx @{ success = $false; error = "IIS Express exited immediately with code $($script:iisProcess.ExitCode)."; debug = $debug } 500
                         } else {
                             Write-Host "  IIS Express started (PID $($script:iisProcess.Id), port 50594)" -ForegroundColor Green
-                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://100.94.185.70:50594/" }
+                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://100.94.185.70:50594/"; debug = $debug }
                         }
                     } catch {
-                        Send-Json $ctx @{ success = $false; error = $_.Exception.Message } 500
+                        $debug["exception"] = $_.Exception.Message
+                        Send-Json $ctx @{ success = $false; error = $_.Exception.Message; debug = $debug } 500
                     }
                 }
 
