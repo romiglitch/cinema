@@ -374,11 +374,19 @@ ORDER BY ORDINAL_POSITION
                     }
 
                     $appPath = Join-Path $repoRoot "Shipping"
+
+                    # Ensure URL reservation exists for remote access
+                    $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
+                    if ($aclCheck -notmatch "http://\*:50594/") {
+                        netsh http add urlacl url=http://*:50594/ user=Everyone 2>&1 | Out-Null
+                    }
+
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
-                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594 /trace:error"
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
+                    $pinfo.EnvironmentVariables["ASPNETCORE_URLS"] = "http://*:50594"
 
                     try {
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
@@ -387,7 +395,7 @@ ORDER BY ORDINAL_POSITION
                             Send-Json $ctx @{ success = $false; error = "IIS Express exited immediately with code $($script:iisProcess.ExitCode)." } 500
                         } else {
                             Write-Host "  IIS Express started (PID $($script:iisProcess.Id), port 50594)" -ForegroundColor Green
-                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://localhost:50594/" }
+                            Send-Json $ctx @{ success = $true; pid = $script:iisProcess.Id; url = "http://100.94.185.70:50594/" }
                         }
                     } catch {
                         Send-Json $ctx @{ success = $false; error = $_.Exception.Message } 500
@@ -461,11 +469,18 @@ ORDER BY ORDINAL_POSITION
 
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
+
+                        $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
+                        if ($aclCheck -notmatch "http://\*:50594/") {
+                            netsh http add urlacl url=http://*:50594/ user=Everyone 2>&1 | Out-Null
+                        }
+
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
-                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594 /trace:error"
                         $pinfo.UseShellExecute = $false
                         $pinfo.CreateNoWindow = $true
+                        $pinfo.EnvironmentVariables["ASPNETCORE_URLS"] = "http://*:50594"
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
                         Start-Sleep -Seconds 2
 
@@ -482,7 +497,7 @@ ORDER BY ORDINAL_POSITION
                     }
 
                     Write-Host "  Deploy complete!" -ForegroundColor Green
-                    Send-Json $ctx @{ success = $true; steps = $steps; url = "http://localhost:50594/" }
+                    Send-Json $ctx @{ success = $true; steps = $steps; url = "http://100.94.185.70:50594/" }
                 }
 
                 "^/app-status$" {
