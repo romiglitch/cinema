@@ -380,6 +380,9 @@ ORDER BY ORDINAL_POSITION
                     netsh http delete urlacl url=http://*:50594/ 2>$null
                     netsh http delete urlacl url=http://+:50594/ 2>$null
                     netsh http delete urlacl url=http://localhost:50594/ 2>$null
+                    # Ensure firewall allows incoming on 50594
+                    netsh advfirewall firewall delete rule name="IIS Express 50594" 2>$null
+                    netsh advfirewall firewall add rule name="IIS Express 50594" dir=in action=allow protocol=tcp localport=50594 2>$null
 
                     # Find IIS Express default config
                     $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
@@ -520,9 +523,13 @@ ORDER BY ORDINAL_POSITION
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
 
-                        # Clean up conflicting network rules
+                        # Clean up ALL conflicting network rules
                         netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
                         netsh http delete urlacl url=http://*:50594/ 2>$null
+                        netsh http delete urlacl url=http://+:50594/ 2>$null
+                        netsh http delete urlacl url=http://localhost:50594/ 2>$null
+                        netsh advfirewall firewall delete rule name="IIS Express 50594" 2>$null
+                        netsh advfirewall firewall add rule name="IIS Express 50594" dir=in action=allow protocol=tcp localport=50594 2>$null
 
                         $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
                         if (-not (Test-Path $iisConfigPath)) {
@@ -556,9 +563,6 @@ ORDER BY ORDINAL_POSITION
                             }
                             $xml.Save($iisConfigPath)
                         }
-
-                        # Add URL ACL for the wildcard binding
-                        netsh http add urlacl url=http://*:50594/ user=Everyone 2>$null
 
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
