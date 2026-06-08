@@ -375,11 +375,28 @@ ORDER BY ORDINAL_POSITION
 
                     $appPath = Join-Path $repoRoot "Shipping"
 
-                    # Patch default IIS Express config to accept requests on any hostname
+                    # Clean up conflicting network rules from earlier attempts
+                    netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
+                    netsh http delete urlacl url=http://*:50594/ 2>$null
+
+                    # Find IIS Express default config
                     $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
                     if (-not (Test-Path $iisConfigPath)) {
                         $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
                     }
+
+                    # Bootstrap: run with /path: briefly to ensure site entry exists in config
+                    $bootstrapInfo = New-Object System.Diagnostics.ProcessStartInfo
+                    $bootstrapInfo.FileName = $iisExpressPath
+                    $bootstrapInfo.Arguments = "/path:`"$appPath`" /port:50594"
+                    $bootstrapInfo.UseShellExecute = $false
+                    $bootstrapInfo.CreateNoWindow = $true
+                    $bootstrapProc = [System.Diagnostics.Process]::Start($bootstrapInfo)
+                    Start-Sleep -Seconds 2
+                    if (-not $bootstrapProc.HasExited) { $bootstrapProc.Kill(); $bootstrapProc.WaitForExit(3000) }
+
+                    # Patch binding to accept any hostname, find site ID
+                    $siteId = $null
                     if (Test-Path $iisConfigPath) {
                         $xml = [xml](Get-Content $iisConfigPath)
                         $sites = $xml.SelectNodes("//site")
@@ -389,15 +406,23 @@ ORDER BY ORDINAL_POSITION
                                 $info = $b.GetAttribute("bindingInformation")
                                 if ($info -match ":50594:") {
                                     $b.SetAttribute("bindingInformation", "*:50594:")
+                                    $siteId = $site.GetAttribute("id")
                                 }
                             }
                         }
                         $xml.Save($iisConfigPath)
                     }
 
+                    # Add URL ACL for the wildcard binding so IIS Express can register it
+                    netsh http add urlacl url=http://*:50594/ user=Everyone 2>$null
+
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
-                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                    if ($siteId) {
+                        $pinfo.Arguments = "/config:`"$iisConfigPath`" /siteid:$siteId"
+                    } else {
+                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                    }
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
 
@@ -483,10 +508,27 @@ ORDER BY ORDINAL_POSITION
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
 
+                        # Clean up conflicting network rules
+                        netsh interface portproxy delete v4tov4 listenport=50594 listenaddress=0.0.0.0 2>$null
+                        netsh http delete urlacl url=http://*:50594/ 2>$null
+
                         $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
                         if (-not (Test-Path $iisConfigPath)) {
                             $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
                         }
+
+                        # Bootstrap: run with /path: briefly to ensure site entry exists
+                        $bootstrapInfo = New-Object System.Diagnostics.ProcessStartInfo
+                        $bootstrapInfo.FileName = $iisExpressPath
+                        $bootstrapInfo.Arguments = "/path:`"$appPath`" /port:50594"
+                        $bootstrapInfo.UseShellExecute = $false
+                        $bootstrapInfo.CreateNoWindow = $true
+                        $bootstrapProc = [System.Diagnostics.Process]::Start($bootstrapInfo)
+                        Start-Sleep -Seconds 2
+                        if (-not $bootstrapProc.HasExited) { $bootstrapProc.Kill(); $bootstrapProc.WaitForExit(3000) }
+
+                        # Patch binding and get site ID
+                        $siteId = $null
                         if (Test-Path $iisConfigPath) {
                             $xml = [xml](Get-Content $iisConfigPath)
                             $sites = $xml.SelectNodes("//site")
@@ -496,15 +538,23 @@ ORDER BY ORDINAL_POSITION
                                     $info = $b.GetAttribute("bindingInformation")
                                     if ($info -match ":50594:") {
                                         $b.SetAttribute("bindingInformation", "*:50594:")
+                                        $siteId = $site.GetAttribute("id")
                                     }
                                 }
                             }
                             $xml.Save($iisConfigPath)
                         }
 
+                        # Add URL ACL for the wildcard binding
+                        netsh http add urlacl url=http://*:50594/ user=Everyone 2>$null
+
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
-                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                        if ($siteId) {
+                            $pinfo.Arguments = "/config:`"$iisConfigPath`" /siteid:$siteId"
+                        } else {
+                            $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
+                        }
                         $pinfo.UseShellExecute = $false
                         $pinfo.CreateNoWindow = $true
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
