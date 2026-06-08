@@ -170,7 +170,7 @@ namespace Shipping
 
             // פרויקט  עם מסד נתונים נפרד לכרטיסי חיוב - Payment חיבור לשירות התשלום
             // בניית נתיב מלא לקובץ מסד הנתונים של התשלומים - ממוקם בתיקיית Payment ברמת הפתרון
-            string webRoot = Server.MapPath("~/");
+            string webRoot = Server.MapPath("~/").TrimEnd('\\', '/');
             string solutionRoot = System.IO.Path.GetDirectoryName(webRoot);
             string paymentDbFullPath = System.IO.Path.Combine(solutionRoot, "Payment", "PaymentDb.mdf");
             string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
