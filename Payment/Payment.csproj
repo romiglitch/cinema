@@ -43,10 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PaymentDb.mdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
     </Content>
     <Content Include="PaymentDb_log.ldf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
       <DependentUpon>PaymentDb.mdf</DependentUpon>
     </Content>
     <None Include="Scripts\CreateDebitCards.sql" />
