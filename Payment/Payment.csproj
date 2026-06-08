@@ -41,5 +41,16 @@
     <Compile Include="PaymentService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="PaymentDb.mdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PaymentDb_log.ldf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <DependentUpon>PaymentDb.mdf</DependentUpon>
+    </Content>
+    <None Include="Scripts\CreateDebitCards.sql" />
+    <None Include="Scripts\SetupPaymentDb.ps1" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
