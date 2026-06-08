@@ -74,6 +74,10 @@ namespace Payment
         // חיפוש הכרטיס בטבלת DebitCards, בדיקת יתרה וניכוי הסכום - הכל בתוך טרנזקציה
         private PaymentResult DeductFromCard(string cardNumber, string cvc, string expiryDate, string holderName, decimal amount)
         {
+            // נרמול תוקף: MM/YY → MM/20YY כדי להתאים לפורמט שמור במסד הנתונים
+            if (expiryDate != null && System.Text.RegularExpressions.Regex.IsMatch(expiryDate.Trim(), @"^\d{2}/\d{2}$"))
+                expiryDate = expiryDate.Trim().Substring(0, 3) + "20" + expiryDate.Trim().Substring(3);
+
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 conn.Open();// פתיחת חיבור למסד הנתונים
