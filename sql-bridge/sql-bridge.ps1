@@ -375,21 +375,29 @@ ORDER BY ORDINAL_POSITION
 
                     $appPath = Join-Path $repoRoot "Shipping"
 
-                    # Prepare custom applicationhost.config with correct physical path
-                    $templateConfig = Join-Path $PSScriptRoot "applicationhost.config"
-                    $runtimeConfig = Join-Path $PSScriptRoot "applicationhost.runtime.config"
-                    $configContent = (Get-Content $templateConfig -Raw) -replace '%SHIPPING_PATH%', $appPath
-                    Set-Content -Path $runtimeConfig -Value $configContent -Encoding UTF8
-
-                    # Ensure URL reservation exists for remote access
-                    $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
-                    if ($aclCheck -notmatch "http://\*:50594/") {
-                        netsh http add urlacl url=http://*:50594/ user=Everyone 2>&1 | Out-Null
+                    # Patch default IIS Express config to accept requests on any hostname
+                    $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
+                    if (-not (Test-Path $iisConfigPath)) {
+                        $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
+                    }
+                    if (Test-Path $iisConfigPath) {
+                        $xml = [xml](Get-Content $iisConfigPath)
+                        $sites = $xml.SelectNodes("//site")
+                        foreach ($site in $sites) {
+                            $bindings = $site.SelectNodes("bindings/binding[@protocol='http']")
+                            foreach ($b in $bindings) {
+                                $info = $b.GetAttribute("bindingInformation")
+                                if ($info -match ":50594:") {
+                                    $b.SetAttribute("bindingInformation", "*:50594:")
+                                }
+                            }
+                        }
+                        $xml.Save($iisConfigPath)
                     }
 
                     $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                     $pinfo.FileName = $iisExpressPath
-                    $pinfo.Arguments = "/config:`"$runtimeConfig`" /siteid:1 /trace:error"
+                    $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
                     $pinfo.UseShellExecute = $false
                     $pinfo.CreateNoWindow = $true
 
@@ -475,19 +483,28 @@ ORDER BY ORDINAL_POSITION
                     if (Test-Path $iisExpressPath) {
                         $appPath = Join-Path $repoRoot "Shipping"
 
-                        $templateConfig = Join-Path $PSScriptRoot "applicationhost.config"
-                        $runtimeConfig = Join-Path $PSScriptRoot "applicationhost.runtime.config"
-                        $configContent = (Get-Content $templateConfig -Raw) -replace '%SHIPPING_PATH%', $appPath
-                        Set-Content -Path $runtimeConfig -Value $configContent -Encoding UTF8
-
-                        $aclCheck = netsh http show urlacl url=http://*:50594/ 2>&1
-                        if ($aclCheck -notmatch "http://\*:50594/") {
-                            netsh http add urlacl url=http://*:50594/ user=Everyone 2>&1 | Out-Null
+                        $iisConfigPath = "$env:USERPROFILE\Documents\IISExpress\config\applicationhost.config"
+                        if (-not (Test-Path $iisConfigPath)) {
+                            $iisConfigPath = "$env:USERPROFILE\.iis\IISExpress\config\applicationhost.config"
+                        }
+                        if (Test-Path $iisConfigPath) {
+                            $xml = [xml](Get-Content $iisConfigPath)
+                            $sites = $xml.SelectNodes("//site")
+                            foreach ($site in $sites) {
+                                $bindings = $site.SelectNodes("bindings/binding[@protocol='http']")
+                                foreach ($b in $bindings) {
+                                    $info = $b.GetAttribute("bindingInformation")
+                                    if ($info -match ":50594:") {
+                                        $b.SetAttribute("bindingInformation", "*:50594:")
+                                    }
+                                }
+                            }
+                            $xml.Save($iisConfigPath)
                         }
 
                         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
                         $pinfo.FileName = $iisExpressPath
-                        $pinfo.Arguments = "/config:`"$runtimeConfig`" /siteid:1 /trace:error"
+                        $pinfo.Arguments = "/path:`"$appPath`" /port:50594"
                         $pinfo.UseShellExecute = $false
                         $pinfo.CreateNoWindow = $true
                         $script:iisProcess = [System.Diagnostics.Process]::Start($pinfo)
