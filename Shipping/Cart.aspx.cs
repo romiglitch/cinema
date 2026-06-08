@@ -25,6 +25,12 @@ namespace Shipping
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserId"] == null)
+            {
+                Response.Redirect("Login.aspx?returnUrl=Cart.aspx", false);
+                return;
+            }
+
             if (!IsPostBack)//ביצוע הקוד רק אם זאת טעינה ראשונה של הדף
             {
                //שמירת נתונים מהסשן
