@@ -45,14 +45,21 @@ From Movies.aspx, click on a movie poster or title to open MovieDetails.aspx. Ve
 
 | Test | Status | Notes |
 |------|--------|-------|
-| TC-01 | - | |
-| TC-02 | - | |
-| TC-03 | - | |
-| TC-04 | - | |
-| TC-05 | - | |
-| TC-06 | - | |
-| TC-07 | - | |
-| TC-08 | - | |
-| TC-09 | - | |
-| TC-10 | - | |
-| TC-11 | - | |
+| TC-01 | ✅ PASS | HTTP 200, HomePage.aspx loads |
+| TC-02 | ✅ PASS | Redirects to Movies.aspx, logout button shown |
+| TC-03 | ✅ PASS | Stays on Login.aspx, shows "אימייל או סיסמא לא נכונים" |
+| TC-04 | ✅ PASS | 8 screening links returned for 10/06/2026 |
+| TC-05 | ✅ PASS | Redirects to Success.aspx, user stays logged in |
+| TC-06 | ✅ PASS | "פרטי הכרטיס שגויים" error shown, stays on Cart |
+| TC-07 | ✅ PASS | "פרטי הכרטיס שגויים" error shown, stays on Cart |
+| TC-08 | ✅ PASS | "אין מספיק יתרה" error with balance/amount shown |
+| TC-09 | ✅ PASS | Redirects to HomePage, logout button gone |
+| TC-10 | ✅ PASS | Fixed: now redirects to Login.aspx?returnUrl=Cart.aspx |
+| TC-11 | ✅ PASS | HTTP 200, no server errors |
+
+## Bugs found and fixed
+- **TC-10**: Cart.aspx was accessible without login (showed "no seats" error instead of redirecting). Fixed by adding `Session["UserId"]` check at top of `Page_Load`.
+- **Expiry format**: PaymentService expected `MM/YYYY` but form sends `MM/YY`. Fixed by normalizing 2-digit year to 4-digit in `PaymentService.cs`.
+- **PaymentDb path**: `Server.MapPath("~/")` returns trailing backslash, causing double `Shipping\Shipping` in path. Fixed with `.TrimEnd('\\', '/')`.
+- **Session loss after payment**: `Response.Redirect` inside async task with `endResponse=true` dropped session. Fixed with `Response.Redirect(..., false)`.
+- **403 on root URL**: No default document configured. Fixed by adding `<defaultDocument>` with `HomePage.aspx` to `Web.config`.
