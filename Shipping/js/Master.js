@@ -9,6 +9,19 @@ function scrollToBottom() {
     }
 }
 
+// לחיצה על Enter בתיבת הקלט שולחת את ההודעה - Shift+Enter שומר שורה חדשה
+document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById(txtChatPromptId);
+    if (input) {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // מניעת ירידת שורה
+                document.getElementById('btnChatSend').click();
+            }
+        });
+    }
+});
+
 // פתיחה/סגירה של חלון הצ'אט - אם סגור פותח ומגלגל למטה, אם פתוח סוגר
 function toggleChat() {
     var chat = document.getElementById('ai-chat-window');//מציאת האובייקט עם id של ai-chat-window
@@ -41,7 +54,7 @@ prm.add_endRequest(function () {
     var input = document.getElementById(txtChatPromptId);
     var loading = document.getElementById('loading');
 
-    if (input) input.value = '';         // ניקוי תיבת הקלט אחרי שליחה
+    if (input) { input.value = ''; input.focus(); } // ניקוי תיבת הקלט והחזרת פוקוס אליה
     if (loading) loading.style.display = 'none'; // הסתרת אנימציית טעינה
 
     var container = document.getElementById('chatContainer');
