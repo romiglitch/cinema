@@ -27,7 +27,7 @@ namespace Shipping
         {
             if (Session["UserId"] == null)
             {
-                Response.Redirect("Login.aspx?returnUrl=Cart.aspx", false);
+                Response.Redirect("Login.aspx");
                 return;
             }
 
@@ -182,8 +182,19 @@ namespace Shipping
             string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
             var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
             // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
-            Payment.PaymentResult paymentResult = paymentService.ProcessPayment(
-                txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text, amount);
+            Payment.PaymentResult paymentResult;
+            try
+            {
+                paymentResult = paymentService.ProcessPayment(
+                    txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text, amount);
+            }
+            catch (Exception ex)
+            {
+                // שגיאת DB בלתי צפויה (נפילת חיבור, timeout וכו') - מציגים הודעה ידידותית במקום קריסה
+                lblMsg.Text = "אירעה שגיאה טכנית בעת עיבוד התשלום. אנא נסה שוב מאוחר יותר.";
+                Debug.WriteLine("Payment DB Error: " + ex.ToString());
+                return;
+            }
 
             if (paymentResult.Success)// אם התשלום הצליח למשתנה paymentResult יהיה Success=true
             {
@@ -210,10 +221,7 @@ namespace Shipping
                                 ticketTypesStr
                             );
 
-                            // false = אל תפעיל Response.End() אחרי ה-Redirect
-                            // Response.End() זורק ThreadAbortException שבתוך async task
-                            // גורם ל-ASP.NET לנטוש את הסשן - המשתמש מתנתק לאחר הרכישה
-                            // עם false הבקשה מסתיימת באופן תקין והסשן נשמר
+                            //נותן לסיים את ריצת השרת ואז להעביר את המשתמש כדי שהסשן יישמר ולא יווצרו שגיאות endResponse=false
                             Response.Redirect("Success.aspx", false);
                         }
                         catch (Exception ex)
