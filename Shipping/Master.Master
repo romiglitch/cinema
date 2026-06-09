@@ -11,7 +11,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <%-- מאפשר להשתמש ב UpdatePanel וב PageRequestManager --%>
+        <%-- UpdatePanelוב PageRequestManagerמאפשר להשתמש ב--%>
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         
         <header>

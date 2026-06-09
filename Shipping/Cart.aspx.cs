@@ -182,7 +182,7 @@ namespace Shipping
             string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
             var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
             // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
-            Payment.PaymentResult paymentResult;
+             Payment.PaymentResult paymentResult;
             try
             {
                 paymentResult = paymentService.ProcessPayment(
@@ -195,7 +195,6 @@ namespace Shipping
                 Debug.WriteLine("Payment DB Error: " + ex.ToString());
                 return;
             }
-
             if (paymentResult.Success)// אם התשלום הצליח למשתנה paymentResult יהיה Success=true
             {
                 try

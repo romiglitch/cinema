@@ -21,21 +21,22 @@ function toggleChat() {
 }
 
 
-// האזנה לאירועי UpdatePanel - כאשר בקשה לשרת מסתיימת גוללים למטה
+// האזנה לאירועי UpdatePanel (חלון הצאט) -   קורה כשלוחצים על כפתור שליחת הודעה,כל פעם שרענון חלקי קורה ומתווסף מידע חדש 
+// ScriptManager קורה בגלל .HTMLרענון חלקי - במקום לרענן את כל הדף השרת מעבד את הנתונים ומחזיר רק את החלק הקטן שהשתנה ב 
 Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
-    scrollToBottom();
+    scrollToBottom();//גלילה למטה
 });
-
+//PageRequestManager.getInstance() - יצירת אובייקט יחיד האחראי על ניהול הרענונים החלקיים של הדף
 var prm = Sys.WebForms.PageRequestManager.getInstance();
 
-// תחילת בקשה לשרת - הצגת אנימציית טעינה וגלילה למטה
+// תחילת בקשה לשרת - לפני שהשרת מעבד את הבקשה הוא מציג אנימציית טעינה וגולל למטה
 prm.add_beginRequest(function () {
     var loading = document.getElementById('loading');
     if (loading) loading.style.display = 'flex';
     scrollToBottom();
 });
 
-// סיום בקשה לשרת - ניקוי שדה הקלט, הסתרת אנימציית טעינה וגלילה למטה
+// סיום בקשה לשרת - לאחר שהשרת סיים לעבד את הבקשה הוא מוחק את הודעת המשתמש , מסתיר את אנימציית הטעינה וגולל למטה
 prm.add_endRequest(function () {
     var input = document.getElementById(txtChatPromptId);
     var loading = document.getElementById('loading');

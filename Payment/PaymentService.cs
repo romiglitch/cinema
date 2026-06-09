@@ -81,7 +81,7 @@ namespace Payment
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 conn.Open();// פתיחת חיבור למסד הנתונים
-                using (SqlTransaction tx = conn.BeginTransaction())// פתיחת טרנזקציה - הכל מצליח או הכל מתבטל
+                using (SqlTransaction tx = conn.BeginTransaction())//פתיחת טרנזקציה - כל הפעולות לא ישמרו באופן סופי עד שיש אישור
                 //מניעת אי עקביות בנתונים 
                 {
                     try
@@ -141,10 +141,7 @@ namespace Payment
                     catch
                     {
                         tx.Rollback();// ביטול כל מה שנעשה מתחילת הטרנזקציה - הגנה על הנתונים
-                        // throw; זורק מחדש את אותה שגיאה שנתפסה מבלי לאפס את המחסנית
-                        // בניגוד ל-throw ex שמוחק את מיקום השגיאה המקורי
-                        // כך הקורא יודע שהתרחשה שגיאה, ואנחנו כבר דאגנו ל-Rollback
-                        throw;
+                        throw;// זורק שגיאה כדי שהתשלום לא יובצע
                     }
                 }
             }
