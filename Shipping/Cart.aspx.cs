@@ -210,6 +210,10 @@ namespace Shipping
                                 ticketTypesStr
                             );
 
+                            // false = אל תפעיל Response.End() אחרי ה-Redirect
+                            // Response.End() זורק ThreadAbortException שבתוך async task
+                            // גורם ל-ASP.NET לנטוש את הסשן - המשתמש מתנתק לאחר הרכישה
+                            // עם false הבקשה מסתיימת באופן תקין והסשן נשמר
                             Response.Redirect("Success.aspx", false);
                         }
                         catch (Exception ex)

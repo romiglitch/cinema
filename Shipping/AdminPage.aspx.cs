@@ -43,7 +43,8 @@ namespace Shipping
             Response.Redirect("ScreeningsEditor.aspx");
         }
 
-        //מילוי לוח הקרנות לפי סדר : בחירת יום,בחירת שעה, מילוי כל האולמות, מילוי כל השעות,מילוי כל הימים
+      //יצירת לוח הקרנות אוטומטי : בחירת יום -> בחירת שעה -> מילוי כל האולמות בשעה -> מילוי כל השעות -> מילוי כל הימים
+        // בדיקות לפני שיבוץ סרט : מכסה -> כפילות בשעה -> ז'אנר מול שעה -> יישור סלוט -> חפיפת זמנים בDB
         protected void BtnGenerateSchedule_Click(object sender, EventArgs e)
         {
             try //בשביל להגן על האתר מקריסה catchו try
@@ -77,15 +78,15 @@ namespace Shipping
 
                                 foreach (int movieId in shuffledMovies)
                                 {
-                                    // בדיקה שהסרט לא הגיע למכסה המקסימלית - אם כבר שובצו לו 10 הקרנות, עוברים לסרט הבא
-                                    if (movieScreeningCount.ContainsKey(movieId) && movieScreeningCount[movieId] >= maxScreeningsPerMovie)
-                                        continue;
+                                   
+                                    if (movieScreeningCount.ContainsKey(movieId) && movieScreeningCount[movieId] >= maxScreeningsPerMovie)//בדיקה לפי מפתח והערך שלו במילון
+                                        continue;//shuffledMoviesאם לסרט כבר שובצו 10 הקרנות עוברים לסרט הבא ב 
 
                                     // בדיקה האם הסרט כבר שובץ בשעה הזו באולם אחר
                                     if (!moviesUsedInThisSlot.Contains(movieId))
                                     {
                                         //(בדיקת שאין חוסר התאמה בין סוג הסרט לשעה (ילדים/אימה
-                                        if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))//globalTimeהשעה בלבד מ :TimeOfDay
+                                        if (!IsTimeMismatch(GetGenresForMovie(movieId), globalTime.TimeOfDay))//השעה עליה עובדים כרגע (TimeOfDay)
                                         {
                                             int duration = GetMovieDuration(movieId); // אורך הסרט בדקות
                                             int slotInterval = GetSlotInterval(duration); // אורך הסלוט כולל זמן ניקיון ופרסומות
@@ -94,21 +95,22 @@ namespace Shipping
                                             // לדוגמה: סרט עם סלוט של 135 דק' יתחיל רק ב-9:00, 11:15, 13:30 וכו'
                                             // החישוב: כמה דקות עברו מ-9:00? אם זה לא כפולה של אורך הסלוט - זו לא שעת התחלה חוקית
                                             int minutesSinceStart = (int)(globalTime - dayStart).TotalMinutes;
-                                            if (minutesSinceStart % slotInterval != 0)
-                                                continue;
+                                            if (minutesSinceStart % slotInterval != 0)//אם אורך הסרט לא תואם את אורך הסלוט
+                                                continue;// shuffledMoviesעוברים לסרט הבא ב
 
                                             DateTime endTime = globalTime.AddMinutes(slotInterval); // שעת הסיום = שעת ההתחלה + אורך הסלוט
 
-                                            // בדיקה שאין לסרט הקרנה חופפת בכל אולם אחר
+                                            // בדיקה נוספת ליתר בטחון האם הסרט כבר משובץ בשעה הזו באולם אחר
+                                            // למקרה של נתונים ידניים או שאריות לוח קודם שלא נוקו
                                             if (IsMovieOverlapping(movieId, globalTime, endTime))
-                                                continue;
+                                                continue;//shuffledMoviesעוברים לסרט הבא ב 
 
                                             InsertScreeningToDB(movieId, globalTime, endTime, hall);
 
                                             // עדכון מוני הקרנות - מוסיפים 1 למונה של הסרט הספציפי ולמונה הכללי
                                             if (!movieScreeningCount.ContainsKey(movieId))
-                                                movieScreeningCount[movieId] = 0;
-                                            movieScreeningCount[movieId]++;
+                                                movieScreeningCount[movieId] = 0;//אם הסרט לא נמצא במילון (אין הקרנה עדיין) נגדיר 0 בשביל למנוע קריסה
+                                            movieScreeningCount[movieId]++;//עדכון הערך של הסרט במילון ב-1
                                             totalScreenings++;
 
                                             // מסמנים שהסרט תפוס לשעה הזו בשאר האולמות
@@ -152,7 +154,7 @@ namespace Shipping
                 cmd.Parameters.AddWithValue("@start", start);
                 cmd.Parameters.AddWithValue("@end", end);
                 conn.Open();
-                return (int)cmd.ExecuteScalar() > 0;
+                return (int)cmd.ExecuteScalar() > 0;//0 - שקר - אין הקרנה חופפת
             }
         }
 
