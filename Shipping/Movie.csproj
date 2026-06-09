@@ -53,6 +53,10 @@
       <Project>{DD4C7D94-FA50-413B-A598-00646A3A318B}</Project>
       <Name>DALLlilbrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Payment\Payment.csproj">
+      <Project>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</Project>
+      <Name>Payment</Name>
+    </ProjectReference>
     <Reference Include="Google.Apis, Version=1.73.0.0, Culture=neutral, PublicKeyToken=4b01fa6e34db77ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Apis.1.73.0\lib\net462\Google.Apis.dll</HintPath>
     </Reference>
@@ -151,12 +155,12 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Global.asax" />
     <Content Include="AdminPage.aspx" />
     <Content Include="App_Data\Dtb.mdf" />
     <Content Include="App_Data\Dtb_log.ldf">
       <DependentUpon>Dtb.mdf</DependentUpon>
     </Content>
-    <Content Include="BankService.asmx" />
     <Content Include="Cart.aspx" />
     <Content Include="ForgotPassword.aspx" />
     <Content Include="ResetPassword.aspx" />
@@ -204,9 +208,8 @@
     <Compile Include="AdminPage.aspx.designer.cs">
       <DependentUpon>AdminPage.aspx</DependentUpon>
     </Compile>
-    <Compile Include="BankService.asmx.cs">
-      <DependentUpon>BankService.asmx</DependentUpon>
-      <SubType>Component</SubType>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Cart.aspx.cs">
       <DependentUpon>Cart.aspx</DependentUpon>

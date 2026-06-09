@@ -61,79 +61,72 @@ namespace Shipping
             } 
             return movies;
         }
+        // רשימת ספקי AI לפי סדר עדיפות - כולם תואמים ל-OpenAI API format
+        // הפונקציה תנסה כל ספק בתור עד שאחד יענה בהצלחה
+        private static readonly (string EnvKey, string Url, string Model)[] AiProviders = new[]
+        {
+            ("GEMINI_API_KEY",    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "gemini-2.0-flash"),
+            ("GROQ_API_KEY",      "https://api.groq.com/openai/v1/chat/completions",                         "llama-3.3-70b-versatile"),
+            ("XAI_API_KEY",       "https://api.x.ai/v1/chat/completions",                                    "grok-3-mini"),
+            ("CEREBRAS_API_KEY",  "https://api.cerebras.ai/v1/chat/completions",                             "llama-3.3-70b"),
+            ("MISTRAL_API_KEY",   "https://api.mistral.ai/v1/chat/completions",                              "mistral-small-latest"),
+            ("OPENROUTER_API_KEY","https://openrouter.ai/api/v1/chat/completions",                           "meta-llama/llama-3.3-70b-instruct:free"),
+            ("SAMBANOVA_API_KEY", "https://api.sambanova.ai/v1/chat/completions",                            "Meta-Llama-3.3-70B-Instruct"),
+        };
+
         public async Task<string> AskAiForRecommendation(string prompt, List<ChatMessage> history)
         {
-            try
+            // שליפת רשימת הסרטים - משותף לכל הספקים
+            List<string> currentMovies = GetAllMovieNamesFromDB();
+            string movieList = string.Join(", ", currentMovies);
+
+            // בניית רשימת ההודעות בפורמט OpenAI (תואם לכל הספקים)
+            var messages = new List<object>();
+            messages.Add(new { role = "system", content = $"אתה עוזר חכם באתר קולנוע. המלץ על סרט אחד בלבד מהרשימה: {movieList}. התשובה חייבת להיות עד 3 משפטים בלבד. שם הסרט חייב להיות מודגש ב-**." });
+
+            // הוספת היסטוריית השיחה - user/assistant במקום user/model
+            if (history != null)
             {
-                //שמירת המפתח והכתובת
-                string apiKey = ConfigurationManager.AppSettings["AIKey"].Trim();
-                string apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+                foreach (var msg in history)
+                    messages.Add(new { role = msg.Sender == "User" ? "user" : "assistant", content = msg.Message });
+            }
 
-                //רשימת הסרטים המוקרנים באתר
-                List<string> currentMovies = GetAllMovieNamesFromDB();
-                string movieList = string.Join(", ", currentMovies);
+            // לולאה על הספקים - מנסים בתור עד שאחד עונה
+            foreach (var (envKey, url, model) in AiProviders)
+            {
+                string apiKey = ConfigurationManager.AppSettings[envKey]?.Trim();
+                if (string.IsNullOrEmpty(apiKey)) continue; // מפתח לא מוגדר - עוברים לבא
 
-                using (HttpClient client = new HttpClient())//שיצור את הקשר עם גמיני HttpClient יצירת אובייקט
+                try
                 {
-                    //עם המפתח שלי AI אימות עם השרת 
-                    client.DefaultRequestHeaders.Add("X-goog-api-key", apiKey);
-
-                    // בניית מבנה ההודעות עבור המודל
-                    var messages = new List<object>();
-
-                    // הניות
-                    messages.Add(new
+                    using (HttpClient client = new HttpClient())
                     {
-                        role = "user",
-                        parts = new[] { new { text = $"אתה עוזר חכם באתר קולנוע. המלץ על סרט אחד בלבד מהרשימה: {movieList}. " +
-                                              "התשובה חייבת להיות עד 3 משפטים בלבד. שם הסרט חייב להיות מודגש ב-**." } }//הדגמה למה הלקוח מבקש
-                    });
+                        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                        client.Timeout = TimeSpan.FromSeconds(15);
 
-                    // הדגמה של תשובה
-                    messages.Add(new
-                    {
-                        role = "model",
-                        parts = new[] { new { text = "הבנתי. אתן המלצה קצרה על סרט אחד בלבד." } }
-                    });
+                        string json = JsonConvert.SerializeObject(new { model, messages });
+                        var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    // הוספת היסטוריות השיחות כדי לאפשר המשכיות
-                    if (history != null)
-                    {
-                        foreach (var msg in history)
+                        var response = await client.PostAsync(url, content);
+                        string resultJson = await response.Content.ReadAsStringAsync();
+
+                        if (response.IsSuccessStatusCode)
                         {
-                            messages.Add(new
-                            {
-                                role = msg.Sender == "User" ? "user" : "model",
-                                parts = new[] { new { text = msg.Message } }
-                            });
+                            dynamic result = JsonConvert.DeserializeObject(resultJson);
+                            return result.choices[0].message.content;
                         }
+
+                        // 429 = quota/rate limit - עוברים לספק הבא
+                        Debug.WriteLine($"AI provider {envKey} failed with {(int)response.StatusCode}: {resultJson}");
                     }
-
-                    //כדי שיהיה ניתן לשלוח אותה JSONהמרת הבקשה ל
-                    var requestBody = new { contents = messages };
-                    string json = JsonConvert.SerializeObject(requestBody);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    //שליחת הבקשה לשרת של גוגל והמתנה (בלי לתקוע את האתר) עד שהשרת יחזיר תשובה.
-                    var response = await client.PostAsync(apiUrl, content);
-                    string resultJson = await response.Content.ReadAsStringAsync();//המרת התשובה לטקסט פשוט
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        //המרת הטקסט לאובייקט שניתן לבדוק אוץו ושליפת התשובה
-                        dynamic result = JsonConvert.DeserializeObject(resultJson);
-                        return result.candidates[0].content.parts[0].text;
-                    }
-
-                    return "אופס, יש כרגע עומס בקופות... נסה שוב בעוד רגע! 🍿";
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"AI provider {envKey} exception: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Error: " + ex.ToString());
-                return "משהו השתבש בתקשורת עם ה-AI. אנחנו מטפלים בזה!"; 
-               
-            }
+
+            return "אופס, כל שירותי ה-AI עמוסים כרגע. נסה שוב בעוד רגע! 🍿";
         }
         // מחלקה לעיצוב ההודעות
         public class ChatMessage

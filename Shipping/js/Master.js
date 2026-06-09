@@ -1,64 +1,58 @@
 // Master.js — צ'אט AI ופונקציות גלובליות של ה-Master Page
 // txtChatPromptId מוגדר בבלוק inline ב-Master.Master
 
+// גלילה אוטומטית לתחתית אזור הצ'אט אחרי הודעה
 function scrollToBottom() {
-    var container = document.getElementById('chatContainer');
-    if (container) {
-        container.scrollTop = container.scrollHeight;
+    var container = document.getElementById('chatContainer');//מציאת האובייקט עם id של chatContainer
+    if (container) {//במידה ונמצא
+        container.scrollTop = container.scrollHeight;//גלילה לגובה הצ'אט
     }
 }
 
-function toggleChat() {
-    var chat = document.getElementById('ai-chat-window');
-    if (chat.style.display === 'none' || chat.style.display === '') {
-        chat.style.display = 'flex';
-        setTimeout(scrollToBottom, 50);
-    } else {
-        chat.style.display = 'none';
+// לחיצה על Enter בתיבת הקלט שולחת את ההודעה - Shift+Enter שומר שורה חדשה
+// event delegation על document - שורד PostBack ולא דורש DOMContentLoaded
+document.addEventListener('keydown', function (e) {
+    if (e.target.id === txtChatPromptId && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('btnChatSend').click();
     }
-}
-
-function handleChatClick(btn, event) {
-    var input = document.getElementById(txtChatPromptId);
-    var container = document.getElementById('chatContainer');
-    var loading = document.getElementById('loading');
-
-    if (input && input.value.trim() !== "") {
-        var row = document.createElement('div');
-        row.className = 'message-row user';
-        row.innerHTML = '<div class="bubble">' + input.value + '</div>';
-
-        if (loading) {
-            container.insertBefore(row, loading);
-            loading.style.display = 'flex';
-        } else {
-            container.appendChild(row);
-        }
-
-        container.scrollTop = container.scrollHeight;
-        __doPostBack(btn.name, '');
-    }
-}
-
-// אתחול אירועי UpdatePanel לצ'אט
-Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
-    scrollToBottom();
 });
 
+// פתיחה/סגירה של חלון הצ'אט - אם סגור פותח ומגלגל למטה, אם פתוח סוגר
+function toggleChat() {
+    var chat = document.getElementById('ai-chat-window');//מציאת האובייקט עם id של ai-chat-window
+    if (chat.style.display === 'none' || chat.style.display === '') {//במידה והצ'אט סגור
+        chat.style.display = 'flex';//פתיחת הצ'אט
+        setTimeout(scrollToBottom, 50); // המתנה קצרה כדי שמסמך מודל האובייקט יתעדכן לפני הגלילה
+    } else {//במידה והצ'אט פתוח
+        chat.style.display = 'none';//סגירת הצ'אט
+    }
+}
+
+
+// האזנה לאירועי UpdatePanel (חלון הצאט) -   קורה כשלוחצים על כפתור שליחת הודעה,כל פעם שרענון חלקי קורה ומתווסף מידע חדש 
+// ScriptManager קורה בגלל .HTMLרענון חלקי - במקום לרענן את כל הדף השרת מעבד את הנתונים ומחזיר רק את החלק הקטן שהשתנה ב 
+Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
+    scrollToBottom();//גלילה למטה
+});
+//PageRequestManager.getInstance() - יצירת אובייקט יחיד האחראי על ניהול הרענונים החלקיים של הדף
 var prm = Sys.WebForms.PageRequestManager.getInstance();
+
+// תחילת בקשה לשרת - לפני שהשרת מעבד את הבקשה הוא מציג אנימציית טעינה וגולל למטה
 prm.add_beginRequest(function () {
     var loading = document.getElementById('loading');
     if (loading) loading.style.display = 'flex';
     scrollToBottom();
 });
 
+// סיום בקשה לשרת - לאחר שהשרת סיים לעבד את הבקשה הוא מוחק את הודעת המשתמש , מסתיר את אנימציית הטעינה וגולל למטה
 prm.add_endRequest(function () {
     var input = document.getElementById(txtChatPromptId);
     var loading = document.getElementById('loading');
 
-    if (input) input.value = '';
-    if (loading) loading.style.display = 'none';
+    if (input) { input.value = ''; input.focus(); } // ניקוי תיבת הקלט והחזרת פוקוס אליה
+    if (loading) loading.style.display = 'none'; // הסתרת אנימציית טעינה
 
     var container = document.getElementById('chatContainer');
-    if (container) container.scrollTop = container.scrollHeight;
+    if (container) container.scrollTop = container.scrollHeight; // גלילה לתשובה החדשה
 });

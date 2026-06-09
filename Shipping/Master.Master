@@ -11,6 +11,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
+        <%-- UpdatePanelוב PageRequestManagerמאפשר להשתמש ב--%>
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         
         <header>
@@ -93,10 +94,12 @@
 </div>
                     </div>
 
-                    <div class="chat-footer"><asp:LinkButton ID="btnChatSend" runat="server" 
+                    <div class="chat-footer">
+                    <%-- קריאה אוטומטית לפוסטבק בגלל שהכפתור נמצא בצד שרת --%>
+                    <asp:LinkButton ID="btnChatSend" runat="server" 
     OnClick="btnChatSend_Click" 
-    OnClientClick="showLoading();" 
-    CssClass="chat-send-btn">➤</asp:LinkButton>                 <asp:TextBox ID="txtChatPrompt" runat="server" CssClass="chat-input" placeholder="כתבי הודעה..."></asp:TextBox>
+    CssClass="chat-send-btn">➤</asp:LinkButton>         
+            <asp:TextBox ID="txtChatPrompt" runat="server" CssClass="chat-input" placeholder="כתבי הודעה..."></asp:TextBox>
                     </div>
                 </ContentTemplate>
             </asp:UpdatePanel>

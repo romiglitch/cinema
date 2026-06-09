@@ -23,23 +23,23 @@ namespace Shipping
                 //טעינת פרטי הסרט
                 LoadMovie(movieId);
 
-                // קריאה לוובסרביס לקבלת טריילר
-                string trailerUrl = await GetTrailerFromWebServiceAsync(movieId);
-
-                if (!string.IsNullOrEmpty(trailerUrl))
+                // קריאה לוובסרביס לקבלת טריילר - נכשל באופן חלק אם השירות לא זמין
+                try
                 {
-                    //Modalבשביל לעקוף את החסימה של יוטיוב ולהציג את הטריילר ישירות ב Embed
-                    //הוספת פקדוה שמתחילה לנגן את הטריילר במיידי
-                    modalTrailer.Attributes["data-src"] = trailerUrl.Replace("watch?v=", "embed/") + "?autoplay=1";
-                }
-                else
-                {
+                    string trailerUrl = await GetTrailerFromWebServiceAsync(movieId);
 
-#if DEBUG
                     if (!string.IsNullOrEmpty(trailerUrl))
                     {
-                        Response.Write("<!-- Trailer Debug: " + trailerUrl + " -->");
+                        //Modalבשביל לעקוף את החסימה של יוטיוב ולהציג את הטריילר ישירות ב Embed
+                        //הוספת פקדוה שמתחילה לנגן את הטריילר במיידי
+                        modalTrailer.Attributes["data-src"] = trailerUrl.Replace("watch?v=", "embed/") + "?autoplay=1";
                     }
+                }
+                catch
+                {
+                    // שירות הטריילרים לא זמין - הדף יוצג בלי הטריילר
+#if DEBUG
+                    Response.Write("<!-- Trailer service unavailable -->");
 #endif
                 }
             }

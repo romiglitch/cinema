@@ -5,3 +5,7 @@ packages/
 [Oo]bj/
 .env
 App_Data/
+sql-bridge/applicationhost.runtime.config
+Payment/PaymentDb.mdf
+Payment/PaymentDb_log.ldf
+.env

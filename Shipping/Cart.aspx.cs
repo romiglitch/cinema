@@ -25,6 +25,12 @@ namespace Shipping
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserId"] == null)
+            {
+                Response.Redirect("Login.aspx");
+                return;
+            }
+
             if (!IsPostBack)//ביצוע הקוד רק אם זאת טעינה ראשונה של הדף
             {
                //שמירת נתונים מהסשן
@@ -165,30 +171,46 @@ namespace Shipping
                 ? string.Join(", ", seatNumbersOnly)
                 : (string.IsNullOrEmpty(rawSeats) ? "לא נבחרו מושבים" : rawSeats);//אם אין מושבים, במידה והמידע בסשן ריק תוצג הודעה
         
-            BankService bank = new BankService();//יצירת אובייקט בנק בשביל לבצע שליחת אימייל
-            decimal amount = 0;//יצירת משתנה דסימל לעבודה עם כסף ששומר על דיוק
-            decimal.TryParse(litTotalPrice.Text, out amount);
+            decimal amount = 0;// משתנה דצימלי המאפשר לשמור על דיוק בחישובים כספיים
+            decimal.TryParse(litTotalPrice.Text, out amount);// המרת הטקסט של המחיר הכולל למספר דצימלי - אם ההמרה נכשלת הסכום יישאר 0
 
-            if (bank.ProcessPayment(txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text))// בדיקה נוספת של פרטי האשראי
+            // פרויקט  עם מסד נתונים נפרד לכרטיסי חיוב - Payment חיבור לשירות התשלום
+            // בניית נתיב מלא לקובץ מסד הנתונים של התשלומים - ממוקם בתיקיית Payment ברמת הפתרון
+            string webRoot = Server.MapPath("~/").TrimEnd('\\', '/');
+            string solutionRoot = System.IO.Path.GetDirectoryName(webRoot);
+            string paymentDbFullPath = System.IO.Path.Combine(solutionRoot, "Payment", "PaymentDb.mdf");
+            string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Integrated Security=True";
+            var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
+            // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
+             Payment.PaymentResult paymentResult;
+            try
+            {
+                paymentResult = paymentService.ProcessPayment(
+                    txtCardNum.Text, txtCVV.Text, txtExpiry.Text, txtHolderName.Text, amount);
+            }
+            catch (Exception ex)
+            {
+                // שגיאת DB בלתי צפויה (נפילת חיבור, timeout וכו') - מציגים הודעה ידידותית במקום קריסה
+                lblMsg.Text = "אירעה שגיאה טכנית בעת עיבוד התשלום. אנא נסה שוב מאוחר יותר.";
+                Debug.WriteLine("Payment DB Error: " + ex.ToString());
+                return;
+            }
+            if (paymentResult.Success)// אם התשלום הצליח למשתנה paymentResult יהיה Success=true
             {
                 try
                 {
-                    // שמירה לבסיס נתונים
-                    SaveOrderToDatabase();
+                    SaveOrderToDatabase();//שמירת ההזמנה במסד נתונים
 
-                    //למשתמש לפני ששליחת המייל מתבצעת HTMLלא שולח את ה
-                    //לפני שהוא מראה למשתמש את התוצאה הסופית על המסך awaitמחכה לתוצאה של ה
-                    RegisterAsyncTask(new PageAsyncTask(async () =>
+                    RegisterAsyncTask(new PageAsyncTask(async () => //יצירת פעולה אסינכרונית ששולחת מייל לאישור ההזמנה
                     {
                         try
                         {
                             EmailService mailService = new EmailService();
                             DateTime screeningDate;
-                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך הצליחה, נשמור אותה במשתנה
-                                                                                        
-                                screeningDate = DateTime.Now;//אם לא אז התאריך יהיה התאריך של היום
+                            if (!DateTime.TryParse(litScreeningTime.Text, out screeningDate))//אם ההמרה של התאריך נכשלה
+                                screeningDate = DateTime.Now;// נשתמש בתאריך הנוכחי כברירת מחדל כדי שהמייל עדיין יישלח עם תאריך אפשרי
 
-                            await mailService.SendOrderReceiptEmail(// בזמן שהמייל נשלח השרת מטפל במשתמשים אחרים
+                            await mailService.SendOrderReceiptEmail( //מאפשר לטפל בפעולה זו בזמן שהשרת ממשיך לטפל בדברים אחרים בזמן שהמייל נשלח
                                 userEmail,
                                 movieName,
                                 screeningDate,
@@ -198,7 +220,8 @@ namespace Shipping
                                 ticketTypesStr
                             );
 
-                            Response.Redirect("Success.aspx");
+                            //נותן לסיים את ריצת השרת ואז להעביר את המשתמש כדי שהסשן יישמר ולא יווצרו שגיאות endResponse=false
+                            Response.Redirect("Success.aspx", false);
                         }
                         catch (Exception ex)
                         {
@@ -210,17 +233,17 @@ namespace Shipping
                 catch (Exception ex)
                 {
                     lblMsg.Text = "מצטערים, חלה שגיאה בתהליך שמירת ההזמנה. אנא נסו שוב מאוחר יותר.";
-
                     Debug.WriteLine("Database/General Error: " + ex.ToString());
                 }
             }
             else
             {
-                lblMsg.Text = "התשלום נדחה. נא לבדוק את פרטי האשראי.";
+                // PaymentResult.csאם התשלום נכשל - הצגת הודעת השגיאה כפי שהוגדרה ב 
+                lblMsg.Text = paymentResult.Message;
             }
         }
 
-        private void SaveOrderToDatabase()
+        private void SaveOrderToDatabase()//שמירת ההזמנה במסד נתונים
         {
             string connStr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
@@ -232,7 +255,7 @@ namespace Shipping
             string ticketPricesStr = Session["TicketPrices"] as string ?? "";//שמירת מחיר הכרטיסים כמחרוזת
 
             string[] seatsArray = selectedSeatsData.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);//שמירת המחרוזת האורכה
-                                                                                                                //כמערך בו כל איבר מציג כיסא
+                                                                                                                //(מושב|שורה|אולם) כמערך בו כל איבר מציג כיסא
             string[] typesArray = ticketTypesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             string[] pricesArray = ticketPricesStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 

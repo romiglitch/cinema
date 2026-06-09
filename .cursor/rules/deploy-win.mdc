@@ -1,0 +1,44 @@
+---
+description: Deploy the Cinema app to the Windows machine — stop, pull, build, start
+alwaysApply: false
+---
+
+# /deploy-win
+
+Deploy the Cinema app to the Windows machine via the sql-bridge API at `http://100.94.185.70:8765`.
+
+Run these steps in order. Stop if any step fails and report the error.
+
+## Step 1 — Stop the app
+
+```bash
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/stop
+```
+
+Report whether the app was stopped or was already not running.
+
+## Step 2 — Pull latest changes
+
+```bash
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/git-pull
+```
+
+Show the git output. Fail if `success` is false.
+
+## Step 3 — Build the solution
+
+```bash
+curl -s --max-time 120 -X POST -H "Content-Length: 0" http://100.94.185.70:8765/build
+```
+
+Report success or show the build errors. Fail if `success` is false.
+
+## Step 4 — Start the app
+
+```bash
+curl -s -X POST -H "Content-Length: 0" http://100.94.185.70:8765/start
+```
+
+Report the app URL and PID on success. Show the error on failure.
+
+After all steps succeed, confirm the deployment is complete.
