@@ -374,6 +374,17 @@ ORDER BY ORDINAL_POSITION
                     }
                 }
 
+                "^/write-env$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    $reader = New-Object System.IO.StreamReader($req.InputStream, $req.ContentEncoding)
+                    $body = $reader.ReadToEnd()
+                    $reader.Close()
+                    $envPath = Join-Path $repoRoot ".env"
+                    [System.IO.File]::WriteAllText($envPath, $body, [System.Text.Encoding]::UTF8)
+                    Write-Host "[$timestamp] POST /write-env → wrote $($body.Length) bytes to $envPath" -ForegroundColor Green
+                    Send-Json $ctx @{ success = $true; path = $envPath }
+                }
+
                 "^/git-pull$" {
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
                     Write-Host "[$timestamp] POST /git-pull" -ForegroundColor Magenta
