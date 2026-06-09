@@ -95,7 +95,8 @@
                     </div>
 
                     <div class="chat-footer">
-                    <asp:LinkButton ID="btnChatSend" runat="server" <%-- קריאה אוטומטית לפוסטבק בגלל שהכפתור נמצא בצד שרת --%>
+                    <%-- קריאה אוטומטית לפוסטבק בגלל שהכפתור נמצא בצד שרת --%>
+                    <asp:LinkButton ID="btnChatSend" runat="server" 
     OnClick="btnChatSend_Click" 
     CssClass="chat-send-btn">➤</asp:LinkButton>         
             <asp:TextBox ID="txtChatPrompt" runat="server" CssClass="chat-input" placeholder="כתבי הודעה..."></asp:TextBox>
