@@ -10,15 +10,11 @@ function scrollToBottom() {
 }
 
 // לחיצה על Enter בתיבת הקלט שולחת את ההודעה - Shift+Enter שומר שורה חדשה
-document.addEventListener('DOMContentLoaded', function () {
-    var input = document.getElementById(txtChatPromptId);
-    if (input) {
-        input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // מניעת ירידת שורה
-                document.getElementById('btnChatSend').click();
-            }
-        });
+// event delegation על document - שורד PostBack ולא דורש DOMContentLoaded
+document.addEventListener('keydown', function (e) {
+    if (e.target.id === txtChatPromptId && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('btnChatSend').click();
     }
 });
 
