@@ -76,6 +76,7 @@ namespace Shipping
     FROM Screening s
     JOIN Movie m ON s.MovieId = m.Id
     WHERE s.StartTime >= @ScheduleStart AND s.StartTime < @ScheduleEnd
+      AND s.StartTime > GETDATE()
     ORDER BY m.Title, s.StartTime";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
