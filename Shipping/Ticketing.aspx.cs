@@ -15,6 +15,8 @@ namespace Shipping
         private const int MaxTicketsPerPurchase = 10;
 
         protected int screeningId; // -URLמזהה ההקרנה שהועבר בכתובת ה
+        protected int freeSeatsAvailable; // מקומות פנויים שנותרו להקרנה
+        protected int maxTicketsAllowed; // המינימום בין מכסת רכישה למקומות פנויים
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -23,12 +25,37 @@ namespace Shipping
             {
                 litScreeningInfo.Text = "<div style='color:red;'>לא נבחרה הקרנה תקינה.</div>";
             }
+            else if (!IsPostBack)
+            {
+                freeSeatsAvailable = GetAvailableSeatsForScreening(screeningId);
+                maxTicketsAllowed = Math.Min(MaxTicketsPerPurchase, freeSeatsAvailable);
+            }
 
             // בטעינה ראשונה בלבד - טוענים את פרטי ההקרנה ואת טבלת המחירים
             if (!IsPostBack)
             {
                 LoadScreeningDetails();
                 LoadTickets();
+            }
+        }
+
+        // מחזיר כמה מושבים פנויים נותרו להקרנה (קיבולת האולם פחות כרטיסים שנמכרו)
+        private int GetAvailableSeatsForScreening(int sId)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            string query = @"
+                SELECT (h.Rows * h.SeatsPerRow) - ISNULL((SELECT COUNT(*) FROM Tickets WHERE Screening = @sId), 0)
+                FROM Screening s
+                JOIN Halls h ON s.Hall = h.HallId
+                WHERE s.ScreeningId = @sId";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@sId", sId);
+                conn.Open();
+                object result = cmd.ExecuteScalar();
+                return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
             }
         }
 
@@ -144,6 +171,14 @@ namespace Shipping
             if (totalTickets > MaxTicketsPerPurchase)
             {
                 ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('ניתן לרכוש עד {MaxTicketsPerPurchase} כרטיסים בהזמנה אחת.');", true);
+                return;
+            }
+
+            int availableSeats = GetAvailableSeatsForScreening(screeningId);
+            if (totalTickets > availableSeats)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert",
+                    $"alert('נותרו רק {availableSeats} מקומות פנויים להקרנה זו.');", true);
                 return;
             }
 

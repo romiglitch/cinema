@@ -44,5 +44,9 @@
         </div>
     </div>
 
+    <script type="text/javascript">
+        var maxTicketsAllowed = <%= maxTicketsAllowed %>;
+        var freeSeatsAvailable = <%= freeSeatsAvailable %>;
+    </script>
     <script type="text/javascript" src="js/Ticketing.js"></script>
 </asp:Content>

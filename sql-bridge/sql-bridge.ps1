@@ -211,6 +211,62 @@ function Send-Json {
     $Context.Response.Close()
 }
 
+# --- Endpoint catalog (startup banner + 404 help) ---
+$script:BridgeEndpointLines = @(
+    "POST /query              - Execute SQL on Dtb.mdf (body: {`"sql`": `"SELECT ...`"})"
+    "POST /query-payment      - Execute SQL on PaymentDb.mdf"
+    "POST /setup-payment-db   - Run Payment/Scripts/SetupPaymentDb.ps1"
+    "POST /write-env          - Write request body to repo-root .env"
+    "GET  /tables             - List all tables"
+    "GET  /schema?table=X     - Describe table columns"
+    "GET  /ping               - Health check"
+    "POST /git-pull           - Pull latest changes from remote"
+    "POST /build              - Restore NuGet packages and build solution"
+    "POST /start              - Start IIS Express (Shipping + TrailersWS)"
+    "POST /stop               - Stop IIS Express"
+    "POST /deploy             - Pull + build + restart apps"
+    "GET  /app-status         - Check if apps are running"
+    "POST /restart            - Restart this bridge (picks up script changes)"
+)
+
+$script:BridgeEndpointPaths = @(
+    "/query", "/query-payment", "/setup-payment-db", "/write-env",
+    "/tables", "/schema?table=X", "/ping",
+    "/git-pull", "/build", "/start", "/stop", "/deploy", "/app-status", "/restart"
+)
+
+function Test-IsAdministrator {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+# Schedules an elevated bridge relaunch after 100ms, then the caller should exit
+function Schedule-BridgeRestart {
+    $bridgeScript = (Resolve-Path (Join-Path $PSScriptRoot "sql-bridge.ps1")).Path
+    $argList = "-NoProfile -ExecutionPolicy Bypass -File `"$bridgeScript`" -Port $Port"
+    $launchLine = if (Test-IsAdministrator) {
+        "Start-Process -FilePath powershell.exe -ArgumentList '$argList'"
+    } else {
+        "Start-Process -FilePath powershell.exe -ArgumentList '$argList' -Verb RunAs"
+    }
+
+    $launcherScript = @"
+Start-Sleep -Milliseconds 100
+$launchLine
+"@
+
+    $tempScript = Join-Path $env:TEMP "cinema-bridge-restart-$PID.ps1"
+    Set-Content -Path $tempScript -Value $launcherScript -Encoding UTF8
+
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = "powershell.exe"
+    $pinfo.Arguments = "-NoProfile -WindowStyle Hidden -File `"$tempScript`""
+    $pinfo.UseShellExecute = $false
+    $pinfo.CreateNoWindow = $true
+    [void][System.Diagnostics.Process]::Start($pinfo)
+}
+
 # --- Start HTTP listener ---
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://*:$Port/")
@@ -238,29 +294,21 @@ if ($localIP) {
     Write-Host "  Network:  http://${localIP}:$Port" -ForegroundColor Yellow
 }
 Write-Host ""
-Write-Host "SQL Endpoints:" -ForegroundColor Cyan
-Write-Host "  POST /query          - Execute SQL (body: {`"sql`": `"SELECT ...`"})"
-Write-Host "  GET  /tables         - List all tables"
-Write-Host "  GET  /schema?table=X - Describe table columns"
-Write-Host "  GET  /ping           - Health check"
-Write-Host ""
-Write-Host "Deploy Endpoints:" -ForegroundColor Cyan
-Write-Host "  POST /git-pull       - Pull latest changes from remote"
-Write-Host "  POST /build          - Restore NuGet packages and build solution"
-Write-Host "  POST /start          - Start IIS Express for the Shipping app"
-Write-Host "  POST /stop           - Stop IIS Express"
-Write-Host "  POST /deploy         - Pull + build + restart (all in one)"
-Write-Host "  GET  /app-status     - Check if the app is running"
+Write-Host "Endpoints:" -ForegroundColor Cyan
+foreach ($line in $script:BridgeEndpointLines) {
+    Write-Host "  $line"
+}
 Write-Host ""
 Write-Host "Press Ctrl+C to stop." -ForegroundColor DarkGray
 Write-Host ""
 
 # --- Request loop ---
 try {
-    while ($listener.IsListening) {
+    :listenerLoop while ($listener.IsListening) {
         $ctx = $listener.GetContext()
         $req = $ctx.Request
         $path = $req.Url.LocalPath
+        $restartBridge = $false
 
         # CORS preflight
         if ($req.HttpMethod -eq "OPTIONS") {
@@ -862,16 +910,32 @@ ORDER BY ORDINAL_POSITION
                     }
                 }
 
+                "^/restart$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /restart — scheduling elevated relaunch" -ForegroundColor Cyan
+                    Schedule-BridgeRestart
+                    Send-Json $ctx @{
+                        success = $true
+                        message = "Bridge restart scheduled in 100ms"
+                        elevated = (-not (Test-IsAdministrator))
+                    }
+                    $restartBridge = $true
+                }
+
                 default {
                     Send-Json $ctx @{
                         error = "Unknown endpoint: $path"
-                        endpoints = @("/query", "/tables", "/schema?table=X", "/ping", "/git-pull", "/build", "/start", "/stop", "/deploy", "/app-status")
+                        endpoints = $script:BridgeEndpointPaths
                     } 404
                 }
             }
         } catch {
             Write-Host "[$timestamp] ERROR: $($_.Exception.Message)" -ForegroundColor Red
             Send-Json $ctx @{ success = $false; error = $_.Exception.Message } 500
+        }
+
+        if ($restartBridge) {
+            break listenerLoop
         }
     }
 } finally {

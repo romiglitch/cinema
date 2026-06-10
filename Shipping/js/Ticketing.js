@@ -1,5 +1,14 @@
 // Ticketing.js — בחירת כמות כרטיסים ואימות זכאות
+// maxTicketsAllowed, freeSeatsAvailable מוגדרים בבלוק inline בדף ה-ASPX
 var MAX_TICKETS_PER_PURCHASE = 10;
+
+function showTicketLimitAlert() {
+    if (freeSeatsAvailable < MAX_TICKETS_PER_PURCHASE) {
+        alert("נותרו רק " + freeSeatsAvailable + " מקומות פנויים להקרנה זו.");
+    } else {
+        alert("ניתן לרכוש עד " + MAX_TICKETS_PER_PURCHASE + " כרטיסים בהזמנה אחת.");
+    }
+}
 
 $(document).ready(function () {
     function getTotalTicketsSelected() {
@@ -36,8 +45,8 @@ $(document).ready(function () {
 
     $(document).on("click", ".btn-plus", function (e) {
         e.stopImmediatePropagation();
-        if (getTotalTicketsSelected() >= MAX_TICKETS_PER_PURCHASE) {
-            alert("ניתן לרכוש עד " + MAX_TICKETS_PER_PURCHASE + " כרטיסים בהזמנה אחת.");
+        if (getTotalTicketsSelected() >= maxTicketsAllowed) {
+            showTicketLimitAlert();
             return;
         }
         let input = $(this).siblings(".qty-display");
@@ -76,8 +85,8 @@ function validateVerification() {
         return false;
     }
 
-    if (totalTicketsSelected > MAX_TICKETS_PER_PURCHASE) {
-        alert("ניתן לרכוש עד " + MAX_TICKETS_PER_PURCHASE + " כרטיסים בהזמנה אחת.");
+    if (totalTicketsSelected > maxTicketsAllowed) {
+        showTicketLimitAlert();
         return false;
     }
 
