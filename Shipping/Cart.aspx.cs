@@ -193,7 +193,7 @@ namespace Shipping
             catch (Exception ex)
             {
                 // שגיאת DB בלתי צפויה (נפילת חיבור, timeout וכו') - מציגים הודעה ידידותית במקום קריסה
-                lblMsg.Text = "שגיאה: " + ex.Message + " | " + ex.GetType().Name;
+                lblMsg.Text = "אירעה שגיאה טכנית בעת עיבוד התשלום. אנא נסה שוב מאוחר יותר.";
                 Debug.WriteLine("Payment DB Error: " + ex.ToString());
                 return;
             }
