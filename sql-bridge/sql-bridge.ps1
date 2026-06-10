@@ -448,8 +448,8 @@ ORDER BY ORDINAL_POSITION
                 "^/git-pull$" {
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
                     Write-Host "[$timestamp] POST /git-pull" -ForegroundColor Magenta
-                    $result = Run-Command "git pull"
-                    Write-Host "  git pull exit=$($result.exitCode)" -ForegroundColor $(if ($result.success) { "Green" } else { "Red" })
+                    $result = Run-Command "git fetch origin; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; git reset --hard origin/main"
+                    Write-Host "  git sync exit=$($result.exitCode)" -ForegroundColor $(if ($result.success) { "Green" } else { "Red" })
                     Send-Json $ctx @{
                         success = $result.success
                         output  = ($result.stdout + $result.stderr).Trim()
@@ -703,9 +703,9 @@ ORDER BY ORDINAL_POSITION
 
                     $steps = @()
 
-                    # 1. git pull
-                    Write-Host "  [1/3] git pull..." -ForegroundColor White
-                    $pullResult = Run-Command "git pull"
+                    # 1. git sync
+                    Write-Host "  [1/3] git sync..." -ForegroundColor White
+                    $pullResult = Run-Command "git fetch origin; if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; git reset --hard origin/main"
                     $steps += @{ step = "git-pull"; success = $pullResult.success; output = ($pullResult.stdout + $pullResult.stderr).Trim() }
                     if (-not $pullResult.success) {
                         Write-Host "    FAILED" -ForegroundColor Red
