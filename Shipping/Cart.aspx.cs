@@ -203,7 +203,7 @@ namespace Shipping
                 {
                     SaveOrderToDatabase();//שמירת ההזמנה במסד נתונים
 
-                    if (BulkTesting.IsEnabled(HttpContext))
+                    if (BulkTesting.IsEnabled(Context))
                     {
                         Response.Redirect("Success.aspx", false);
                         return;
