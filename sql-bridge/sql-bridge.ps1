@@ -441,7 +441,7 @@ ORDER BY ORDINAL_POSITION
                     $reader.Close()
                     $envPath = Join-Path $repoRoot ".env"
                     [System.IO.File]::WriteAllText($envPath, $body, [System.Text.Encoding]::UTF8)
-                    Write-Host "[$timestamp] POST /write-env → wrote $($body.Length) bytes to $envPath" -ForegroundColor Green
+                    Write-Host "[$timestamp] POST /write-env - wrote $($body.Length) bytes to $envPath" -ForegroundColor Green
                     Send-Json $ctx @{ success = $true; path = $envPath }
                 }
 
@@ -912,7 +912,7 @@ ORDER BY ORDINAL_POSITION
 
                 "^/restart$" {
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
-                    Write-Host "[$timestamp] POST /restart — scheduling elevated relaunch" -ForegroundColor Cyan
+                    Write-Host "[$timestamp] POST /restart - scheduling elevated relaunch" -ForegroundColor Cyan
                     Schedule-BridgeRestart
                     Send-Json $ctx @{
                         success = $true
