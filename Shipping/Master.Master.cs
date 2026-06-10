@@ -63,7 +63,7 @@ namespace Shipping
         }
         // רשימת ספקי AI לפי סדר עדיפות - כולם תואמים ל-OpenAI API format
         // הפונקציה תנסה כל ספק בתור עד שאחד יענה בהצלחה
-        private static readonly (string EnvKey, string Url, string Model)[] AiProviders = new[]
+        private static readonly (string EnvKey, string Url, string Model)[] AiProviders = new[] //רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
         {
             ("GEMINI_API_KEY",    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "gemini-2.0-flash"),
             ("GROQ_API_KEY",      "https://api.groq.com/openai/v1/chat/completions",                         "llama-3.3-70b-versatile"),
@@ -101,31 +101,32 @@ namespace Shipping
                 {
                     using (HttpClient client = new HttpClient())
                     {
-                        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                        client.Timeout = TimeSpan.FromSeconds(15);
+                        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}"); // כל ספקי ה-OpenAI משתמשים ב-Bearer token לאימות
+                        client.Timeout = TimeSpan.FromSeconds(15); // אם הספק לא עונה תוך 15 שניות עוברים לבא
 
-                        string json = JsonConvert.SerializeObject(new { model, messages });
+                        string json = JsonConvert.SerializeObject(new { model, messages }); // המרת הבקשה ל-JSON לפי פורמט OpenAI
                         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                        var response = await client.PostAsync(url, content);
-                        string resultJson = await response.Content.ReadAsStringAsync();
+                        var response = await client.PostAsync(url, content); // שליחת הבקשה לספק
+                        string resultJson = await response.Content.ReadAsStringAsync(); // קריאת התשובה כטקסט
 
-                        if (response.IsSuccessStatusCode)
+                        if (response.IsSuccessStatusCode) // קוד 200 - הספק ענה בהצלחה
                         {
                             dynamic result = JsonConvert.DeserializeObject(resultJson);
-                            return result.choices[0].message.content;
+                            return result.choices[0].message.content; // שליפת טקסט התשובה מפורמט OpenAI
                         }
 
-                        // 429 = quota/rate limit - עוברים לספק הבא
+                        // הספק נכשל (429 = חריגה ממכסה, 503 = עומס) - רושמים ועוברים לספק הבא
                         Debug.WriteLine($"AI provider {envKey} failed with {(int)response.StatusCode}: {resultJson}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"AI provider {envKey} exception: {ex.Message}");
+                    Debug.WriteLine($"AI provider {envKey} exception: {ex.Message}"); // שגיאת רשת/timeout - עוברים לספק הבא
                 }
             }
 
+            // כל הספקים נכשלו - מציגים הודעה ידידותית למשתמש
             return "אופס, כל שירותי ה-AI עמוסים כרגע. נסה שוב בעוד רגע! 🍿";
         }
         // מחלקה לעיצוב ההודעות

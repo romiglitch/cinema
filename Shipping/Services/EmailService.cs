@@ -17,7 +17,7 @@ namespace Shipping
     public class EmailService
     {
         private readonly string senderEmail = "kladnitsky.romi@gmail.com";//רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
-        private readonly string appPassword ="slprfmpvlzczmnit";//שמאשרת לשלוח מיילים בשמי בלי לאשר ידנית כל פעם SMTP סיסמא יחודית בשביל
+        private readonly string appPassword ="slprfmpvlzczmnit";//רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
 
         //הגדרת הפעולה כמשימה אסינכרונית : הפעולה עומדת לקחת זמן אז בזמן הזה השרת יטפל בדברים אחרים
         //המטרה היא למנוע מהאתר לקופא בזמן שהוא מחכה שפעולה איטית תסתיים

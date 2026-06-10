@@ -6,7 +6,7 @@ namespace Payment
     // שירות תשלום - אחראי על אימות פרטי כרטיס חיוב וניכוי סכום מהיתרה
     public class PaymentService
     {
-        private readonly string _connectionString;// מחרוזת התחברות למסד הנתונים של התשלומים
+        private readonly string _connectionString;// רידאונלי בשביל שישאר מוגן ולא ישתנה בזמן ההרצה בטעות
 
         // פעולה בונה - מקבלת את מחרוזת ההתחברות למסד הנתונים של כרטיסי החיוב
         public PaymentService(string connectionString)
