@@ -179,9 +179,9 @@ namespace Shipping
             string webRoot = Server.MapPath("~/").TrimEnd('\\', '/');
             string solutionRoot = System.IO.Path.GetDirectoryName(webRoot);
             string paymentDbFullPath = System.IO.Path.Combine(solutionRoot, "Payment", "PaymentDb.mdf");
-            // Initial Catalog עם נתיב הקובץ מחבר ל-DB הכבר מחובר ב-LocalDB לפי שמו האוטומטי (= הנתיב)
-            // AttachDbFilename נכשל אם ה-DB כבר מחובר ("A database with the same name exists")
-            string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog={paymentDbFullPath};Integrated Security=True";
+            // AttachDbFilename מחבר את קובץ ה-MDF ל-LocalDB בחיבור הראשון
+            // Database=PaymentDb קובע שם קבוע לאותו DB - כך חיבורים חוזרים מוצאים אותו ולא מנסים לחבר שוב
+            string paymentConnStr = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={paymentDbFullPath};Database=PaymentDb;Integrated Security=True";
             var paymentService = new Payment.PaymentService(paymentConnStr);//ייצר משתנה של השירות התשלום
             // ביצוע תשלום: בדיקת פרטי הכרטיס, בדיקת יתרה וניכוי הסכום מהכרטיס
              Payment.PaymentResult paymentResult;
@@ -193,7 +193,7 @@ namespace Shipping
             catch (Exception ex)
             {
                 // שגיאת DB בלתי צפויה (נפילת חיבור, timeout וכו') - מציגים הודעה ידידותית במקום קריסה
-                lblMsg.Text = "שגיאה: " + ex.Message;
+                lblMsg.Text = "אירעה שגיאה טכנית בעת עיבוד התשלום. אנא נסה שוב מאוחר יותר.";
                 Debug.WriteLine("Payment DB Error: " + ex.ToString());
                 return;
             }
