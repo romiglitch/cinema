@@ -133,7 +133,7 @@ namespace Shipping
 
             btn.Visible = false;
             e.Item.Controls.Add(new LiteralControl(
-                $"<span class=\"screening-item sold-out\" title=\"אזלו הכרטיסים\">" +
+                $"<span class=\"screening-item sold-out\" title=\"אזלו הכרטיסים\" aria-disabled=\"true\">" +
                 $"<span class=\"screening-time\">{slot.StartTime:HH:mm}</span></span>"));
         }
 

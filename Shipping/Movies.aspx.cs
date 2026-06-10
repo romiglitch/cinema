@@ -242,7 +242,7 @@ namespace Shipping
             string time = HttpUtility.HtmlEncode(st.display_time);
             if (st.available_seats > 0)
                 return $"<a href=\"Ticketing.aspx?screeningId={st.Id}\" class=\"time-slot\">{time}</a>";
-            return $"<span class=\"time-slot sold-out\" title=\"אזלו הכרטיסים\">{time}</span>";
+            return $"<span class=\"time-slot sold-out\" title=\"אזלו הכרטיסים\" aria-disabled=\"true\">{time}</span>";
         }
     }
 }

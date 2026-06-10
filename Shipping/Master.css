@@ -2106,8 +2106,8 @@ td, th {
     overflow: hidden;
 }
 
-    /* אפקט Hover - תאורת קולנוע */
-    .screening-item:hover {
+    /* אפקט Hover - תאורת קולנוע (רק להקרנות זמינות) */
+    .screening-item:not(.sold-out):hover {
         background: linear-gradient(145deg, #353535, #2a2a2a);
         transform: translateY(-8px);
         border-color: #a855f7;
@@ -2143,7 +2143,7 @@ td, th {
     transition: transform 0.3s ease;
 }
 
-.screening-item:hover::after {
+.screening-item:not(.sold-out):hover::after {
     transform: scaleX(1);
 }
 
@@ -2770,6 +2770,69 @@ td, th {
     transition: all 0.3s ease;
     cursor: pointer;
 }
+
+/* הקרנה אזלה - מושבתת, ללא אפקט hover */
+.time-slot.sold-out,
+.movie-showtimes .time-slot.sold-out {
+    background: #2a2a2a;
+    color: rgba(255, 255, 255, 0.28);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    cursor: not-allowed;
+    pointer-events: none;
+    text-decoration: line-through;
+    opacity: 0.5;
+    font-weight: normal;
+    transition: none;
+    box-shadow: none;
+    transform: none;
+}
+
+.time-slot.sold-out:hover,
+.time-slot.sold-out:focus,
+.movie-showtimes .time-slot.sold-out:hover {
+    background: #2a2a2a;
+    color: rgba(255, 255, 255, 0.28);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+    transform: none;
+    opacity: 0.5;
+}
+
+.screening-item.sold-out,
+.screenings-by-date .screenings-grid-by-day > .screening-item.sold-out {
+    background: #1f1f1f;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.28);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+    transition: none;
+    box-shadow: none;
+    transform: none;
+}
+
+.screening-item.sold-out .screening-time,
+.screenings-by-date .screenings-grid-by-day > .screening-item.sold-out .screening-time {
+    color: rgba(255, 255, 255, 0.28);
+    text-decoration: line-through;
+}
+
+.screening-item.sold-out:hover,
+.screening-item.sold-out:focus,
+.screening-item.sold-out::after,
+.screenings-by-date .screenings-grid-by-day > .screening-item.sold-out:hover {
+    background: #1f1f1f;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    transform: none;
+    opacity: 0.5;
+}
+
+.screening-item.sold-out::after {
+    transform: scaleX(0);
+    display: none;
+}
+
 .date-dropdown {
     border: 2px solid #333;
     transition: all 0.3s ease;
@@ -2815,8 +2878,8 @@ td, th {
     display: block;
     text-align: center;
 }
-    /* אפקט מעבר עכבר - Hover */
-    .time-slot:hover {
+    /* אפקט מעבר עכבר - Hover (רק להקרנות זמינות) */
+    .movie-showtimes a.time-slot:hover {
         background: linear-gradient(45deg, #8a2be2, #ff00ff); /* צבעי הניאון מהתפריט שלך */
         box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
         transform: translateY(-3px); /* קפיצה קלה למעלה */
@@ -2828,45 +2891,6 @@ td, th {
         background: #ff4757;
         border-color: #ff4757;
         animation: pulse 2s infinite;
-    }
-
-    .time-slot.sold-out {
-        background: rgba(255, 255, 255, 0.04);
-        color: rgba(255, 255, 255, 0.35);
-        border-color: rgba(255, 255, 255, 0.08);
-        cursor: not-allowed;
-        pointer-events: none;
-        text-decoration: line-through;
-    }
-
-    .time-slot.sold-out:hover {
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: none;
-        transform: none;
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .screening-item.sold-out {
-        background: #1a1a1a;
-        border-color: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.35);
-        cursor: not-allowed;
-        pointer-events: none;
-        transform: none;
-        box-shadow: none;
-    }
-
-    .screening-item.sold-out .screening-time {
-        color: rgba(255, 255, 255, 0.35);
-        text-decoration: line-through;
-    }
-
-    .screening-item.sold-out:hover,
-    .screening-item.sold-out::after {
-        background: #1a1a1a;
-        transform: none;
-        box-shadow: none;
-        border-color: rgba(255, 255, 255, 0.08);
     }
 
 @keyframes pulse {
