@@ -39,9 +39,7 @@
                     <div class="movie-showtimes">
                         <asp:Repeater ID="RptShowtimes" runat="server">
                             <ItemTemplate>
-                                <a href='Ticketing.aspx?screeningId=<%# Eval("Id") %>' class="time-slot">
-                                    <%# Eval("display_time") %>
-                                </a>
+                                <%# RenderShowtimeLink(Container.DataItem) %>
                             </ItemTemplate>
                         </asp:Repeater>
                     </div>

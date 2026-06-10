@@ -29,13 +29,18 @@ namespace Shipping
             {
                 freeSeatsAvailable = GetAvailableSeatsForScreening(screeningId);
                 maxTicketsAllowed = Math.Min(MaxTicketsPerPurchase, freeSeatsAvailable);
-            }
-
-            // בטעינה ראשונה בלבד - טוענים את פרטי ההקרנה ואת טבלת המחירים
-            if (!IsPostBack)
-            {
                 LoadScreeningDetails();
-                LoadTickets();
+
+                if (freeSeatsAvailable <= 0)
+                {
+                    litScreeningInfo.Text += "<div style='color:#c0392b;margin-top:10px;font-weight:bold;'>אזלו הכרטיסים להקרנה זו.</div>";
+                    RepeaterTickets.Visible = false;
+                    btnContinue.Visible = false;
+                }
+                else
+                {
+                    LoadTickets();
+                }
             }
         }
 

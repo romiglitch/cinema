@@ -2830,6 +2830,45 @@ td, th {
         animation: pulse 2s infinite;
     }
 
+    .time-slot.sold-out {
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.35);
+        border-color: rgba(255, 255, 255, 0.08);
+        cursor: not-allowed;
+        pointer-events: none;
+        text-decoration: line-through;
+    }
+
+    .time-slot.sold-out:hover {
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: none;
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .screening-item.sold-out {
+        background: #1a1a1a;
+        border-color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.35);
+        cursor: not-allowed;
+        pointer-events: none;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .screening-item.sold-out .screening-time {
+        color: rgba(255, 255, 255, 0.35);
+        text-decoration: line-through;
+    }
+
+    .screening-item.sold-out:hover,
+    .screening-item.sold-out::after {
+        background: #1a1a1a;
+        transform: none;
+        box-shadow: none;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
 @keyframes pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);

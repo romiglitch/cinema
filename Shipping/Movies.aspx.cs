@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.UI.WebControls;
 using Newtonsoft.Json;
 
@@ -106,9 +107,11 @@ namespace Shipping
                 // JOIN עם טבלת Movie כדי לקבל את שם הסרט
                 // המיון לפי שם הסרט ואז לפי שעת ההתחלה - כך הקרנות של אותו סרט מקובצות יחד
                 string query = @"
-    SELECT m.Title, s.StartTime, s.ScreeningID
+    SELECT m.Title, s.StartTime, s.ScreeningID,
+           (h.Rows * h.SeatsPerRow) - ISNULL((SELECT COUNT(*) FROM Tickets t WHERE t.Screening = s.ScreeningID), 0) AS AvailableSeats
     FROM Screening s
     JOIN Movie m ON s.MovieId = m.Id
+    JOIN Halls h ON s.Hall = h.HallId
     WHERE s.StartTime >= @ScheduleStart AND s.StartTime < @ScheduleEnd
       AND s.StartTime > GETDATE()
     ORDER BY m.Title, s.StartTime";
@@ -126,6 +129,7 @@ namespace Shipping
                        string title = reader.GetString(0); // עמודה 0 = שם הסרט
                        DateTime showTime = reader.GetDateTime(1); // עמודה 1 = שעת ההתחלה
                        int screeningId = reader.GetInt32(2); // עמודה 2 = מזהה ההקרנה
+                       int availableSeats = reader.GetInt32(3); // עמודה 3 = מקומות פנויים
 
                         //קיבוץ ההקרנות לפי שם הסרט
                         var film = films.Find(f => f.film_name == title);//בודק עבור כל סרט ברשימה אם השם שלו שווה לשם הסרט שאנחנו בודקים (אם הוא כבר קיים ברשימה)
@@ -148,7 +152,8 @@ namespace Shipping
                         {
                             Id = screeningId, // מזהה ההקרנה - משמש בקישור לדף בחירת המושבים
                             start_time = showTime, // שעת ההתחלה - השעה האמיתית מהמסד נתונים - לצורך מיון
-                            display_time = displayTime // השעה לתצוגה - "24:00" להקרנות אחרי חצות
+                            display_time = displayTime, // השעה לתצוגה - "24:00" להקרנות אחרי חצות
+                            available_seats = availableSeats
                         });
                     }
                 }
@@ -227,6 +232,17 @@ namespace Shipping
             public int Id { get; set; } // מזהה ייחודי של ההקרנה לצורך בחירת מושבים
             public DateTime start_time { get; set; } // השעה האמיתית (DateTime) לצורך מיון ושאילתות
             public string display_time { get; set; } // השעה לתצוגה - "24:00" במקום "00:00" להקרנות אחרי חצות
+            public int available_seats { get; set; } // מקומות פנויים - 0 = אזלו הכרטיסים
+        }
+
+        // מחזיר קישור פעיל או תווית מושבתת לפי זמינות מקומות
+        protected string RenderShowtimeLink(object item)
+        {
+            var st = (Showtime)item;
+            string time = HttpUtility.HtmlEncode(st.display_time);
+            if (st.available_seats > 0)
+                return $"<a href=\"Ticketing.aspx?screeningId={st.Id}\" class=\"time-slot\">{time}</a>";
+            return $"<span class=\"time-slot sold-out\" title=\"אזלו הכרטיסים\">{time}</span>";
         }
     }
 }

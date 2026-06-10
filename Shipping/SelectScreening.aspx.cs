@@ -38,9 +38,11 @@ namespace Shipping
             string cs = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cs))
             {
-                string query = @"SELECT s.ScreeningId, s.StartTime, m.Title 
+                string query = @"SELECT s.ScreeningId, s.StartTime, m.Title,
+                        (h.Rows * h.SeatsPerRow) - ISNULL((SELECT COUNT(*) FROM Tickets t WHERE t.Screening = s.ScreeningId), 0) AS AvailableSeats
                          FROM Screening s 
                          JOIN Movie m ON s.MovieId = m.Id 
+                         JOIN Halls h ON s.Hall = h.HallId
                          WHERE m.TmdbId = @tmdbId AND s.StartTime > GETDATE()
                          ORDER BY s.StartTime";
 
@@ -75,7 +77,8 @@ namespace Shipping
                                 Screenings = g.Select(r => new ScreeningSlot
                                 {
                                     ScreeningId = Convert.ToInt32(r["ScreeningId"]),
-                                    StartTime = (DateTime)r["StartTime"]
+                                    StartTime = (DateTime)r["StartTime"],
+                                    AvailableSeats = Convert.ToInt32(r["AvailableSeats"])
                                 }).ToList()
                             })
                             .ToList();
@@ -112,9 +115,26 @@ namespace Shipping
             var rptDayTimes = (Repeater)e.Item.FindControl("rptDayTimes");
             if (rptDayTimes != null)
             {
+                rptDayTimes.ItemDataBound += rptDayTimes_ItemDataBound;
                 rptDayTimes.DataSource = day.Screenings;
                 rptDayTimes.DataBind();
             }
+        }
+
+        protected void rptDayTimes_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem)
+                return;
+
+            var slot = (ScreeningSlot)e.Item.DataItem;
+            var btn = (LinkButton)e.Item.FindControl("btnSelect");
+            if (btn == null || slot.AvailableSeats > 0)
+                return;
+
+            btn.Visible = false;
+            e.Item.Controls.Add(new LiteralControl(
+                $"<span class=\"screening-item sold-out\" title=\"אזלו הכרטיסים\">" +
+                $"<span class=\"screening-time\">{slot.StartTime:HH:mm}</span></span>"));
         }
 
         // תווית תאריך בעברית לכותרת כל קבוצה (למשל: יום רביעי, 27 במאי 2026)
@@ -145,6 +165,7 @@ namespace Shipping
         {
             public int ScreeningId { get; set; }
             public DateTime StartTime { get; set; }
+            public int AvailableSeats { get; set; }
         }
     }
 }
