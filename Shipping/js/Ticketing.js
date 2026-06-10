@@ -1,6 +1,15 @@
 // Ticketing.js — בחירת כמות כרטיסים ואימות זכאות
+var MAX_TICKETS_PER_PURCHASE = 10;
 
 $(document).ready(function () {
+    function getTotalTicketsSelected() {
+        let total = 0;
+        $(".qty-display").each(function () {
+            total += parseInt($(this).val()) || 0;
+        });
+        return total;
+    }
+
     function updateTotals() {
         let total = 0;
         $(".ticket-row").each(function () {
@@ -27,6 +36,10 @@ $(document).ready(function () {
 
     $(document).on("click", ".btn-plus", function (e) {
         e.stopImmediatePropagation();
+        if (getTotalTicketsSelected() >= MAX_TICKETS_PER_PURCHASE) {
+            alert("ניתן לרכוש עד " + MAX_TICKETS_PER_PURCHASE + " כרטיסים בהזמנה אחת.");
+            return;
+        }
         let input = $(this).siblings(".qty-display");
         input.val(parseInt(input.val()) + 1);
         updateTotals();
@@ -49,10 +62,11 @@ function validateVerification() {
     let isValid = true;
     let totalTicketsSelected = 0;
 
+    // איפוס שגיאות קודמות - מחפשים לפי הקלאס החדש
     $(".error-text-simple").hide().text("");
     $(".id-input").css("border-color", "#ccc");
 
-    // בדיקה שנבחר לפחות כרטיס אחד
+    // 1. בדיקה שנבחר לפחות כרטיס אחד
     $(".qty-display").each(function () {
         totalTicketsSelected += parseInt($(this).val()) || 0;
     });
@@ -62,11 +76,16 @@ function validateVerification() {
         return false;
     }
 
-    // בדיקת תעודת זהות בשדות הגלויים
+    if (totalTicketsSelected > MAX_TICKETS_PER_PURCHASE) {
+        alert("ניתן לרכוש עד " + MAX_TICKETS_PER_PURCHASE + " כרטיסים בהזמנה אחת.");
+        return false;
+    }
+
+    // 2. בדיקת תעודת זהות בשדות הגלויים
     $(".verification-box:visible").each(function () {
         let container = $(this);
         let input = container.find(".id-input");
-        let errorDiv = container.find(".error-text-simple");
+        let errorDiv = container.find(".error-text-simple"); // עדכון לקלאס שלך
         let idValue = input.val().trim();
         let idPattern = /^\d{8,9}$/;
 
@@ -85,7 +104,7 @@ function validateVerification() {
     return isValid;
 }
 
-// העלמת השגיאה כשהמשתמש מקליד
+// בונוס: העלמת השגיאה כשהמשתמש מקליד
 $(document).on("input", ".id-input", function () {
     $(this).css("border-color", "#ccc");
     $(this).siblings(".error-text-simple").fadeOut();

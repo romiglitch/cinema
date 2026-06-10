@@ -5,13 +5,13 @@ function openTrailer() {
     var iframe = document.getElementById(modalTrailerId);
     var videoSrc = iframe.getAttribute("data-src");
 
-    iframe.src = videoSrc;
+    iframe.src = videoSrc; // טוען רק בלחיצה
     document.getElementById("trailerModal").style.display = "block";
 }
 
 function closeTrailer() {
     var iframe = document.getElementById(modalTrailerId);
 
-    iframe.src = "";
+    iframe.src = ""; // מאפס לגמרי = מפסיק וידאו
     document.getElementById("trailerModal").style.display = "none";
 }

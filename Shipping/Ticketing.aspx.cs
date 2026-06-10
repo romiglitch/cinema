@@ -12,6 +12,8 @@ namespace Shipping
     // עמוד בחירת כרטיסים - המשתמש בוחר כמה כרטיסים מכל סוג (רגיל, סטודנט וכו') לפני בחירת מושבים
     public partial class Ticketing : System.Web.UI.Page
     {
+        private const int MaxTicketsPerPurchase = 10;
+
         protected int screeningId; // -URLמזהה ההקרנה שהועבר בכתובת ה
 
         protected void Page_Load(object sender, EventArgs e)
@@ -136,6 +138,12 @@ namespace Shipping
             if (totalTickets == 0)
             {
                 ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('אנא בחרי לפחות כרטיס אחד');", true);
+                return;
+            }
+
+            if (totalTickets > MaxTicketsPerPurchase)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('ניתן לרכוש עד {MaxTicketsPerPurchase} כרטיסים בהזמנה אחת.');", true);
                 return;
             }
 
