@@ -374,6 +374,18 @@ ORDER BY ORDINAL_POSITION
                     }
                 }
 
+                "^/setup-payment-db$" {
+                    if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
+                    Write-Host "[$timestamp] POST /setup-payment-db" -ForegroundColor Cyan
+                    $setupScript = Join-Path $repoRoot "Payment\Scripts\SetupPaymentDb.ps1"
+                    if (-not (Test-Path $setupScript)) {
+                        Send-Json $ctx @{ success = $false; error = "SetupPaymentDb.ps1 not found at $setupScript" } 500
+                        continue
+                    }
+                    $result = Run-Command "& '$setupScript'"
+                    Send-Json $ctx @{ success = $result.success; output = ($result.stdout + $result.stderr).Trim() }
+                }
+
                 "^/write-env$" {
                     if ($req.HttpMethod -ne "POST") { Send-Json $ctx @{ error = "Use POST" } 405; continue }
                     $reader = New-Object System.IO.StreamReader($req.InputStream, $req.ContentEncoding)
