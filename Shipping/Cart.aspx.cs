@@ -203,6 +203,12 @@ namespace Shipping
                 {
                     SaveOrderToDatabase();//שמירת ההזמנה במסד נתונים
 
+                    if (BulkTesting.IsEnabled(HttpContext))
+                    {
+                        Response.Redirect("Success.aspx", false);
+                        return;
+                    }
+
                     RegisterAsyncTask(new PageAsyncTask(async () => //יצירת פעולה אסינכרונית ששולחת מייל לאישור ההזמנה
                     {
                         try

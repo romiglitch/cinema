@@ -12,6 +12,11 @@ namespace Shipping
             LoadEnvFile();
         }
 
+        protected void Application_AcquireRequestState(object sender, EventArgs e)
+        {
+            BulkTesting.EnableIfRequested(HttpContext.Current);
+        }
+
         // קריאת קובץ .env משורש הפרויקט והזרקת הערכים ל-AppSettings בזמן ריצה
         // כך המפתחות לא נשמרים ב-Web.config ולא עולים ל-GitHub
         private static void LoadEnvFile()

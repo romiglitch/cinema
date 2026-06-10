@@ -232,6 +232,7 @@
     <Compile Include="ResetPassword.aspx.designer.cs">
       <DependentUpon>ResetPassword.aspx</DependentUpon>
     </Compile>
+    <Compile Include="BulkTesting.cs" />
     <Compile Include="EmailHelper.cs" />
     <Compile Include="Genre.cs" />
     <Compile Include="HomePage.aspx.cs">
