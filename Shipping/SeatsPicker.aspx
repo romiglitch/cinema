@@ -16,7 +16,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
 
-    <h1>בחירת מושבים</h1>
+    <h1>בחירת מושבים - אולם <%= hallId %></h1>
 
     <div class="screen">מסך</div>
 
