@@ -24,53 +24,18 @@ namespace Shipping
             }
         }
 
-        // מילוי תפריט הבחירה עם ימים שיש בהם הקרנות עתידיות (לא הקרנות שכבר התחילו)
+        // מילוי תפריט הבחירה עם 7 הימים הקרובים (היום + 6 ימים הבאים)
         private void LoadNext7Days()
         {
             ddlDates.Items.Clear();
-            ddlDates.Items.Add(new ListItem("בחר תאריך", "")); // פריט ברירת מחדל עם ערך ריק
-            foreach (DateTime date in GetDatesWithUpcomingScreenings(8))
+            ddlDates.Items.Add(new ListItem("בחר תאריך", ""));
+            DateTime today = DateTime.Today;
+            for (int i = 0; i < 7; i++)
             {
+                DateTime date = today.AddDays(i);
                 ddlDates.Items.Add(new ListItem(
                     date.ToString("dd/MM/yyyy"), date.ToString("yyyy-MM-dd")));
             }
-        }
-
-        // מחזיר תאריכי יום-קולנוע (09:00–09:00) שיש בהם לפחות הקרנה אחת שעדיין לא התחילה
-        private List<DateTime> GetDatesWithUpcomingScreenings(int maxDates)
-        {
-            var dates = new List<DateTime>();
-            var seen = new HashSet<DateTime>();
-            string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(
-                "SELECT StartTime FROM Screening WHERE StartTime > GETDATE() ORDER BY StartTime", conn))
-            {
-                conn.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        DateTime cinemaDate = GetCinemaDayDate(reader.GetDateTime(0));
-                        if (cinemaDate < DateTime.Today || !seen.Add(cinemaDate))
-                            continue;
-
-                        dates.Add(cinemaDate);
-                        if (dates.Count >= maxDates)
-                            break;
-                    }
-                }
-            }
-            return dates;
-        }
-
-        // הקרנה לפני 09:00 שייכת ליום הקולנוע הקודם (מוצג כ-24:xx)
-        private static DateTime GetCinemaDayDate(DateTime screeningStart)
-        {
-            return screeningStart.TimeOfDay < TimeSpan.FromHours(9)
-                ? screeningStart.Date.AddDays(-1)
-                : screeningStart.Date;
         }
 
         // אירוע שמופעל כשהמשתמש בוחר תאריך מהתפריט (AutoPostBack=true בדף aspx)
@@ -141,17 +106,17 @@ namespace Shipping
 
                         // הקרנה אחרי חצות שייכת ליום הקולנוע שנבחר; רק 00:xx מוצג כ-24:xx
                         string displayTime;
-                        if (showTime.Date > date.Date && showTime.Hour == 0)
+                        if (showTime.Date > date.Date && showTime.Hour == 0)//אם התאריך של ההקרנה גדול מהתאריך שבחרנו והוא מוצג בחצות 
                             displayTime = $"24:{showTime.Minute:D2}";
                         else
-                            displayTime = showTime.ToString("HH:mm");
-
+                            displayTime = showTime.ToString("HH:mm"); // פורמט רגיל לשעות לפני חצות
+                        
                         // הוספת ההקרנה לרשימת ההקרנות של הסרט
                         film.showtimes.Add(new Showtime
                         {
                             Id = screeningId, // מזהה ההקרנה - משמש בקישור לדף בחירת המושבים
                             start_time = showTime, // שעת ההתחלה - השעה האמיתית מהמסד נתונים - לצורך מיון
-                            display_time = displayTime, // 24:xx רק לחצות; 01:xx–23:xx בפורמט רגיל
+                            display_time = displayTime, //  השעה לתצוגה - "24:00" להקרנות אחרי חצות
                             available_seats = availableSeats
                         });
                     }
