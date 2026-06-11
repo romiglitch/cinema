@@ -143,16 +143,17 @@
   <g transform="translate(280, 548)">
     <rect width="210" height="28" fill="#DEE2E6" stroke="#ADB5BD" stroke-width="1"/>
     <text x="105" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#212529" font-family="sans-serif">Tickets</text>
-    <rect y="28" width="210" height="128" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
-    <line x1="58" y1="28" x2="58" y2="156" stroke="#E9ECEF"/><line x1="158" y1="28" x2="158" y2="156" stroke="#E9ECEF"/>
-    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">User</text><text x="164" y="44" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
-    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">Screening</text><text x="164" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
-    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Row</text>
-    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">Seat</text>
-    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">decimal</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">Price</text>
-    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">Type</text>
+    <rect y="28" width="210" height="148" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1"/>
+    <line x1="58" y1="28" x2="58" y2="176" stroke="#E9ECEF"/><line x1="158" y1="28" x2="158" y2="176" stroke="#E9ECEF"/>
+    <text x="6" y="44" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="44" font-size="9" fill="#212529" font-family="monospace">TicketId</text><text x="164" y="44" font-size="9" font-weight="700" fill="#0D6EFD" font-family="sans-serif">PK</text>
+    <text x="6" y="64" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="64" font-size="9" fill="#212529" font-family="monospace">User</text><text x="164" y="64" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="84" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="84" font-size="9" fill="#212529" font-family="monospace">Screening</text><text x="164" y="84" font-size="9" font-weight="600" fill="#6C757D" font-family="sans-serif">FK</text>
+    <text x="6" y="104" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="104" font-size="9" fill="#212529" font-family="monospace">Row</text>
+    <text x="6" y="124" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="124" font-size="9" fill="#212529" font-family="monospace">Seat</text>
+    <text x="6" y="144" font-size="9" fill="#6C757D" font-family="sans-serif">int</text><text x="64" y="144" font-size="9" fill="#212529" font-family="monospace">Price</text>
+    <text x="6" y="164" font-size="9" fill="#6C757D" font-family="sans-serif">nvarchar</text><text x="64" y="164" font-size="9" fill="#212529" font-family="monospace">Type</text>
   </g>
-  <text x="385" y="540" text-anchor="middle" font-size="8" fill="#6C757D" font-family="sans-serif">seat key: User + Screening + Row + Seat</text>
+  <text x="385" y="540" text-anchor="middle" font-size="8" fill="#6C757D" font-family="sans-serif">PK TicketId · seat location: Screening + Row + Seat</text>
 
   <!-- TicketsPricing -->
   <g transform="translate(1080, 528)">

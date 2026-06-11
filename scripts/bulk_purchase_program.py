@@ -860,6 +860,160 @@ def print_genre_division() -> None:
             print(f"    {i}. {g}")
 
 
+def seat_range_for_owner(owner_data: dict, screening_id: int) -> str:
+    for purchase in owner_data.get("purchases", []):
+        if purchase.get("screening_id") == screening_id:
+            return purchase.get("seat_range", "—")
+    return "—"
+
+
+def render_markdown_plan(data: dict, source_note: str = "") -> str:
+    """Render TC-13 purchase plan markdown from JSON plan payload."""
+    ticket_price = data.get("ticket_price", TICKET_PRICE)
+    initial_balance = data.get("initial_balance", INITIAL_BALANCE)
+    lines = [
+        "# TC-13 — Bulk Purchase Plan",
+        "",
+        "Generated from `scripts/bulk_purchase_program.py` (seed **42**, `--keep-yesterday`).",
+    ]
+    if source_note:
+        lines.append(f"Source: {source_note}.")
+    lines.extend(
+        [
+            "",
+            "| Parameter | Value |",
+            "|-----------|-------|",
+            f"| Ticket price | ₪{ticket_price:,.0f} |",
+            f"| Initial balance per card | ₪{initial_balance:,.0f} |",
+            f"| Tickets per screening | {MIN_TICKETS_PER_SCREENING}–{MAX_TICKETS_PER_SCREENING} (random) |",
+            f"| Max movies per cinema day | {MAX_MOVIES_PER_DAY} |",
+            "| Non-overlapping showtimes | yes (within each owner) |",
+            "| Seat assignment | disjoint row/seat blocks per owner (10×12 hall, row-major) |",
+            "| Bulk testing | add `?bulkTesting=1` to first URL per session — skips order receipt emails |",
+            "",
+            "## Card owners and genres",
+            "",
+            "| Owner | Card (last 4) | Preferred genres |",
+            "|-------|---------------|------------------|",
+        ]
+    )
+    for owner in OWNERS:
+        lines.append(
+            f"| {owner['holder']} | …{owner['card'][-4:]} | "
+            f"{', '.join(owner['genres'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Seat blocks on shared screenings are assigned in owner order above "
+            "(ISRAEL → RACHEL → DAVID → MICHAL).",
+            "",
+            "## Purchase plan",
+        ]
+    )
+
+    for owner_data in data["owners"]:
+        total_tickets = owner_data["total_tickets"]
+        total_cost = owner_data["total_cost"]
+        count = len(owner_data["purchases"])
+        lines.append(f"\n### {owner_data['holder']}")
+        lines.append(
+            f"{total_tickets} tickets · ₪{total_cost:,.0f} · {count} screenings"
+        )
+        current_day = None
+        for purchase in owner_data["purchases"]:
+            day = purchase["cinema_day"]
+            if day != current_day:
+                current_day = day
+                lines.append(f"\n**{day}**")
+                lines.append("| Hour | Hall | Tickets | Sum | Seats |")
+                lines.append("|------|------|---------|-----|-------|")
+            lines.append(
+                f"| {purchase['hour']} | {purchase['hall']} | {purchase['tickets']} | "
+                f"₪{purchase['cost']:,.0f} | {purchase.get('seat_range', '—')} |"
+            )
+
+    lines.extend(["", "## Totals", ""])
+    for owner_data in data["owners"]:
+        lines.append(
+            f"- {owner_data['holder']}: {owner_data['total_tickets']} tickets, "
+            f"₪{owner_data['total_cost']:,.0f} "
+            f"({len(owner_data['purchases'])} screenings)"
+        )
+
+    conflicts = data.get("cross_owner_conflicts", [])
+    lines.extend(["", "## Cross-owner conflicts", ""])
+    if not conflicts:
+        lines.append("No cross-owner screening conflicts.")
+    else:
+        lines.append(f"{len(conflicts)} screening(s) shared by multiple card owners:")
+        lines.append("")
+        lines.append(
+            "| Day | Hour | Hall | Screening | Planned | Seat ranges (disjoint) |"
+        )
+        lines.append(
+            "|-----|------|------|-----------|---------|-------------------------|"
+        )
+        owner_by_holder = {o["holder"]: o for o in data["owners"]}
+        capacity = 0
+        for conflict in conflicts:
+            title = conflict["title"]
+            if len(title) > 18:
+                title = title[:15] + "..."
+            seat_parts = []
+            for entry in sorted(
+                conflict["owners"],
+                key=lambda e: OWNER_ORDER.get(e["holder"], 999),
+            ):
+                holder = entry["holder"]
+                seat_range = seat_range_for_owner(
+                    owner_by_holder.get(holder, {}), conflict["screening_id"]
+                )
+                seat_parts.append(f"{holder}: {seat_range}")
+            if conflict.get("severity") == "CAPACITY" or conflict.get(
+                "total_tickets", 0
+            ) > conflict.get("free_seats", 999):
+                capacity += 1
+            lines.append(
+                f"| {conflict['cinema_day']} | {conflict['hour']} | {conflict['hall']} | "
+                f"#{conflict['screening_id']} {title} | {conflict['total_tickets']} | "
+                f"{'; '.join(seat_parts)} |"
+            )
+        parallel = len(conflicts) - capacity
+        lines.append("")
+        lines.append(
+            f"Summary: {capacity} over-capacity, {parallel} shared screening(s) "
+            f"with disjoint seat blocks assigned (owner order: "
+            f"{', '.join(o['holder'] for o in OWNERS)})."
+        )
+
+    lines.extend(
+        [
+            "",
+            "_Regenerate plan JSON: "
+            "`python3 scripts/bulk_purchase_program.py --seed 42 --keep-yesterday --json`",
+            "",
+            "_Render this file: "
+            "`python3 scripts/bulk_purchase_program.py --export-markdown logs/tc13/plan_seed42.json`",
+            "",
+            "_Execute with bulk testing (no receipt emails): log in via "
+            "`Login.aspx?bulkTesting=1` or set `BulkTesting=true` in Web.config / `.env`._",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def export_markdown(json_path: str, output_path: str) -> None:
+    with open(json_path, encoding="utf-8") as f:
+        data = json.load(f)
+    markdown = render_markdown_plan(
+        data, source_note=f"`{json_path}` (executed TC-13 plan)"
+    )
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(markdown)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate bulk ticket purchase programs")
     parser.add_argument("--bridge", default=BRIDGE_DEFAULT, help="sql-bridge base URL")
@@ -885,7 +1039,22 @@ def main() -> int:
         action="store_true",
         help="Compact plan: hour, hall, tickets, sum only",
     )
+    parser.add_argument(
+        "--export-markdown",
+        metavar="PLAN.json",
+        help="Write TC13_PURCHASE_PLAN.md from a plan JSON file",
+    )
+    parser.add_argument(
+        "--markdown-output",
+        default="TC13_PURCHASE_PLAN.md",
+        help="Output path for --export-markdown (default: TC13_PURCHASE_PLAN.md)",
+    )
     args = parser.parse_args()
+
+    if args.export_markdown:
+        export_markdown(args.export_markdown, args.markdown_output)
+        print(f"Wrote {args.markdown_output}")
+        return 0
 
     removed_day = None
     removed_count = 0
@@ -968,6 +1137,12 @@ def main() -> int:
                 {
                     "holder": p.holder,
                     "card": p.card,
+                    "expiry": next(
+                        (o["expiry"] for o in OWNERS if o["holder"] == p.holder), ""
+                    ),
+                    "cvc": next(
+                        (o["cvc"] for o in OWNERS if o["holder"] == p.holder), ""
+                    ),
                     "preferred_genres": p.preferred_genres,
                     "tickets_per_screening": [
                         MIN_TICKETS_PER_SCREENING,
@@ -977,9 +1152,11 @@ def main() -> int:
                     "total_cost": p.total_cost,
                     "purchases": [
                         {
+                            "screening_id": l.screening_id,
                             "cinema_day": l.cinema_day,
                             "hour": screening_hour(l.start_time),
                             "hall": l.hall,
+                            "title": l.title,
                             "tickets": l.tickets,
                             "cost": l.cost,
                             "seat_range": l.seat_range,

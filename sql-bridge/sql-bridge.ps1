@@ -505,6 +505,10 @@ ORDER BY ORDINAL_POSITION
                         $script:trailersProcess.Kill()
                         $script:trailersProcess.WaitForExit(5000)
                     }
+                    Get-Process -Name "iisexpress" -ErrorAction SilentlyContinue | ForEach-Object {
+                        $_.Kill()
+                        $_.WaitForExit(5000)
+                    }
 
                     $appPath = Join-Path $repoRoot "Shipping"
                     $trailersPath = Join-Path $repoRoot "TrailersWS"

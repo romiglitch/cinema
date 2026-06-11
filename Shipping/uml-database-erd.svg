@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="985" height="950" viewBox="0 0 985 950">
+<svg xmlns="http://www.w3.org/2000/svg" width="985" height="1080" viewBox="0 0 985 1080">
   <title>Database Schema ERD — Shipping Cinema System</title>
-  <rect width="985" height="950" fill="#FFFFFF"/>
+  <rect width="985" height="1080" fill="#FFFFFF"/>
 <text x="30" y="36" font-size="14" font-weight="600" fill="#212529" font-family="sans-serif">Database Schema (ERD) — Shipping Cinema System</text>
-<text x="30" y="54" font-size="10" fill="#6C757D" font-family="sans-serif">SQL Server LocalDB · 9 tables · inferred from application SQL queries</text>
+<text x="30" y="54" font-size="10" fill="#6C757D" font-family="sans-serif">SQL Server LocalDB · verified against live schema · PK/FK as in Dtb.mdf</text>
 
 <!-- Movie -->
 <text x="172.5" y="83" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
@@ -25,7 +25,7 @@
 <text x="147.5" y="387" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">MovieGenres</text>
 <line x1="30" y1="398" x2="265" y2="398" stroke="#CED4DA" stroke-width="1"/>
 <text x="38" y="420" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">IdMovie: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="38" y="439" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">IdGenre: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="38" y="439" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">IdGenre: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
 <rect x="30" y="348" width="235" height="103" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- CreditCards (payment validation — no FK) -->
@@ -58,13 +58,14 @@
 <rect x="380" y="346" width="250" height="32" fill="#E9ECEF"/>
 <text x="505.0" y="367" text-anchor="middle" font-size="12" font-weight="600" fill="#212529" font-family="monospace">Tickets</text>
 <line x1="380" y1="378" x2="630" y2="378" stroke="#CED4DA" stroke-width="1"/>
-<text x="388" y="400" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">User: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="388" y="419" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Screening: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="388" y="438" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Row: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="388" y="457" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seat: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
-<text x="388" y="476" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">decimal</tspan></text>
-<text x="388" y="495" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Type: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
-<rect x="380" y="328" width="250" height="179" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
+<text x="388" y="400" font-size="11" font-family="monospace"><tspan fill="#0D6EFD" font-size="9" font-weight="700">PK </tspan><tspan fill="#495057">TicketId: </tspan><tspan fill="#495057" font-style="italic">int IDENTITY</tspan></text>
+<text x="388" y="419" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">User: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="388" y="438" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">FK </tspan><tspan fill="#495057">Screening: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="388" y="457" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Row: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="388" y="476" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Seat: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="388" y="495" font-size="11" font-family="monospace"><tspan fill="#6C757D">+ </tspan><tspan fill="#495057">Price: </tspan><tspan fill="#495057" font-style="italic">int</tspan></text>
+<text x="388" y="514" font-size="11" font-family="monospace"><tspan fill="#6C757D" font-size="9" font-weight="600">ref </tspan><tspan fill="#495057">Type: </tspan><tspan fill="#495057" font-style="italic">nvarchar</tspan></text>
+<rect x="380" y="328" width="250" height="198" fill="none" stroke="#ADB5BD" stroke-width="1.5" rx="2"/>
 
 <!-- Users -->
 <text x="507.5" y="663" text-anchor="middle" font-size="10" fill="#6C757D" font-style="italic" font-family="sans-serif">«table»</text>
@@ -144,19 +145,27 @@
 <text x="506" y="303" font-size="9" fill="#6C757D" font-family="sans-serif">N</text>
 <text x="509" y="264" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
 
-<line x1="505.0" y1="507.0" x2="507.5" y2="650.0" stroke="#ADB5BD" stroke-width="1.2"/>
+<line x1="505.0" y1="526.0" x2="507.5" y2="650.0" stroke="#ADB5BD" stroke-width="1.2"/>
 <line x1="507.5" y1="650.0" x2="501.8" y2="641.2" stroke="#ADB5BD" stroke-width="1.2"/>
 <line x1="507.5" y1="650.0" x2="512.6" y2="640.8" stroke="#ADB5BD" stroke-width="1.2"/>
 <text x="506" y="520" font-size="9" fill="#6C757D" font-family="sans-serif">N</text>
 <text x="507" y="627" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
 
-<polyline points="630.0,417.5 670.0,417.5 670.0,655.0 710.0,655.0" fill="none" stroke="#ADB5BD" stroke-width="1.2"/>
+<polyline points="630.0,436.5 670.0,436.5 670.0,655.0 710.0,655.0" fill="none" stroke="#ADB5BD" stroke-width="1.2"/>
 <line x1="710.0" y1="655.0" x2="701.0" y2="660.4" stroke="#ADB5BD" stroke-width="1.2"/>
 <line x1="710.0" y1="655.0" x2="701.0" y2="649.6" stroke="#ADB5BD" stroke-width="1.2"/>
-<text x="635" y="412.5" font-size="9" fill="#6C757D" font-family="sans-serif">N · Type</text>
+<text x="635" y="431.5" font-size="9" fill="#6C757D" font-family="sans-serif">N · Type</text>
 <text x="692" y="650.0" font-size="9" fill="#6C757D" font-family="sans-serif">1</text>
 
-<text x="30" y="900" font-size="9" fill="#6C757D" font-family="sans-serif"><tspan fill="#0D6EFD" font-weight="700">PK</tspan> = primary key    <tspan fill="#6C757D" font-weight="600">FK</tspan> = foreign key    <tspan fill="#6C757D" font-weight="600">UQ</tspan> = unique (filtered index UX_Users_Email on Email WHERE Email IS NOT NULL)    N/1 = cardinality</text>
-<text x="30" y="915" font-size="9" fill="#6C757D" font-family="sans-serif">Users.Email = login identity · ResetToken/TokenExpiry = forgot-password flow · CreditCards = payment sandbox (BankService; no FK) · ExpirationDate stored as MM/YYYY</text>
-<text x="30" y="930" font-size="9" fill="#6C757D" font-family="sans-serif">MovieGenres.IdGenre = external TMDb IDs (no local Genre table) · Tickets.Type references TicketsPricing.PersonType</text>
+<text x="30" y="890" font-size="9" fill="#6C757D" font-family="sans-serif"><tspan fill="#0D6EFD" font-weight="700">PK</tspan> = primary key    <tspan fill="#6C757D" font-weight="600">FK</tspan> = foreign key (logical; not all enforced in DB)    <tspan fill="#6C757D" font-weight="600">ref</tspan> = logical reference    N/1 = cardinality</text>
+<text x="30" y="905" font-size="9" fill="#6C757D" font-family="sans-serif">Tickets.TicketId = PK (IDENTITY) · MovieGenres composite PK (IdMovie, IdGenre) · CreditCards = separate Payment DB (DebitCards)</text>
+
+<!-- Normalization legend -->
+<rect x="30" y="925" width="925" height="145" fill="#F8F9FA" stroke="#ADB5BD" stroke-width="1" rx="4"/>
+<text x="45" y="948" font-size="12" font-weight="600" fill="#212529" font-family="sans-serif">Normalization (how to read this ERD)</text>
+<text x="45" y="972" font-size="10" fill="#212529" font-family="sans-serif"><tspan font-weight="600" fill="#198754">1NF</tspan> — atomic values, no repeating groups: genres in MovieGenres (not Genre1, Genre2 on Movie)</text>
+<text x="45" y="992" font-size="10" fill="#212529" font-family="sans-serif"><tspan font-weight="600" fill="#198754">2NF</tspan> — no partial dependencies: Screening stores MovieId + Hall FKs (not movie title or hall size copied per row)</text>
+<text x="45" y="1012" font-size="10" fill="#212529" font-family="sans-serif"><tspan font-weight="600" fill="#198754">3NF</tspan> — no transitive dependencies: Tickets.User → Users (not buyer email on every ticket); Halls separate from Screening</text>
+<text x="45" y="1032" font-size="10" fill="#6C757D" font-family="sans-serif">Show in UML: separate entities + FK lines (N→1) = normalized split · dashed ref = logical link only · note intentional denorm: Tickets.Price, Screening.SeatesBought</text>
+<text x="45" y="1052" font-size="10" fill="#6C757D" font-family="sans-serif">Color tip: highlight Movie+MovieGenres+Genres for 1NF · Screening for 2NF · Tickets+Users for 3NF when presenting</text>
 </svg>
