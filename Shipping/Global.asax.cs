@@ -5,16 +5,11 @@ using System.Web;
 
 namespace Shipping
 {
-    public class Global : HttpApplication
+    public class Global : HttpApplication//קובץ שמיועד לשרת בלבד
     {
-        protected void Application_Start(object sender, EventArgs e)
+        protected void Application_Start(object sender, EventArgs e)//םעולה שקוראת פעם אחת בלבד כשהאתר עולה
         {
             LoadEnvFile();
-        }
-
-        protected void Application_AcquireRequestState(object sender, EventArgs e)
-        {
-            BulkTesting.EnableIfRequested(HttpContext.Current);
         }
 
         // קריאת קובץ .env משורש הפרויקט והזרקת הערכים ל-AppSettings בזמן ריצה

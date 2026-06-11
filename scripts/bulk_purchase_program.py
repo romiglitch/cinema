@@ -889,7 +889,6 @@ def render_markdown_plan(data: dict, source_note: str = "") -> str:
             f"| Max movies per cinema day | {MAX_MOVIES_PER_DAY} |",
             "| Non-overlapping showtimes | yes (within each owner) |",
             "| Seat assignment | disjoint row/seat blocks per owner (10×12 hall, row-major) |",
-            "| Bulk testing | add `?bulkTesting=1` to first URL per session — skips order receipt emails |",
             "",
             "## Card owners and genres",
             "",
@@ -996,8 +995,7 @@ def render_markdown_plan(data: dict, source_note: str = "") -> str:
             "_Render this file: "
             "`python3 scripts/bulk_purchase_program.py --export-markdown logs/tc13/plan_seed42.json`",
             "",
-            "_Execute with bulk testing (no receipt emails): log in via "
-            "`Login.aspx?bulkTesting=1` or set `BulkTesting=true` in Web.config / `.env`._",
+            "_Execute: `python3 scripts/execute_tc13.py --parallel`_",
             "",
         ]
     )

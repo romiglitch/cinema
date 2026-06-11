@@ -1,4 +1,6 @@
 *.docx
+.DS_Store
+logs/
 packages/
 .vs/
 [Bb]in/

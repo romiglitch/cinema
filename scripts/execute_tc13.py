@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Execute TC-13 bulk purchases — one session per card owner, bulkTesting=1 (no receipt emails).
+Execute TC-13 bulk purchases — one session per card owner.
 
 Usage:
   python3 scripts/execute_tc13.py --parallel          # 4 owners in parallel
@@ -68,13 +68,12 @@ class Logger:
 
 
 class CinemaClient:
-    def __init__(self, base: str, bulk_testing: bool = True):
+    def __init__(self, base: str):
         self.base = base.rstrip("/")
         self.jar = CookieJar()
         self.opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.jar)
         )
-        self.bulk_testing = bulk_testing
 
     def _url(self, path: str, query: Optional[Dict[str, str]] = None) -> str:
         url = f"{self.base}{path}"
@@ -118,8 +117,7 @@ class CinemaClient:
         }
 
     def login(self, log: Logger) -> None:
-        q = {"bulkTesting": "1"} if self.bulk_testing else None
-        _, html = self.get("/Login.aspx", q)
+        _, html = self.get("/Login.aspx")
         fields = self.parse_fields(html)
         fields.update(
             {
@@ -128,10 +126,10 @@ class CinemaClient:
                 "ctl00$ContentPlaceHolder1$btnLogin": "להתחבר",
             }
         )
-        url, html = self.post("/Login.aspx", fields, q)
+        url, html = self.post("/Login.aspx", fields)
         if "התנתקות" not in html:
             raise RuntimeError("Login failed")
-        log.log("Logged in (bulkTesting=1)")
+        log.log("Logged in")
 
     def purchase_batch(
         self,
@@ -284,7 +282,7 @@ def execute_owner(
 ) -> Tuple[str, int, int]:
     log = Logger(log_path)
     log.log(f"=== TC-13 owner session: {owner['holder']} ===")
-    client = CinemaClient(base, bulk_testing=True)
+    client = CinemaClient(base)
     ok_count = 0
     fail_count = 0
 
