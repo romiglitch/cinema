@@ -96,7 +96,7 @@ namespace Shipping
             {
                 TableRow row = new TableRow();
                 // הצגת שעות הסלוט - שעת התחלה אחרי חצות מוצגת כ-24:00, שעת סיום מוצגת בפורמט רגיל (02:30)
-                row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin, isEndTime: true)}" });
+                row.Cells.Add(new TableCell { Text = $"{FormatScheduleTime(slot.StartMin)} - {FormatScheduleTime(slot.EndMin)}" });
 
                 for (int i = 0; i < 7; i++)//עבור כל סלוט עובר על ימי השבוע
                 {
@@ -554,16 +554,14 @@ namespace Shipping
             return schedule;
         }
 
-        // המרת הפרש דקות מ-09:00 לפורמט שעה להצגה
-        // שעת התחלה אחרי חצות מוצגת כ-24:00 (מוסכמה של לוח קולנוע - סוף יום ההקרנות)
-        // שעת סיום אחרי חצות מוצגת בפורמט רגיל (02:30) כדי לא לבלבל את הצופה
-        private static string FormatScheduleTime(int minutesFrom9, bool isEndTime = false)
+        // שעת התחלה בחצות → 24:xx; שעות 01:xx–23:xx אחרי חצות → HH:mm רגיל
+        private static string FormatScheduleTime(int minutesFrom9)
         {
-            int hour = 9 + minutesFrom9 / 60; // חישוב השעה: 9 + מספר שעות שלמות מתוך הדקות
-            int min = minutesFrom9 % 60; // חישוב הדקות: השארית מחלוקה ב-60
-            if (isEndTime && hour > 24) // לשעת סיום: מחזירים לפורמט רגיל (26 → 02)
+            int hour = 9 + minutesFrom9 / 60;
+            int min = minutesFrom9 % 60;
+            if (hour > 24)
                 hour -= 24;
-            return $"{hour:D2}:{min:D2}"; // D2 = תמיד שתי ספרות (09:00 ולא 9:00)
+            return $"{hour:D2}:{min:D2}";
         }
 
         // בדיקה אם יש לפחות אולם אחד פנוי בטווח זמן מסוים

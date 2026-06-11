@@ -139,20 +139,19 @@ namespace Shipping
                             films.Add(film);
                         }
 
-                        // הקרנה שהתאריך שלה הוא למחרת (חצתה את חצות) מוצגת בפורמט 24:00
-                        // לדוגמה: הקרנה ב-00:00 של 06/06 שייכת ליום 05/06 ומוצגת כ-24:00
+                        // הקרנה אחרי חצות שייכת ליום הקולנוע שנבחר; רק 00:xx מוצג כ-24:xx
                         string displayTime;
-                        if (showTime.Date > date.Date) // אם התאריך של ההקרנה גדול מהתאריך שבחרנו (אחרי התאריך שבחרנו) אז מציגים את השעה בפורמט 24:00
-                            displayTime = $"{showTime.Hour + 24}:{showTime.Minute:D2}"; // 0+24=24 → "24:00"
+                        if (showTime.Date > date.Date && showTime.Hour == 0)
+                            displayTime = $"24:{showTime.Minute:D2}";
                         else
-                            displayTime = showTime.ToString("HH:mm"); // פורמט רגיל לשעות לפני חצות
+                            displayTime = showTime.ToString("HH:mm");
 
                         // הוספת ההקרנה לרשימת ההקרנות של הסרט
                         film.showtimes.Add(new Showtime
                         {
                             Id = screeningId, // מזהה ההקרנה - משמש בקישור לדף בחירת המושבים
                             start_time = showTime, // שעת ההתחלה - השעה האמיתית מהמסד נתונים - לצורך מיון
-                            display_time = displayTime, // השעה לתצוגה - "24:00" להקרנות אחרי חצות
+                            display_time = displayTime, // 24:xx רק לחצות; 01:xx–23:xx בפורמט רגיל
                             available_seats = availableSeats
                         });
                     }
@@ -231,7 +230,7 @@ namespace Shipping
         {
             public int Id { get; set; } // מזהה ייחודי של ההקרנה לצורך בחירת מושבים
             public DateTime start_time { get; set; } // השעה האמיתית (DateTime) לצורך מיון ושאילתות
-            public string display_time { get; set; } // השעה לתצוגה - "24:00" במקום "00:00" להקרנות אחרי חצות
+            public string display_time { get; set; } // 24:xx רק ל-00:xx; שאר שעות אחרי חצות ב-HH:mm
             public int available_seats { get; set; } // מקומות פנויים - 0 = אזלו הכרטיסים
         }
 
