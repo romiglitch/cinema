@@ -19,7 +19,7 @@
                 <div class="nav-left">
                     <%-- מצב התחברות נקבע לפי Session["category"] (admin/user) --%>
                     <% if (Session["category"] != null) { %>
-                        <asp:Button ID="Btn" runat="server" Text="התנתקות" OnClick="lnkLogout_Click" CssClass="logout-btn" />
+                        <asp:LinkButton ID="Btn" runat="server" Text="התנתקות" OnClick="lnkLogout_Click" CssClass="logout-btn" />
                     <% } else { %>
                         <div style="width: 100px;"></div>
                     <% } %>

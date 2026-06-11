@@ -35,6 +35,7 @@
                         </ItemTemplate>
                     </asp:Repeater>
                 </ul>
+               <asp:Panel ID="pnlPayment" runat="server" DefaultButton="BtnPay">
                <div class="payment-fields" style="margin-top:20px; border-top: 1px solid #ddd; padding-top:10px;">
     <h3>💳 פרטי תשלום:</h3>
 
@@ -93,6 +94,7 @@
 </div>
 
 <asp:Button ID="BtnPay" runat="server" Text="בצע תשלום עכשיו" CssClass="reserve-button" OnClick="BtnPay_Click" />
+               </asp:Panel>
             </div>
         </div>
     </div>

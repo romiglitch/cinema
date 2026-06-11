@@ -109,6 +109,7 @@
           <DevelopmentServerPort>51730</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:51730/</IISUrl>
+          <StartAction>DontOpenPage</StartAction>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

@@ -937,6 +937,7 @@ button /*a:hover, button:hover, .btn:hover, input[type=button]:hover, input[type
 .logout-btn {
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 
     .logout-btn:hover {
