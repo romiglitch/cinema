@@ -25,16 +25,18 @@ namespace Shipping
         }
 
         // מילוי תפריט הבחירה עם 7 הימים הקרובים (היום + 6 ימים הבאים)
+        // בניגוד ללוגיקה הישנה — לא תלוי בהקרנות במסד; כל 7 הימים מוצגים תמיד
         private void LoadNext7Days()
         {
             ddlDates.Items.Clear();
-            ddlDates.Items.Add(new ListItem("בחר תאריך", ""));
-            DateTime today = DateTime.Today;
-            for (int i = 0; i < 7; i++)
+            ddlDates.Items.Add(new ListItem("בחר תאריך", "")); // פריט ברירת מחדל עם ערך ריק
+            DateTime today = DateTime.Today; // תאריך היום לפי שעון השרת
+            for (int i = 0; i < 7; i++) // היום + עוד 6 ימים = 7 פריטים בתפריט
             {
                 DateTime date = today.AddDays(i);
                 ddlDates.Items.Add(new ListItem(
-                    date.ToString("dd/MM/yyyy"), date.ToString("yyyy-MM-dd")));
+                    date.ToString("dd/MM/yyyy"), // תצוגה למשתמש (למשל 11/06/2026)
+                    date.ToString("yyyy-MM-dd"))); // ערך שנשלח ב-PostBack (למשל 2026-06-11)
             }
         }
 
